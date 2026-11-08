@@ -1,4 +1,4 @@
-export type RepairCategory = "brakes" | "battery" | "tires" | "ac" | "engine" | "transmission" | "unknown";
+export type RepairCategory = "brakes" | "battery" | "tires" | "wipers" | "ac" | "engine" | "transmission" | "unknown";
 export type DecisionPath = "keep" | "trade" | "refinance";
 
 export interface RepairAdvisorInput {
@@ -53,6 +53,7 @@ export interface RepairDecision {
 }
 
 const repairTable: Record<Exclude<RepairCategory, "unknown">, { label: string; low: number; high: number; words: string[] }> = {
+  wipers: { label: "Wiper repair", low: 25, high: 240, words: ["wiper", "washer fluid", "wiper blade"] },
   brakes: { label: "Brake repair", low: 420, high: 980, words: ["brake", "brakes", "rotor", "pads", "squeal"] },
   battery: { label: "Battery or charging", low: 190, high: 620, words: ["battery", "alternator", "charge", "starting", "start"] },
   tires: { label: "Tires", low: 620, high: 1180, words: ["tire", "tires", "flat", "tread"] },
@@ -128,11 +129,21 @@ export function analyzeRepairDecision(input: RepairAdvisorInput): RepairDecision
   const horizon = Math.max(24, input.keepYears * 12);
   const age = Math.max(0, CURRENT_MODEL_YEAR - input.vehicle.year);
   const maintenanceReserve = Math.max(35, age * 11 + input.vehicle.mileage / 2500);
-  const keepMonthly = round(input.currentPayment + estimate.estimate / horizon + maintenanceReserve);
+  const repairMonthly = estimate.estimate / horizon;
+  const keepMonthly = round(input.currentPayment + repairMonthly + maintenanceReserve);
+
+  // Do not treat the full savings balance as spendable. The advisor preserves the
+  // larger of $1,000 or 25% of savings as a basic emergency cushion.
+  const protectedSavings = Math.min(input.savings, Math.max(1000, input.savings * 0.25));
+  const repairCashAvailable = Math.max(0, input.savings - protectedSavings);
+  const repairShortfall = Math.max(0, estimate.estimate - repairCashAvailable);
+  const repairAffordable = repairShortfall === 0 || repairShortfall <= input.monthlySurplus * 3;
 
   const refiApr = Math.max(3.9, aprByCredit[input.credit] - 0.5);
   const refiPayment = round(monthlyPayment(input.loanBalance, refiApr, 60));
-  const refinanceEligible = input.loanBalance > 2000 && refiPayment + 15 < input.currentPayment;
+  const refinanceSavings = input.currentPayment - refiPayment;
+  const refinanceEligible = !estimate.needsInspection && input.loanBalance > 2000 && input.currentApr > refiApr + 0.75 && refinanceSavings >= 25;
+  const repairAndRefiMonthly = round(refiPayment + repairMonthly + maintenanceReserve);
 
   const maxComfortable = Math.max(250, input.monthlySurplus * 0.45 + input.currentPayment);
   const equity = values.tradeIn - input.loanBalance;
@@ -150,14 +161,36 @@ export function analyzeRepairDecision(input: RepairAdvisorInput): RepairDecision
   };
   const tradeEligible = selected.monthly <= maxComfortable && equity > -Math.max(2500, input.savings * 0.5);
 
+  const repairRatio = estimate.estimate / Math.max(1, values.privateSale);
+  const majorRepair = estimate.category === "engine" || estimate.category === "transmission";
+  const ageRisk = Math.min(18, age * 1.5);
+  const mileageRisk = input.vehicle.mileage >= 150_000 ? 18 : input.vehicle.mileage >= 120_000 ? 12 : input.vehicle.mileage >= 90_000 ? 6 : 0;
+  const repairRisk = Math.min(50, repairRatio * 100);
+  const problemRisk = majorRepair ? 14 : estimate.category === "unknown" ? 10 : 0;
+  const affordabilityRisk = repairAffordable ? 0 : 12;
+  const tradeConstraint = tradeEligible ? 0 : 18;
+  const score = Math.max(0, Math.min(100, round(repairRisk + ageRisk + mileageRisk + problemRisk + affordabilityRisk - tradeConstraint)));
+
+  const keepEligible = !estimate.needsInspection && repairAffordable;
+  const tradeIsEconomicallyStrong = tradeEligible && (repairRatio >= 0.4 || score >= 65 || (majorRepair && age >= 8 && input.vehicle.mileage >= 100_000));
+  let recommendation: DecisionPath = "keep";
+  if (estimate.needsInspection) recommendation = "keep";
+  else if (tradeIsEconomicallyStrong) recommendation = "trade";
+  else if (refinanceEligible && keepEligible && repairAndRefiMonthly + 25 < keepMonthly) recommendation = "refinance";
+  else if (!keepEligible && tradeEligible) recommendation = "trade";
+
   const options: DecisionOption[] = [
     {
       path: "keep",
-      title: "Repair & keep",
-      monthly: keepMonthly,
-      upfront: estimate.estimate,
-      eligible: !estimate.needsInspection,
-      summary: estimate.needsInspection ? "Get an inspection before deciding." : `Includes the repair and a maintenance reserve over ${input.keepYears} years.`,
+      title: estimate.needsInspection ? "Inspect before deciding" : "Repair & keep",
+      monthly: estimate.needsInspection ? input.currentPayment : keepMonthly,
+      upfront: estimate.needsInspection ? 0 : estimate.estimate,
+      eligible: keepEligible,
+      summary: estimate.needsInspection
+        ? "Get a written diagnosis before choosing a repair or replacement."
+        : repairAffordable
+          ? `Repair is ${round(repairRatio * 100)}% of the car’s value and fits the available cash or three-month surplus.`
+          : `The repair exceeds available savings after preserving a ${round(protectedSavings).toLocaleString()} emergency cushion.`,
     },
     {
       path: "trade",
@@ -169,21 +202,21 @@ export function analyzeRepairDecision(input: RepairAdvisorInput): RepairDecision
     },
     {
       path: "refinance",
-      title: "Refinance",
-      monthly: refiPayment,
-      upfront: 350,
-      eligible: refinanceEligible,
-      summary: refinanceEligible ? `Estimated at ${refiApr.toFixed(1)}% APR over 60 months.` : "The estimated refinance does not meaningfully lower your payment.",
+      title: "Repair + refinance",
+      monthly: repairAndRefiMonthly,
+      upfront: estimate.estimate + 350,
+      eligible: refinanceEligible && !estimate.needsInspection,
+      summary: refinanceEligible
+        ? `Repairs the problem and estimates ${refiApr.toFixed(1)}% APR over 60 months, about $${round(refinanceSavings).toLocaleString()} less on the loan payment.`
+        : "Refinancing does not materially improve the current loan or the problem still needs diagnosis.",
     },
   ];
-  const eligible = options.filter((option) => option.eligible);
-  const recommended = eligible.sort((a, b) => a.monthly - b.monthly)[0] ?? options[0];
-  const repairRatio = estimate.estimate / Math.max(1, values.privateSale);
-  const score = Math.max(0, Math.min(100, round(repairRatio * 90 + age * 4 + (input.vehicle.mileage > 120000 ? 18 : 0) - (tradeEligible ? 0 : 18))));
+  const recommended = options.find((option) => option.path === recommendation)!;
   const reasons = [
-    estimate.needsInspection ? "The problem needs a shop diagnosis." : `The repair is about ${round(repairRatio * 100)}% of the car’s value.`,
-    values.tradeIn > input.loanBalance ? `You have about $${round(values.tradeIn - input.loanBalance).toLocaleString()} in estimated trade equity.` : "The loan is above the estimated trade value.",
-    `${recommended.title} has the lowest eligible monthly estimate.`,
+    estimate.needsInspection ? "The problem needs a written diagnosis before costs can be compared." : `${estimate.label} is estimated at $${estimate.estimate.toLocaleString()}, about ${round(repairRatio * 100)}% of the car’s value.`,
+    estimate.needsInspection ? "Repair affordability will be calculated after an inspection provides a real quote." : repairAffordable ? `$${round(repairCashAvailable).toLocaleString()} is available for repairs after preserving an emergency cushion.` : `The repair leaves a $${round(repairShortfall).toLocaleString()} funding gap beyond the available cash reserve.`,
+    equity >= 0 ? `Estimated trade equity is $${round(equity).toLocaleString()}.` : `The loan is about $${round(Math.abs(equity)).toLocaleString()} above the estimated trade value.`,
+    recommendation === "refinance" ? `Refinancing lowers the estimated loan payment by about $${round(refinanceSavings).toLocaleString()} while the repair is completed.` : recommendation === "trade" ? "Replacement is recommended only because repair burden and vehicle risk outweigh the affordable keep path." : estimate.needsInspection ? "Inspection is the next step; replacing the car is not recommended from an unknown symptom alone." : "Repairing is favored because it is affordable and the replacement case is not strong enough.",
   ];
   return { estimate, privateSaleValue: values.privateSale, tradeInValue: values.tradeIn, recommendation: recommended.path, score, options, replacements, reasons };
 }

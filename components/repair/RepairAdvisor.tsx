@@ -1,12 +1,13 @@
 "use client";
 
 import clsx from "clsx";
-import { Building2, Check, ChevronLeft, ChevronRight, FileUp, Landmark, MapPin, PiggyBank, RotateCcw, ShieldCheck, Wrench } from "lucide-react";
+import { AlertTriangle, Building2, Check, ChevronLeft, ChevronRight, ExternalLink, FileUp, Landmark, LoaderCircle, MapPin, PiggyBank, RotateCcw, Search, ShieldCheck, Wrench } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Panel } from "@/components/ui/Panel";
 import { analyzeRepairDecision, classifyRepair, type DecisionPath, type RepairAdvisorInput } from "@/lib/engines/repair-advisor";
+import type { RepairGuidance, RepairResearchItem } from "@/lib/engines/repair-research";
 import type { DashboardData } from "@/lib/types";
 
 type Step = 0 | 1 | 2 | 3;
@@ -80,9 +81,12 @@ function StepHeader({ eyebrow, title, hint }: { eyebrow: string; title: string; 
   );
 }
 
-function VehicleProblem({ form, update }: { form: FormState; update: (patch: Partial<FormState>) => void }) {
+type ResearchState = { guidance: RepairGuidance; links: RepairResearchItem[] } | null;
+
+function VehicleProblem({ form, update, research, researching, researchError, onResearch }: { form: FormState; update: (patch: Partial<FormState>) => void; research: ResearchState; researching: boolean; researchError: string; onResearch: () => void }) {
   return (
-    <div className="space-y-6">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="space-y-6">
       <StepHeader eyebrow="Step 1 of 4" title="What’s going on?" hint="Start with the symptom. You can adjust the vehicle details below." />
       <label className={label}>
         Describe the problem
@@ -113,6 +117,25 @@ function VehicleProblem({ form, update }: { form: FormState; update: (patch: Par
         <div className="flex items-center gap-2 font-medium text-ink"><ShieldCheck size={16} /> Your details stay in this browser</div>
         <p className="mt-1.5">We use them only to build this estimate.</p>
       </div>
+      <Button variant="primary" disabled={form.issue.trim().length < 5 || researching} onClick={onResearch}>
+        {researching ? <><LoaderCircle size={15} className="animate-spin" />Researching…</> : <><Search size={15} />Research this problem</>}
+      </Button>
+      {researchError && <p className="text-sm text-accent-ink">{researchError}</p>}
+      </div>
+      <aside className="rounded-lg border border-line bg-[var(--glass-hi)] p-4" aria-live="polite">
+        <h3 className="text-sm font-semibold text-ink">Repair research</h3>
+        {!research && !researching && <p className="mt-2 text-sm leading-relaxed text-ink-3">Describe the symptom, then research it to see reputable guides, related Reddit experiences, and a severity-based next step.</p>}
+        {researching && <div className="mt-4 space-y-3"><div className="skeleton h-16" /><div className="skeleton h-12" /><div className="skeleton h-12" /></div>}
+        {research && <div className="mt-3 space-y-4">
+          <div className={clsx("rounded-lg border p-3", research.guidance.severity === "high" ? "border-accent bg-accent-soft" : research.guidance.severity === "medium" ? "border-warn bg-warn-soft" : "border-good bg-good-soft")}>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide"><AlertTriangle size={14} />{research.guidance.severity} severity</div>
+            <p className="mt-2 text-sm font-medium text-ink">{research.guidance.verdict}</p>
+            <p className="mt-1 text-xs leading-relaxed text-ink-2">{research.guidance.simpleSolution}</p>
+          </div>
+          {research.links.length ? <ul className="space-y-2">{research.links.map((item) => <li key={item.url}><a href={item.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-line p-3 hover:border-line-2"><span className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-wide text-ink-3">{item.kind === "community" ? "Community" : "Trusted source"}<ExternalLink size={12} /></span><span className="mt-1 block text-sm font-medium leading-snug text-ink">{item.title}</span><span className="mt-1 block text-xs text-ink-3">{item.source}</span></a></li>)}</ul> : <p className="text-xs text-ink-3">No live links were available. The severity guidance still applies; try again before relying on community advice.</p>}
+          <p className="text-[11px] leading-relaxed text-ink-3">Reddit posts are personal experiences, not verified repair advice. Confirm safety and diagnosis with manufacturer guidance or a qualified technician.</p>
+        </div>}
+      </aside>
     </div>
   );
 }
@@ -245,6 +268,7 @@ function PlanStep({ form }: { form: FormState }) {
             <article key={option.path} className={clsx("rounded-lg border p-4", option.path === result.recommendation ? "border-accent bg-accent-soft" : "border-line", !option.eligible && "opacity-60")}>
               <div className="flex items-center justify-between gap-2"><h4 className="text-sm font-semibold text-ink">{option.title}</h4>{option.path === result.recommendation && <Chip tone="accent">Best fit</Chip>}</div>
               <div className="num mt-4 text-3xl font-semibold text-ink">{money(option.monthly)}<span className="text-xs text-ink-3">/mo</span></div>
+              <div className="mt-1 text-xs text-ink-3">{money(option.upfront)} estimated upfront</div>
               <p className="mt-2 text-xs leading-relaxed text-ink-2">{option.summary}</p>
             </article>
           ))}
@@ -269,10 +293,23 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
   const [step, setStep] = useState<Step>(0);
   const [form, setForm] = useState<FormState>(() => initialState(data));
   const [connected, setConnected] = useState(false);
+  const [research, setResearch] = useState<ResearchState>(null);
+  const [researching, setResearching] = useState(false);
+  const [researchError, setResearchError] = useState("");
 
   const update = (patch: Partial<FormState>) => setForm((current) => ({ ...current, ...patch }));
   const canContinue = step !== 0 || form.issue.trim().length >= 5;
-  const reset = () => { setForm(initialState(data)); setStep(0); setConnected(false); };
+  const reset = () => { setForm(initialState(data)); setStep(0); setConnected(false); setResearch(null); setResearchError(""); };
+  const runResearch = async () => {
+    setResearching(true); setResearchError(""); setResearch(null);
+    try {
+      const response = await fetch("/api/repair-research", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ issue: form.issue, vehicle: form.vehicle }) });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? "Research is unavailable right now.");
+      setResearch(body);
+    } catch (error) { setResearchError(error instanceof Error ? error.message : "Research is unavailable right now."); }
+    finally { setResearching(false); }
+  };
 
   return (
     <section aria-labelledby="repair-advisor-title" className="w-full">
@@ -283,14 +320,14 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
       <div className="glass max-w-5xl rounded-xl p-5 sm:p-7">
         <Progress step={step} />
         <div className="mt-8 min-h-[430px]">
-          {step === 0 && <VehicleProblem form={form} update={update} />}
+          {step === 0 && <VehicleProblem form={form} update={(patch) => { update(patch); if (patch.issue !== undefined || patch.vehicle !== undefined) setResearch(null); }} research={research} researching={researching} researchError={researchError} onResearch={runResearch} />}
           {step === 1 && <EstimateStep form={form} update={update} />}
           {step === 2 && <FinanceStep form={form} update={update} connected={connected} setConnected={setConnected} />}
           {step === 3 && <PlanStep form={form} />}
         </div>
         <div className="mt-8 flex items-center justify-between border-t border-line pt-5">
           <Button variant="ghost" disabled={step === 0} onClick={() => setStep((step - 1) as Step)}><ChevronLeft size={16} />Back</Button>
-          {step < 3 ? <Button variant="primary" disabled={!canContinue} onClick={() => setStep((step + 1) as Step)}>{step === 2 ? <>See my plan<ChevronRight size={16} /></> : <>Continue<ChevronRight size={16} /></>}</Button> : <Button variant="solid" onClick={() => setStep(0)}>Review details</Button>}
+          {step < 3 ? <div className="flex flex-wrap justify-end gap-2">{step === 0 && research?.guidance.allowTutorials && research.links.length > 0 && <Button variant="outline" onClick={() => window.open(research.links[0].url, "_blank", "noopener,noreferrer")}>View fix tutorial<ExternalLink size={15} /></Button>}<Button variant="primary" disabled={!canContinue || researching} onClick={() => setStep((step + 1) as Step)}>{step === 0 ? <>{research?.guidance.severity === "high" ? "Go to estimates" : "Continue to estimate"}<ChevronRight size={16} /></> : step === 2 ? <>See my plan<ChevronRight size={16} /></> : <>Continue<ChevronRight size={16} /></>}</Button></div> : <Button variant="solid" onClick={() => setStep(0)}>Review details</Button>}
         </div>
       </div>
     </section>
