@@ -28,6 +28,11 @@ const shopsByCity: Record<string, { name: string; detail: string }[]> = {
     { name: "Bayou Auto Care", detail: "Independent shop, 4.2 mi" },
     { name: "Inner Loop Garage", detail: "ASE-certified, 5.9 mi" },
   ],
+  Dallas: [
+    { name: "North Dallas Toyota Service", detail: "Toyota service, 6.8 mi" },
+    { name: "Metroplex Auto Care", detail: "Independent shop, 4.5 mi" },
+    { name: "Dallas Car Clinic", detail: "ASE-certified, 5.3 mi" },
+  ],
 };
 
 function initialState(data?: DashboardData): FormState {
@@ -157,7 +162,7 @@ function EstimateStep({ form, update }: { form: FormState; update: (patch: Parti
         <div className="flex items-end justify-between gap-3">
           <div><h3 className="text-sm font-semibold text-ink">Nearby places to start</h3><p className="mt-1 text-xs text-ink-3">Demo listings. Confirm pricing and availability with the shop.</p></div>
           <select value={form.city} onChange={(event) => update({ city: event.target.value })} className="h-9 rounded-lg border border-line-2 bg-[var(--glass-hi)] px-3 text-sm text-ink">
-            <option>Austin</option><option>Houston</option>
+            <option>Austin</option><option>Houston</option><option>Dallas</option>
           </select>
         </div>
         <ul className="mt-3 grid gap-2 sm:grid-cols-3">
