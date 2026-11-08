@@ -1,6 +1,6 @@
 import { runAgent } from "../agent/loop";
 import type { AgentStreamEvent, PersonaId } from "../types";
-import { getLeaseConversation, replyToLease, resumeProactiveLease, stopProactiveLease } from "./lease-conversation";
+import { getLeaseConversation, rehydrateLease, replyToLease, resumeProactiveLease, stopProactiveLease } from "./lease-conversation";
 import { assertPhotonReady, sendPhotonText } from "./photon";
 
 type Turn = { role: "user" | "assistant"; text: string };
@@ -30,7 +30,9 @@ async function sendAnswer(personaId: PersonaId, answer: string, eventId: string,
 async function processMessage(personaId: PersonaId, text: string, eventId: string, requireLive: boolean) {
   if (requireLive) assertPhotonReady(personaId);
   const raw = text.trim();
-  const flow = getLeaseConversation(personaId);
+  // An explicit lease reply rebuilds the conversation if this server instance never saw the warning (serverless).
+  const leaseReply = /^(OPTIONS|MENU|[1-4][.)]?|SWITCH|BUYOUT|CONFIRM SWITCH|CONFIRM BUYOUT)$/i.test(raw);
+  const flow = leaseReply ? rehydrateLease(personaId, raw.toUpperCase()) : getLeaseConversation(personaId);
   const command = /^SHOW (ME )?(MY )?OPTIONS[.!]?$/i.test(raw) ? "OPTIONS"
     : flow.stage === "offer" && /^(I (?:WANT|WOULD LIKE)(?: TO)? (?:SWITCH|CHANGE CARS)|LET'S SWITCH)[.!]?$/i.test(raw) ? "SWITCH"
     : flow.stage === "offer" && /^(I (?:WANT|WOULD LIKE)(?: TO)? (?:BUY OUT|BUYOUT)|LET'S BUY OUT)[.!]?$/i.test(raw) ? "BUYOUT"

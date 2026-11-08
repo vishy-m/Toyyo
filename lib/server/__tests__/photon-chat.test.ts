@@ -46,6 +46,17 @@ describe("Photon chat interface", () => {
     expect(getLeaseConversation("maya").stage).toBe("dealer-review");
   });
 
+  it("answers a numbered reply on a server instance that never sent the warning (serverless)", async () => {
+    resetLease("maya");
+    await handlePhotonMessage("maya", "3", "cold-1");
+    expect(getLeaseConversation("maya")).toMatchObject({ stage: "offer", optionId: "lease-end:upgrade" });
+    expect(getPhotonChatHistory("maya").at(-1)?.text).toContain("Plan 3, switch");
+    resetLease("maya");
+    await handlePhotonMessage("maya", "CONFIRM SWITCH", "cold-2");
+    expect(getLeaseConversation("maya").stage).toBe("dealer-review");
+    resetLease("maya");
+  });
+
   it("routes only an explicit lease command through the confirmation state", async () => {
     resetLease("maya");
     await evaluateLease("maya");

@@ -122,6 +122,26 @@ function leaseSteps(choice: 1 | 2 | 3 | 4, plan: ReturnType<typeof leasePlan>) {
   ].join("\n");
 }
 
+/**
+ * Serverless (Vercel): the warning may have been texted by a different instance, so this one has no conversation in
+ * memory. For an explicit lease reply, rebuild the "offer" stage (sending nothing) when the lease is still on pace to go
+ * over, so "2" or "CONFIRM BUYOUT" works on any instance. A stopped conversation stays stopped.
+ */
+export function rehydrateLease(personaId: PersonaId, command: string) {
+  if (conversations.has(personaId) || !getState(personaId).consent.driving) return getLeaseConversation(personaId);
+  try {
+    const plan = leasePlan(personaId);
+    if (plan.excess >= 1000) {
+      const confirm = /^CONFIRM (SWITCH|BUYOUT)$/.exec(command)?.[1];
+      conversations.set(personaId, {
+        personaId, stage: "offer", projectedExcessMiles: plan.excess, projectedOverageCharge: plan.charge, messages: [],
+        optionId: confirm === "SWITCH" ? "lease-end:upgrade" : confirm === "BUYOUT" ? "lease-end:buyout" : undefined,
+      });
+    }
+  } catch { /* not a lease customer: nothing to rebuild */ }
+  return getLeaseConversation(personaId);
+}
+
 /** Clears this customer's conversation so the proactive text can be sent again (demo resets). */
 export function resetLease(personaId: PersonaId) {
   conversations.delete(personaId);
