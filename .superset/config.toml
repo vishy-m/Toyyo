@@ -1,0 +1,14 @@
+[install]
+run = ["npm ci"]
+
+[setup]
+run = ["./.superset/setup.sh"]
+
+[terminals.dev]
+run = "npm run dev"
+default = true
+
+[ports.web]
+default = 3000
+label = "Web"
+preview = true
