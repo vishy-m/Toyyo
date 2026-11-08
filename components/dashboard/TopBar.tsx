@@ -229,9 +229,9 @@ export function TopBar({ data }: { data?: DashboardData }) {
         Skip to dashboard
       </a>
       <div className="mx-auto flex h-16 max-w-[1680px] items-center gap-2 px-3 sm:gap-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 rounded-lg pr-1 text-ink" aria-label="Next Move Copilot home">
+        <Link href="/" className="flex shrink-0 items-center gap-2 rounded-lg pr-1 text-ink" aria-label="Toyyo home">
           <ShiftMark className="size-7" />
-          <span className="font-display hidden text-[17px] md:inline">Next Move</span>
+          <span className="font-display hidden text-[17px] md:inline">Toyyo</span>
         </Link>
         <span className="hidden h-6 w-px bg-line-2 md:block" aria-hidden />
         <PersonaSwitcher current={personaId} />

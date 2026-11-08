@@ -1,4 +1,4 @@
-# Synthetic Next Move scenarios
+# Synthetic Toyyo scenarios
 
 All customer records, prices, APRs, insurance factors and business-value estimates
 are fabricated demo inputs. The scenario clock is fixed at **2026-10-27**.
