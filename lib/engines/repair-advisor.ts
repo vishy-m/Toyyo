@@ -13,6 +13,8 @@ export interface RepairAdvisorInput {
   downPayment: number;
   credit: "excellent" | "good" | "fair" | "building";
   keepYears: number;
+  researchSeverity?: "low" | "medium" | "high";
+  researchVerdict?: string;
 }
 
 export interface RepairEstimate {
@@ -166,7 +168,8 @@ export function analyzeRepairDecision(input: RepairAdvisorInput): RepairDecision
   const ageRisk = Math.min(18, age * 1.5);
   const mileageRisk = input.vehicle.mileage >= 150_000 ? 18 : input.vehicle.mileage >= 120_000 ? 12 : input.vehicle.mileage >= 90_000 ? 6 : 0;
   const repairRisk = Math.min(50, repairRatio * 100);
-  const problemRisk = majorRepair ? 14 : estimate.category === "unknown" ? 10 : 0;
+  const responseRisk = input.researchSeverity === "high" ? 8 : input.researchSeverity === "medium" ? 3 : 0;
+  const problemRisk = (majorRepair ? 14 : estimate.category === "unknown" ? 10 : 0) + responseRisk;
   const affordabilityRisk = repairAffordable ? 0 : 12;
   const tradeConstraint = tradeEligible ? 0 : 18;
   const score = Math.max(0, Math.min(100, round(repairRisk + ageRisk + mileageRisk + problemRisk + affordabilityRisk - tradeConstraint)));
@@ -213,6 +216,7 @@ export function analyzeRepairDecision(input: RepairAdvisorInput): RepairDecision
   ];
   const recommended = options.find((option) => option.path === recommendation)!;
   const reasons = [
+    input.researchVerdict ? `Symptom review: ${input.researchVerdict}` : "No symptom review was completed; the plan uses the written description only.",
     estimate.needsInspection ? "The problem needs a written diagnosis before costs can be compared." : `${estimate.label} is estimated at $${estimate.estimate.toLocaleString()}, about ${round(repairRatio * 100)}% of the car’s value.`,
     estimate.needsInspection ? "Repair affordability will be calculated after an inspection provides a real quote." : repairAffordable ? `$${round(repairCashAvailable).toLocaleString()} is available for repairs after preserving an emergency cushion.` : `The repair leaves a $${round(repairShortfall).toLocaleString()} funding gap beyond the available cash reserve.`,
     equity >= 0 ? `Estimated trade equity is $${round(equity).toLocaleString()}.` : `The loan is about $${round(Math.abs(equity)).toLocaleString()} above the estimated trade value.`,

@@ -85,4 +85,16 @@ describe("repair advisor", () => {
     expect(result.estimate.needsInspection).toBe(true);
     expect(result.recommendation).toBe("keep");
   });
+
+  it("includes the hard-coded symptom response in the plan and its risk score", () => {
+    const base = {
+      vehicle: { year: 2016, model: "Camry", mileage: 128_000 }, issue: "Engine is overheating",
+      manualQuote: 1900, loanBalance: 0, currentPayment: 0, currentApr: 0, savings: 7500,
+      monthlySurplus: 900, downPayment: 3000, credit: "good" as const, keepYears: 3,
+    };
+    const withoutResearch = analyzeRepairDecision(base);
+    const withResearch = analyzeRepairDecision({ ...base, researchSeverity: "high", researchVerdict: "Stop the engine before heat causes major damage" });
+    expect(withResearch.score).toBeGreaterThan(withoutResearch.score);
+    expect(withResearch.reasons[0]).toContain("Stop the engine");
+  });
 });

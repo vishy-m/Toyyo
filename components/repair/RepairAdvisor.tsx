@@ -50,6 +50,8 @@ function initialState(data?: DashboardData): FormState {
     downPayment: 3_000,
     credit: data?.persona.creditTier ?? "good",
     keepYears: 3,
+    researchSeverity: undefined,
+    researchVerdict: undefined,
     city: data?.persona.city ?? "Austin",
     shopName: "",
     quoteFile: "",
@@ -307,6 +309,7 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Research is unavailable right now.");
       setResearch(body);
+      update({ researchSeverity: body.guidance.severity, researchVerdict: body.guidance.verdict });
     } catch (error) { setResearchError(error instanceof Error ? error.message : "Research is unavailable right now."); }
     finally { setResearching(false); }
   };
@@ -320,7 +323,7 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
       <div className="glass max-w-5xl rounded-xl p-5 sm:p-7">
         <Progress step={step} />
         <div className="mt-8 min-h-[430px]">
-          {step === 0 && <VehicleProblem form={form} update={(patch) => { update(patch); if (patch.issue !== undefined || patch.vehicle !== undefined) setResearch(null); }} research={research} researching={researching} researchError={researchError} onResearch={runResearch} />}
+          {step === 0 && <VehicleProblem form={form} update={(patch) => { update(patch.issue !== undefined || patch.vehicle !== undefined ? { ...patch, researchSeverity: undefined, researchVerdict: undefined } : patch); if (patch.issue !== undefined || patch.vehicle !== undefined) setResearch(null); }} research={research} researching={researching} researchError={researchError} onResearch={runResearch} />}
           {step === 1 && <EstimateStep form={form} update={update} />}
           {step === 2 && <FinanceStep form={form} update={update} connected={connected} setConnected={setConnected} />}
           {step === 3 && <PlanStep form={form} />}
