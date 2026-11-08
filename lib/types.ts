@@ -1,4 +1,4 @@
-// Shared contract for Next Move Copilot.
+// Shared contract for Toyyo.
 // Every task (data/engines, agent API, dashboard UI, 3D) builds against these types.
 // Changing a type here is a cross-team change: note it in .plans/tasks/STATUS.md.
 
