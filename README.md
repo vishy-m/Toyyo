@@ -74,8 +74,9 @@ Create an untracked `.env.local` in the repository root. Restart the development
 A minimal optional setup is:
 
 ```dotenv
-# Dashboard assistant: gemini (default) or anthropic
-AGENT_PROVIDER=gemini
+# Copilot: grok, gemini or anthropic. Empty picks grok when XAI_API_KEY is set, else gemini.
+AGENT_PROVIDER=
+XAI_API_KEY=
 GEMINI_API_KEY=
 ANTHROPIC_API_KEY=
 
@@ -87,7 +88,9 @@ Leave credentials empty to use the available deterministic fallbacks.
 
 | Variable | Purpose |
 |---|---|
-| `AGENT_PROVIDER` | Dashboard assistant provider: `gemini` or `anthropic`; defaults to `gemini`. |
+| `AGENT_PROVIDER` | Copilot provider: `grok`, `gemini` or `anthropic`. Empty selects `grok` when `XAI_API_KEY` is set, otherwise `gemini`. |
+| `XAI_API_KEY` | Server-side xAI credential. Grok runs the copilot with tool calls. |
+| `XAI_MODEL` | Grok model id; defaults to `grok-4.3`. |
 | `GEMINI_API_KEY` | Server-side Gemini credential. `GEMINI_API` is a legacy alternative. |
 | `ANTHROPIC_API_KEY` | Server-side Anthropic credential; also used by repair planning and action drafting. |
 | `AGENT_MODEL` | Override the dashboard assistant model. |

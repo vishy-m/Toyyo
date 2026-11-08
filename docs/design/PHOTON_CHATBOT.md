@@ -52,8 +52,8 @@ Server-only `.env` values:
 | `PHOTON_PERSONA_SPACES_JSON` | Required map from demo persona to a Spectrum Space id, e.g. `{"maya":"any;-;+15551234567"}` |
 | `CRON_SECRET` | Bearer secret for the optional mileage scan endpoint |
 | `LEASE_DEMO_SECRET` | Bearer secret for reading and mutating the simulated lease flow via `/api/lease-conversation` |
-| `GEMINI_API_KEY` | Live AI replies with the Gemma 4 model via Google's Gemini API |
-| `XAI_API_KEY`, `XAI_MODEL` | Optional Grok text-only fallback when Gemma fails; no tools or lease actions are available to this fallback |
+| `XAI_API_KEY`, `XAI_MODEL` | Live AI replies with Grok (default `grok-4.3`), with tool calls into the deterministic engines. Used whenever the key is set and `AGENT_PROVIDER` is empty or `grok` |
+| `GEMINI_API_KEY` | Live AI replies with the Gemma 4 model via Google's Gemini API when no xAI key is set or `AGENT_PROVIDER=gemini`; Grok is then a text-only fallback |
 | `AGENT_PROVIDER`, `ANTHROPIC_API_KEY` | Optional Anthropic alternative; without a model key, calculated fallback answers |
 
 No key or phone number belongs in client code or a `NEXT_PUBLIC_` variable. Without a Space map, the webhook ignores inbound messages. For a single demo persona, `PHOTON_SPACE_ID` and `PHOTON_PERSONA_ID` can replace the JSON map.
