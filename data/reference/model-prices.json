@@ -1,0 +1,86 @@
+{
+  "camry": {
+    "name": "Camry SE",
+    "year": 2023,
+    "msrp": 28000,
+    "leasePayment": 349,
+    "leaseTermMonths": 36,
+    "financePayment": 540.02,
+    "financeApr": 5.9,
+    "financeTermMonths": 60,
+    "modelAsset": "/models/camry.glb",
+    "bodyStyle": "sedan"
+  },
+  "rav4": {
+    "name": "RAV4 Hybrid XLE",
+    "year": 2022,
+    "msrp": 34000,
+    "leasePayment": 419,
+    "leaseTermMonths": 36,
+    "financePayment": 655.74,
+    "financeApr": 5.9,
+    "financeTermMonths": 60,
+    "modelAsset": "/models/rav4.glb",
+    "bodyStyle": "suv"
+  },
+  "corolla": {
+    "name": "Corolla LE",
+    "year": 2024,
+    "msrp": 23500,
+    "leasePayment": 279,
+    "leaseTermMonths": 36,
+    "financePayment": 453.23,
+    "financeApr": 5.9,
+    "financeTermMonths": 60,
+    "modelAsset": "/models/corolla.glb",
+    "bodyStyle": "sedan"
+  },
+  "tacoma": {
+    "name": "Tacoma TRD Off-Road",
+    "year": 2021,
+    "msrp": 39000,
+    "leasePayment": 479,
+    "leaseTermMonths": 36,
+    "financePayment": 752.17,
+    "financeApr": 5.9,
+    "financeTermMonths": 60,
+    "modelAsset": "/models/tacoma.glb",
+    "bodyStyle": "truck"
+  },
+  "4runner": {
+    "name": "4Runner TRD Off-Road",
+    "year": 2025,
+    "msrp": 49950,
+    "leasePayment": 569,
+    "leaseTermMonths": 36,
+    "financePayment": 963.35,
+    "financeApr": 5.9,
+    "financeTermMonths": 60,
+    "modelAsset": "/models/4runner.glb",
+    "bodyStyle": "suv"
+  },
+  "highlander": {
+    "name": "Highlander Hybrid",
+    "year": 2025,
+    "msrp": 46620,
+    "leasePayment": 549,
+    "leaseTermMonths": 36,
+    "financePayment": 899.13,
+    "financeApr": 5.9,
+    "financeTermMonths": 60,
+    "modelAsset": "/models/highlander.glb",
+    "bodyStyle": "suv"
+  },
+  "camry-2026": {
+    "name": "Camry",
+    "year": 2026,
+    "msrp": 29895,
+    "leasePayment": 359,
+    "leaseTermMonths": 36,
+    "financePayment": 576.57,
+    "financeApr": 5.9,
+    "financeTermMonths": 60,
+    "modelAsset": "/models/camry.glb",
+    "bodyStyle": "sedan"
+  }
+}

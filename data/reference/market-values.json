@@ -1,0 +1,156 @@
+[
+  {
+    "model": "Camry SE",
+    "year": 2023,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 22480
+      },
+      {
+        "maxMiles": 60000,
+        "value": 20980
+      },
+      {
+        "maxMiles": 100000,
+        "value": 17480
+      },
+      {
+        "maxMiles": 999999,
+        "value": 14480
+      }
+    ]
+  },
+  {
+    "model": "RAV4 Hybrid XLE",
+    "year": 2022,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 30000
+      },
+      {
+        "maxMiles": 60000,
+        "value": 28500
+      },
+      {
+        "maxMiles": 100000,
+        "value": 25000
+      },
+      {
+        "maxMiles": 999999,
+        "value": 22000
+      }
+    ]
+  },
+  {
+    "model": "Corolla LE",
+    "year": 2024,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 20700
+      },
+      {
+        "maxMiles": 60000,
+        "value": 19200
+      },
+      {
+        "maxMiles": 100000,
+        "value": 15700
+      },
+      {
+        "maxMiles": 999999,
+        "value": 12700
+      }
+    ]
+  },
+  {
+    "model": "Tacoma TRD Off-Road",
+    "year": 2021,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 31700
+      },
+      {
+        "maxMiles": 60000,
+        "value": 30200
+      },
+      {
+        "maxMiles": 100000,
+        "value": 26700
+      },
+      {
+        "maxMiles": 999999,
+        "value": 23700
+      }
+    ]
+  },
+  {
+    "model": "4Runner TRD Off-Road",
+    "year": 2025,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 45500
+      },
+      {
+        "maxMiles": 60000,
+        "value": 44000
+      },
+      {
+        "maxMiles": 100000,
+        "value": 40500
+      },
+      {
+        "maxMiles": 999999,
+        "value": 37500
+      }
+    ]
+  },
+  {
+    "model": "Highlander Hybrid",
+    "year": 2025,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 42500
+      },
+      {
+        "maxMiles": 60000,
+        "value": 41000
+      },
+      {
+        "maxMiles": 100000,
+        "value": 37500
+      },
+      {
+        "maxMiles": 999999,
+        "value": 34500
+      }
+    ]
+  },
+  {
+    "model": "Camry",
+    "year": 2026,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 29000
+      },
+      {
+        "maxMiles": 60000,
+        "value": 27500
+      },
+      {
+        "maxMiles": 100000,
+        "value": 24000
+      },
+      {
+        "maxMiles": 999999,
+        "value": 21000
+      }
+    ]
+  }
+]

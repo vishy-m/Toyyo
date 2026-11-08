@@ -1,0 +1,434 @@
+@import "tailwindcss";
+
+/* Next Move design tokens, named after Toyota paint.
+   Light: Lunar Rock ground, Wind Chill Pearl sheet, black type, Cavalry Blue for data.
+   Dark: Midnight Black Metallic ground with a Magnetic Gray sheet.
+   Toyota red marks only the recommended move and its action. */
+
+:root {
+  --bg: #d9dad2; /* Lunar Rock */
+  --bg-2: #d9dad2;
+  --stage-light: rgba(0, 0, 0, 0.03);
+  --glass: #f7f7f3; /* Wind Chill Pearl: the sheet */
+  --glass-strong: #f7f7f3;
+  --glass-hi: rgba(0, 0, 0, 0.045);
+  --line: rgba(0, 0, 0, 0.12);
+  --line-2: rgba(0, 0, 0, 0.22);
+  --ink: #000000;
+  --ink-2: #3f4447;
+  --ink-3: #565b5f; /* Celestial Silver, deepened for text */
+  --data: #2d4a63; /* Cavalry Blue */
+  --data-soft: rgba(45, 74, 99, 0.12);
+  --accent: #eb0a1e;
+  --accent-ink: #c00818;
+  --accent-soft: rgba(235, 10, 30, 0.08);
+  --good: #2e6b4c;
+  --good-soft: rgba(46, 107, 76, 0.1);
+  --warn: #8f5300;
+  --warn-soft: rgba(143, 83, 0, 0.1);
+  --shadow: none;
+  --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.08), 0 18px 44px -14px rgba(0, 0, 0, 0.28);
+  --focus: #2d4a63;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #16181a; /* Midnight Black Metallic */
+  --bg-2: #16181a;
+  --stage-light: rgba(255, 255, 255, 0.04);
+  --glass: #212427; /* Magnetic Gray */
+  --glass-strong: #25292c;
+  --glass-hi: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.11);
+  --line-2: rgba(255, 255, 255, 0.2);
+  --ink: #f2f2ee;
+  --ink-2: #c3c6c4;
+  --ink-3: #9a9f9f;
+  --data: #8fb3d1;
+  --data-soft: rgba(143, 179, 209, 0.14);
+  --accent: #eb0a1e;
+  --accent-ink: #ff5c69;
+  --accent-soft: rgba(235, 10, 30, 0.14);
+  --good: #7cc29d;
+  --good-soft: rgba(124, 194, 157, 0.12);
+  --warn: #e8b25a;
+  --warn-soft: rgba(232, 178, 90, 0.12);
+  --shadow: none;
+  --shadow-pop: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 24px 56px -16px rgba(0, 0, 0, 0.7);
+  --focus: #8fb3d1;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16181a;
+    --bg-2: #16181a;
+    --stage-light: rgba(255, 255, 255, 0.04);
+    --glass: #212427;
+    --glass-strong: #25292c;
+    --glass-hi: rgba(255, 255, 255, 0.06);
+    --line: rgba(255, 255, 255, 0.11);
+    --line-2: rgba(255, 255, 255, 0.2);
+    --ink: #f2f2ee;
+    --ink-2: #c3c6c4;
+    --ink-3: #9a9f9f;
+    --data: #8fb3d1;
+    --data-soft: rgba(143, 179, 209, 0.14);
+    --accent-ink: #ff5c69;
+    --accent-soft: rgba(235, 10, 30, 0.14);
+    --good: #7cc29d;
+    --good-soft: rgba(124, 194, 157, 0.12);
+    --warn: #e8b25a;
+    --warn-soft: rgba(232, 178, 90, 0.12);
+    --shadow: none;
+    --shadow-pop: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 24px 56px -16px rgba(0, 0, 0, 0.7);
+    --focus: #8fb3d1;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-data: var(--data);
+  --color-data-soft: var(--data-soft);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --font-sans: var(--font-ui), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* static: always emitted as :root variables, so plain CSS can use var(--ease-press) too. */
+@theme static {
+  /* Motion tokens for CSS, from @animate-ui/react/utils/motion (printed with css-timing.mjs).
+     Motion code imports the same tokens; CSS uses these so both move alike.
+     ease-ui-out: transition.reveal/fade (enter, leave). ease-ui-soft: transition.menu/disclosure
+     (things the eye watches open). ease-ui-color: transition.color. ease-press: spring.press
+     (pair with duration-400). ease-thumb: spring.thumb (duration-500). ease-highlight:
+     spring.highlight (duration-300). */
+  --ease-ui-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-ui-soft: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-ui-color: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-press: linear(0, 0.0261, 0.0935, 0.188, 0.2977, 0.4132, 0.5271, 0.6343, 0.7313, 0.8159, 0.8872, 0.9452, 0.9906, 1.0244, 1.048, 1.063, 1.0709, 1.0732, 1.0713, 1.0663, 1.0594, 1.0514, 1.0429, 1.0346, 1.0267, 1.0196, 1.0134, 1.0082, 1.004, 1.0007, 0.9982, 0.9965, 1, 0.9948, 0.9946, 0.9948, 1, 1, 1, 1);
+  --ease-thumb: linear(0, 0.0143, 0.0525, 0.1082, 0.1759, 0.2509, 0.3297, 0.4092, 0.487, 0.5614, 0.6311, 0.6953, 0.7534, 0.8052, 0.8507, 0.89, 0.9235, 0.9516, 0.9747, 0.9933, 1.0079, 1.0189, 1.027, 1.0325, 1.0359, 1.0375, 1.0377, 1.0369, 1.0352, 1.0329, 1.0303, 1.0274, 1.0244, 1.0214, 1.0185, 1.0157, 1.0131, 1.0108, 1.0087, 1.0068, 1.0051, 1.0037, 1.0025, 1.0015, 1.0007, 1.0001, 0.9996, 0.9992, 0.9989, 1);
+  --ease-highlight: linear(0, 0.0233, 0.0813, 0.1598, 0.2483, 0.3396, 0.4288, 0.5126, 0.5894, 0.658, 0.7183, 0.7704, 0.8149, 0.8524, 0.8837, 0.9094, 0.9303, 0.9472, 0.9607, 0.9713, 0.9796, 0.986, 0.9908, 0.9944, 0.997, 0.9988, 1.0001, 1.001, 1.0015, 1);
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui), ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100dvh;
+}
+
+/* Headings: Overpass bold, tight. Scale is a major third from 16px: 20 25 31 39 49 61 76. */
+.font-display {
+  font-family: var(--font-ui), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+}
+/* Figures: tabular, so columns of money line up. */
+.num {
+  font-family: var(--font-ui), sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Surfaces. The names are kept from the first build; they are now flat cards, not glass. */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.glass-strong {
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-pop);
+}
+
+/* The one place red shows on a surface: the recommended move. A border, no glow. */
+.glow-accent {
+  border-color: color-mix(in oklab, var(--accent) 70%, transparent) !important;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 70%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+}
+
+/* Scrollbars that don't shout */
+.scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+/* Range input styled as a precise instrument */
+input[type="range"].range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"].range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--ink) 0 var(--fill, 50%), var(--line-2) var(--fill, 50%) 100%);
+}
+input[type="range"].range::-moz-range-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--ink) 0 var(--fill, 50%), var(--line-2) var(--fill, 50%) 100%);
+}
+input[type="range"].range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 99px;
+  background: var(--bg-2);
+  border: 2px solid var(--ink);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 400ms var(--ease-press);
+}
+input[type="range"].range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--bg-2);
+  border: 2px solid var(--ink);
+}
+input[type="range"].range:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+input[type="range"].range.agent-moved::-webkit-slider-thumb {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 6px var(--accent-soft);
+}
+
+/* Markdown inside agent messages */
+.md p + p,
+.md p + ul,
+.md ul + p {
+  margin-top: 0.5rem;
+}
+.md ul,
+.md ol {
+  padding-left: 1.1rem;
+}
+.md ul {
+  list-style: disc;
+}
+.md ol {
+  list-style: decimal;
+}
+.md li + li {
+  margin-top: 0.2rem;
+}
+.md strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+.md table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+}
+.md th,
+.md td {
+  text-align: left;
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.md th {
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--line) 0%, var(--line-2) 50%, var(--line) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Loaders keep saying "loading" without moving: the turn and the shimmer become a slow
+     opacity pulse instead of freezing on their first frame. Class selectors outrank `*`. */
+  .animate-spin,
+  .animate-pulse,
+  .skeleton {
+    animation: nm-reduced-pulse 1.6s ease-in-out infinite !important;
+  }
+}
+@keyframes nm-reduced-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ------------------------------------------------------------------ stage and story */
+
+/* Height of the sticky top bar: two rows below xl (brand + nav), one row from xl up. */
+:root {
+  --hdr: 109px;
+}
+@media (min-width: 1280px) {
+  :root {
+    --hdr: 64px;
+  }
+}
+
+/* Callout pinned to a part of the car by the 3D stage (positioned every frame). */
+.nm-callout {
+  will-change: transform, opacity;
+  transition: opacity 120ms linear;
+}
+.nm-callout-dot {
+  position: absolute;
+  left: -7px;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.nm-callout-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 1.5px solid var(--accent);
+  animation: nm-callout-pulse 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.nm-callout-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 58px;
+  height: 1.5px;
+  background: var(--ink);
+  transform: rotate(-38deg);
+  transform-origin: 0 50%;
+}
+.nm-callout-label {
+  position: absolute;
+  left: 44px;
+  top: -58px;
+  white-space: nowrap;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes nm-callout-pulse {
+  from {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+/* Text links inside the story: an underline that draws on hover. */
+.story-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+  padding-bottom: 2px;
+  transition: background-size 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.story-link:hover {
+  background-size: 100% 1.5px;
+}
+.story-link svg {
+  transition: transform 300ms var(--ease-highlight);
+}
+@media (hover: hover) and (pointer: fine) {
+  .story-link:hover svg {
+    transform: translateX(3px);
+  }
+}
+.story-link:focus-visible svg {
+  transform: translateX(3px);
+}
+
+.story-bob {
+  animation: story-bob 1.8s ease-in-out infinite;
+}
+@keyframes story-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* Phones and tablets: chapter copy sits under the car on a fade of the page colour. */
+@media (max-width: 1023px) {
+  .story-copy {
+    max-width: none;
+    margin-inline: -20px;
+    width: calc(100% + 40px);
+    padding: 64px 20px 0;
+    background: linear-gradient(to top, var(--bg) 72%, color-mix(in oklab, var(--bg) 0%, transparent));
+  }
+}

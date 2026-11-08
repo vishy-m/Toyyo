@@ -1,0 +1,68 @@
+{
+  "id": "raj",
+  "name": "Raj",
+  "displayName": "Raj, 45 \u00b7 Hill Country explorer",
+  "age": 45,
+  "city": "Austin",
+  "avatarEmoji": "\ud83c\udfd5\ufe0f",
+  "vehicle": {
+    "year": 2021,
+    "make": "Toyota",
+    "model": "Tacoma TRD Off-Road",
+    "bodyStyle": "truck",
+    "modelAsset": "/models/tacoma.glb",
+    "paintHex": "#5B6142",
+    "odometer": 41500,
+    "vin": "SYNTHETIC-RAJ-001",
+    "isHybrid": false,
+    "mpg": 20
+  },
+  "contract": {
+    "kind": "lease",
+    "startDate": "2022-05-27",
+    "termMonths": 60,
+    "monthsRemaining": 7,
+    "monthlyPayment": 489,
+    "annualMileageAllowance": 15000,
+    "overageRatePerMile": 0.25,
+    "residualValue": 29400,
+    "purchaseOptionFee": 300,
+    "dispositionFee": 350
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 168,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2022-05-27",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "good",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": true
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.1,
+      "totalCost": 0.1,
+      "flexibility": 0.15,
+      "lifestyleFit": 0.65
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [
+    "weekend camping"
+  ],
+  "intendedBestMove": "lease-end"
+}

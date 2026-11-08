@@ -1,0 +1,64 @@
+{
+  "id": "jordan",
+  "name": "Jordan",
+  "displayName": "Jordan, 22 \u00b7 Houston driver",
+  "age": 22,
+  "city": "Houston",
+  "avatarEmoji": "\ud83c\udf19",
+  "vehicle": {
+    "year": 2024,
+    "make": "Toyota",
+    "model": "GR Supra 2.0",
+    "bodyStyle": "sedan",
+    "modelAsset": "/models/gr-supra.glb",
+    "paintHex": "#8FA9B8",
+    "odometer": 18700,
+    "vin": "SYNTHETIC-JORDAN-001",
+    "isHybrid": false,
+    "mpg": 29
+  },
+  "contract": {
+    "kind": "loan",
+    "startDate": "2025-04-27",
+    "termMonths": 60,
+    "monthsRemaining": 42,
+    "monthlyPayment": 508.55,
+    "apr": 11.9,
+    "principalRemaining": 17400,
+    "autopay": false
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 248,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2025-04-27",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "building",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": false
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.65,
+      "totalCost": 0.15,
+      "flexibility": 0.15,
+      "lifestyleFit": 0.05
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [],
+  "intendedBestMove": "insurance"
+}

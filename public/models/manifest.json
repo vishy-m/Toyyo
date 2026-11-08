@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "notes": "Hero entries point at Sketchfab models; each entry carries its own credit and licence (some are non-commercial, CC BY-NC / BY-NC-SA). Models in models/ are prepared with scripts/models/prepare-sketchfab.mjs. Drop the GLB into scripts/models/raw/<id>.glb and run scripts/models/optimize.sh; it writes public/models/<id>.glb and flips `available` to true. Until then each entry falls back to its Kenney body-style model. `rotationY` (degrees) turns the model so its nose faces +Z; `mapBearingOffset` is added to the route bearing for the Mapbox model layer; `paintMaterial` is the material recoloured with the persona's paintHex; `length` is the real car length in meters used to normalise scale.",
+  "fallbacks": {
+    "sedan": {
+      "file": "/models/sedan.glb",
+      "rotationY": 0,
+      "mapBearingOffset": 180,
+      "paintMaterial": "paint",
+      "length": 4.9,
+      "credit": "kenney"
+    },
+    "suv": {
+      "file": "/models/suv.glb",
+      "rotationY": 0,
+      "mapBearingOffset": 180,
+      "paintMaterial": "paint",
+      "length": 4.6,
+      "credit": "kenney"
+    },
+    "suv-rugged": {
+      "file": "/models/suv-rugged.glb",
+      "rotationY": 0,
+      "mapBearingOffset": 180,
+      "paintMaterial": "paint",
+      "length": 4.8,
+      "credit": "kenney"
+    },
+    "truck": {
+      "file": "/models/truck.glb",
+      "rotationY": 0,
+      "mapBearingOffset": 180,
+      "paintMaterial": "paint",
+      "length": 5.4,
+      "credit": "kenney"
+    }
+  },
+  "models": {
+    "camry": {
+      "label": "Toyota Camry",
+      "bodyStyle": "sedan",
+      "fallback": "sedan",
+      "file": "/models/camry.glb",
+      "available": true,
+      "rotationY": 0,
+      "paintMaterial": "CarPaint",
+      "length": 4.9,
+      "credit": {
+        "title": "2025 Toyota Camry (XV80) Hybrid",
+        "author": "Ddiaz Design",
+        "url": "https://sketchfab.com/3d-models/2025-toyota-camry-xv80-hybrid-53f8cbf2483940fba956f4e740a3a4ae",
+        "license": "CC BY-NC-SA 4.0"
+      }
+    },
+    "rav4": {
+      "label": "Toyota RAV4 Hybrid",
+      "bodyStyle": "suv",
+      "fallback": "suv",
+      "file": "/models/rav4.glb",
+      "available": false,
+      "rotationY": 0,
+      "paintMaterial": "paint",
+      "length": 4.6,
+      "credit": {
+        "title": "2021 Toyota RAV4 Hybrid",
+        "author": "tonielpro520",
+        "url": "https://sketchfab.com/3d-models/2021-toyota-rav4-hybrid-de74fe4e98004c92b1103947597d1b53",
+        "license": "CC BY 4.0"
+      }
+    },
+    "corolla": {
+      "label": "Toyota Corolla",
+      "bodyStyle": "sedan",
+      "fallback": "sedan",
+      "file": "/models/corolla.glb",
+      "available": false,
+      "rotationY": 0,
+      "paintMaterial": "paint",
+      "length": 4.6,
+      "credit": {
+        "title": "2014 Toyota Corolla E180 (EU) with interior",
+        "author": "armoredwave",
+        "url": "https://sketchfab.com/3d-models/2014-toyota-corolla-e180-eu-with-interior-36f95efb0585464cae43a25a3b3392e8",
+        "license": "CC BY 4.0"
+      }
+    },
+    "gr-supra": {
+      "label": "Toyota GR Supra",
+      "bodyStyle": "sedan",
+      "fallback": "sedan",
+      "file": "/models/gr-supra.glb",
+      "available": true,
+      "rotationY": 0,
+      "paintMaterial": "Paint",
+      "length": 4.38,
+      "credit": {
+        "title": "Toyota GR Supra",
+        "author": "J5nnym1r™",
+        "url": "https://sketchfab.com/3d-models/toyota-gr-supra-371c9c1ded6440699b7c261c0fb82a2c",
+        "license": "CC BY-NC 4.0"
+      }
+    },
+    "prius": {
+      "label": "Toyota Prius",
+      "bodyStyle": "sedan",
+      "fallback": "sedan",
+      "file": "/models/prius.glb",
+      "available": false,
+      "rotationY": 0,
+      "paintMaterial": "paint",
+      "length": 4.6,
+      "credit": {
+        "title": "Toyota Prius 2020",
+        "author": "ItsDiyor",
+        "url": "https://sketchfab.com/3d-models/toyota-prius-2020-ad0d925cb51040798d96f166db8c7f80",
+        "license": "CC BY 4.0"
+      }
+    },
+    "tacoma": {
+      "label": "Toyota Tacoma",
+      "bodyStyle": "truck",
+      "fallback": "truck",
+      "file": "/models/tacoma.glb",
+      "available": false,
+      "rotationY": 0,
+      "paintMaterial": "paint",
+      "length": 5.4,
+      "credit": {
+        "title": "2019 Toyota Tacoma",
+        "author": "David_Holiday",
+        "url": "https://sketchfab.com/3d-models/2019-toyota-tacoma-8bb91f037ec64151ba72279c50ce5c20",
+        "license": "CC BY 4.0"
+      }
+    },
+    "4runner": {
+      "label": "Toyota 4Runner",
+      "bodyStyle": "suv",
+      "fallback": "suv-rugged",
+      "file": "/models/4runner.glb",
+      "available": false,
+      "rotationY": 0,
+      "paintMaterial": "paint",
+      "length": 4.8,
+      "credit": {
+        "title": "2015 Toyota 4Runner",
+        "author": "David_Holiday",
+        "url": "https://sketchfab.com/3d-models/2015-toyota-4runner-ba1216e61c974d0195143edaaab274fd",
+        "license": "CC BY 4.0"
+      }
+    },
+    "highlander": {
+      "label": "Toyota Highlander",
+      "bodyStyle": "suv",
+      "fallback": "suv",
+      "file": "/models/highlander.glb",
+      "available": false,
+      "rotationY": 0,
+      "paintMaterial": "paint",
+      "length": 5,
+      "credit": {
+        "title": "Toyota Highlander 2020",
+        "author": "ItsDiyor",
+        "url": "https://sketchfab.com/3d-models/toyota-highlander-2020-ff144d062f244a3ebfae71bc2a41564b",
+        "license": "CC BY 4.0"
+      }
+    },
+    "map-car": {
+      "label": "Replay map car",
+      "bodyStyle": "sedan",
+      "fallback": "sedan",
+      "file": "/models/map-car.glb",
+      "available": false,
+      "rotationY": 0,
+      "mapBearingOffset": 0,
+      "paintMaterial": "paint",
+      "length": 4.6,
+      "credit": {
+        "title": "Toyota Prius 2012 (low-poly)",
+        "author": "Doz3",
+        "url": "https://sketchfab.com/3d-models/toyota-prius-2012-04eaf6b288cc466785365b7d985e3b29",
+        "license": "CC BY 4.0"
+      }
+    },
+    "map-truck": {
+      "label": "Replay map truck",
+      "bodyStyle": "truck",
+      "fallback": "truck",
+      "file": "/models/map-truck.glb",
+      "available": false,
+      "rotationY": 0,
+      "mapBearingOffset": 0,
+      "paintMaterial": "paint",
+      "length": 5.4,
+      "credit": {
+        "title": "Toyota Tacoma TRD (low-poly)",
+        "author": "LagzDesign",
+        "url": "https://sketchfab.com/3d-models/toyota-tacoma-trd-f13b2c73a13147a69a6d2a83f72b2505",
+        "license": "CC BY 4.0"
+      }
+    }
+  },
+  "credits": {
+    "kenney": {
+      "title": "Car Kit (sedan, SUV, pickup body styles)",
+      "author": "Kenney",
+      "url": "https://kenney.nl/assets/car-kit",
+      "license": "CC0 1.0"
+    }
+  }
+}

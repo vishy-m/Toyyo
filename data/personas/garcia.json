@@ -1,0 +1,66 @@
+{
+  "id": "garcia",
+  "name": "The Garcias",
+  "displayName": "The Garcias, 38/36 \u00b7 New parents",
+  "age": 38,
+  "city": "San Antonio",
+  "avatarEmoji": "\ud83c\udf31",
+  "vehicle": {
+    "year": 2022,
+    "make": "Toyota",
+    "model": "RAV4 Hybrid XLE",
+    "bodyStyle": "suv",
+    "modelAsset": "/models/rav4.glb",
+    "paintHex": "#2B3F5C",
+    "odometer": 23100,
+    "vin": "SYNTHETIC-GARCIA-001",
+    "isHybrid": true,
+    "mpg": 40
+  },
+  "contract": {
+    "kind": "loan",
+    "startDate": "2024-05-27",
+    "termMonths": 60,
+    "monthsRemaining": 31,
+    "monthlyPayment": 840.4,
+    "apr": 6.9,
+    "principalRemaining": 23800,
+    "autopay": true
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 152,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2024-12-15",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "excellent",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": true
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.65,
+      "totalCost": 0.2,
+      "flexibility": 0.05,
+      "lifestyleFit": 0.1
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [
+    "new baby (3 mo)"
+  ],
+  "intendedBestMove": "payment"
+}

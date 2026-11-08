@@ -1,0 +1,31 @@
+{
+  "simulated": true,
+  "bands": [
+    {
+      "minScore": 90,
+      "multiplier": 0.78
+    },
+    {
+      "minScore": 80,
+      "multiplier": 0.88
+    },
+    {
+      "minScore": 70,
+      "multiplier": 1
+    },
+    {
+      "minScore": 60,
+      "multiplier": 1.12
+    },
+    {
+      "minScore": 0,
+      "multiplier": 1.25
+    }
+  ],
+  "basePremium": {
+    "maya": 185,
+    "garcia": 185,
+    "jordan": 248,
+    "raj": 205
+  }
+}

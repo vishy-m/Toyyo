@@ -1,0 +1,93 @@
+/* Ride replay: event markers, callouts, scrubber. Class-prefixed nm- to avoid collisions. */
+.nm-evt {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.nm-evt-dot {
+  position: absolute;
+  inset: 5px;
+  border-radius: 999px;
+  background: var(--evt);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 14px var(--evt);
+}
+.nm-evt-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 2px solid var(--evt);
+  opacity: 0;
+}
+.nm-evt.is-active .nm-evt-ring {
+  animation: nm-pulse 1.1s ease-out infinite;
+}
+.nm-evt.is-active .nm-evt-dot {
+  transform: scale(1.25);
+}
+@keyframes nm-pulse {
+  0% { transform: scale(0.6); opacity: 0.95; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+.nm-tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: background 1.2s ease;
+  mix-blend-mode: multiply;
+}
+.nm-replay-callout {
+  transform: translate(-50%, 0);
+  animation: nm-replay-callout-in 300ms var(--ease-ui-out) both;
+}
+@keyframes nm-replay-callout-in {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+.nm-scrub {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.nm-scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: transparent;
+}
+.nm-scrub::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  background: transparent;
+}
+.nm-scrub:focus-visible + .nm-thumb > span,
+.nm-scrub:focus-visible ~ .nm-thumb > span {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.nm-loading-sheen {
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.06) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: nm-sheen 1.6s linear infinite;
+}
+@keyframes nm-sheen {
+  to { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nm-evt.is-active .nm-evt-ring, .nm-loading-sheen { animation: none; }
+  .nm-replay-callout { animation-name: nm-replay-callout-fade; }
+}
+.nm-reduced .nm-evt.is-active .nm-evt-ring, .nm-reduced .nm-loading-sheen { animation: none; }
+.nm-reduced .nm-replay-callout { animation-name: nm-replay-callout-fade; }
+@keyframes nm-replay-callout-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.nm-replay .mapboxgl-ctrl-attrib, .nm-replay .maplibregl-ctrl-attrib { font-size: 10px; }

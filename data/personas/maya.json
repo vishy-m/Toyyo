@@ -1,0 +1,66 @@
+{
+  "id": "maya",
+  "name": "Maya",
+  "displayName": "Maya, 29 \u00b7 Austin commuter",
+  "age": 29,
+  "city": "Austin",
+  "avatarEmoji": "\ud83c\udf07",
+  "vehicle": {
+    "year": 2023,
+    "make": "Toyota",
+    "model": "Camry SE",
+    "bodyStyle": "sedan",
+    "modelAsset": "/models/camry.glb",
+    "paintHex": "#B3122E",
+    "odometer": 41200,
+    "vin": "SYNTHETIC-MAYA-001",
+    "isHybrid": false,
+    "mpg": 32
+  },
+  "contract": {
+    "kind": "lease",
+    "startDate": "2024-02-27",
+    "termMonths": 36,
+    "monthsRemaining": 4,
+    "monthlyPayment": 389,
+    "annualMileageAllowance": 12000,
+    "overageRatePerMile": 0.25,
+    "residualValue": 19400,
+    "purchaseOptionFee": 300,
+    "dispositionFee": 350
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 156,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2024-02-27",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "good",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": true
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.15,
+      "totalCost": 0.25,
+      "flexibility": 0.5,
+      "lifestyleFit": 0.1
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [],
+  "intendedBestMove": "lease-end"
+}

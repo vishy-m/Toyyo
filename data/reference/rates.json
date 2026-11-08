@@ -1,0 +1,20 @@
+{
+  "asOf": "2026-10-27",
+  "simulated": true,
+  "aprByCreditTier": {
+    "excellent": 3.9,
+    "good": 5.9,
+    "fair": 8.9,
+    "building": 11.9
+  },
+  "refinanceFee": 150,
+  "autopayDiscountApr": 0.25,
+  "dispositionFee": 350,
+  "purchaseOptionFee": 300,
+  "texasSalesTax": 0.0625,
+  "gasPricePerGallon": 3.05,
+  "leaseStartingOdometer": {
+    "maya": 7500,
+    "raj": 0
+  }
+}
