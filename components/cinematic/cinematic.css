@@ -1,0 +1,632 @@
+/* Toyyo cinematic shell: the opening carousel, the selection transition and the case-study frame.
+   Near-black stage, warm off-white type, Toyota red only for active markers and selected actions.
+   The 3D stage reads the car band and the car slot from this layout, so proportions live here. */
+
+/* Overpass draws "·" flush against the following letter ("Maya ·The…"). This face supplies only
+   the middle dot (U+00B7) from a system sans with a centred glyph; every other character falls
+   through to Overpass. If none of the local faces exist, the browser skips it. */
+@font-face {
+  font-family: "Toyyo Middle Dot";
+  src: local("Helvetica Neue"), local("HelveticaNeue"), local("Helvetica"), local("Arial"), local("Segoe UI"), local("Roboto");
+  unicode-range: U+00B7;
+}
+
+html:has(.cine),
+html:has(.cine) body {
+  background: #090909;
+  color-scheme: dark;
+}
+html:has(.cine.is-opening),
+html:has(.cine.is-story),
+html:has(.cine.is-opening) body,
+html:has(.cine.is-story) body {
+  background: #000;
+}
+html:has(.cine) { overscroll-behavior-x: none; }
+
+.cine-boot { position: fixed; inset: 0; background: #090909; }
+
+.cine {
+  --cine-bg: #090909;
+  --cine-black: #000;
+  --cine-text: #f2f0eb;
+  --cine-muted: #a5a5a2;
+  --cine-faint: #868582;
+  --cine-line: rgba(242, 240, 235, 0.16);
+  --cine-line-strong: rgba(242, 240, 235, 0.34);
+  --cine-red: #eb0a1e;
+  /* The display face: Archivo on its variable width axis. font-stretch is inherited, so Archivo headings
+     anywhere in the experience come out condensed while Overpass (no width axis) is unaffected. */
+  --cine-display: var(--font-display), var(--font-ui), "Arial Narrow", sans-serif;
+  --cine-gutter: clamp(16px, 3.9vw, 56px);
+  --cine-header-h: 72px;
+  --cine-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --cine-fade: cubic-bezier(0.4, 0, 0.2, 1);
+  --cine-band-inset: clamp(8px, 2.4vh, 32px);
+  --cine-label-h: 78px;
+  --cine-time: 1;
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  background: var(--cine-bg);
+  color: var(--cine-text);
+  font-family: "Toyyo Middle Dot", var(--font-ui), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  font-stretch: 75%;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color calc(320ms * var(--cine-time, 1)) var(--cine-fade) calc(100ms * var(--cine-time, 1));
+}
+.cine.is-opening,
+.cine.is-story { background: var(--cine-black); }
+.cine.is-closing { transition-delay: calc(300ms * var(--cine-time, 1)); }
+
+.cine *,
+.cine *::before,
+.cine *::after { box-sizing: border-box; }
+/* Resets carry zero specificity so component rules (ownership.css loads before this file) always win. */
+:where(.cine) :where(h1, h2, p, ul, ol) { margin: 0; padding: 0; }
+:where(.cine) :where(ul, ol) { list-style: none; }
+:where(.cine) :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.cine :where(a) { color: inherit; }
+.cine :focus-visible { outline: 2px solid var(--cine-text); outline-offset: 3px; border-radius: 3px; }
+.cine ::selection { background: rgba(235, 10, 30, 0.45); color: #fff; }
+
+.cine-sr {
+  position: absolute !important;
+  width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.cine-skip {
+  position: fixed; z-index: 20; top: 12px; left: 12px;
+  padding: 10px 16px; border-radius: 4px; background: var(--cine-text); color: #000;
+  font-weight: 700; text-decoration: none;
+  transform: translateY(-160%);
+}
+.cine-skip:focus-visible { transform: none; }
+
+/* ── Stage: ground treatment, the single WebGL canvas, the reserved mascot anchor ─────────────── */
+.cine-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cine-stage canvas { display: block; }
+/* Car page: the looping driving world (VehicleStage) fills the stage. This scrim leaves the car's quarter
+   clear and darkens the world behind the content column so text stays legible; on phones it runs top to
+   bottom (car on top, content below). It fades with the phase, like the rest of the story chrome. */
+.cine-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity calc(500ms * var(--cine-time, 1)) var(--cine-fade);
+  background: linear-gradient(90deg, rgba(9, 9, 9, 0) 0, rgba(9, 9, 9, 0) calc(var(--cine-gutter) + min(24vw, 400px)), rgba(9, 9, 9, 0.62) calc(var(--cine-gutter) + min(24vw, 400px) + 10vw), rgba(9, 9, 9, 0.72) 100%);
+}
+.cine.is-story .cine-stage::after { opacity: 1; }
+/* During the opening, bring the scrim in before the world fades in (VehicleStage starts the world near the
+   end of the car's travel), so the world never shows at full brightness behind the content column. */
+.cine.is-opening .cine-stage::after {
+  opacity: 1;
+  transition-duration: calc(320ms * var(--cine-time, 1));
+  transition-delay: calc(500ms * var(--cine-time, 1));
+}
+.cine.is-reduced .cine-stage::after { transition: none; }
+@media (max-width: 899px) {
+  .cine-stage::after { background: linear-gradient(180deg, rgba(9, 9, 9, 0) 0, rgba(9, 9, 9, 0) 46svh, rgba(9, 9, 9, 0.66) 62svh, rgba(9, 9, 9, 0.74) 100%); }
+}
+.cine-ground {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 62% 34% at 50% 60%, rgba(242, 240, 235, 0.055), rgba(242, 240, 235, 0) 72%),
+    radial-gradient(ellipse 120% 70% at 50% 120%, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0) 70%);
+  transition: opacity calc(320ms * var(--cine-time, 1)) var(--cine-fade) calc(100ms * var(--cine-time, 1));
+}
+.cine:not(.is-collection):not(.is-closing) .cine-ground { opacity: 0; }
+.cine.is-closing .cine-ground { transition-delay: calc(380ms * var(--cine-time, 1)); }
+/* Empty and invisible on purpose: the future Toyyo mascot attaches here (spec §6). */
+.cine-mascot-anchor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────────────────── */
+.cine-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 6;
+  height: var(--cine-header-h);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--cine-gutter);
+  pointer-events: none;
+}
+.cine-header > * { pointer-events: auto; }
+.cine-wordmark {
+  font-family: var(--cine-display);
+  font-weight: 800;
+  font-stretch: 68%;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 8px 0;
+  margin-right: 12px;
+}
+.cine-header-info { margin-left: auto; display: flex; gap: 4px; transition: opacity calc(260ms * var(--cine-time, 1)) var(--cine-fade) calc(100ms * var(--cine-time, 1)); }
+.cine-header-info button,
+.cine-back,
+.cine-case {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cine-muted);
+  transition: color calc(160ms * var(--cine-time, 1)) ease;
+}
+.cine-header-info button:hover,
+.cine-back:hover { color: var(--cine-text); }
+.cine-header-info button:last-child { padding-right: 0; }
+.cine-header-story {
+  display: flex;
+  align-items: center;
+  padding-left: 14px;
+  border-left: 1px solid var(--cine-line);
+  height: 22px;
+}
+.cine-back { padding-left: 0; color: var(--cine-text); }
+.cine-back svg { transition: transform 200ms var(--cine-ease); }
+.cine-back:hover svg { transform: translateX(-3px); }
+.cine-case { margin-left: auto; padding-right: 0; font-variant-numeric: tabular-nums; }
+.cine-case-total { color: var(--cine-faint); white-space: pre; }
+.cine-back,
+.cine-case { white-space: nowrap; }
+
+.cine.is-collection .cine-header-story,
+.cine.is-closing .cine-header-story,
+.cine.is-collection .cine-case,
+.cine.is-closing .cine-case { opacity: 0; visibility: hidden; transition: opacity calc(200ms * var(--cine-time, 1)) var(--cine-fade), visibility 0s calc(200ms * var(--cine-time, 1)); }
+.cine.is-opening .cine-header-info,
+.cine.is-story .cine-header-info { opacity: 0; visibility: hidden; transition: opacity calc(260ms * var(--cine-time, 1)) var(--cine-fade) calc(100ms * var(--cine-time, 1)), visibility 0s calc(360ms * var(--cine-time, 1)); }
+.cine.is-closing .cine-header-info { transition-delay: calc(380ms * var(--cine-time, 1)); }
+.cine.is-opening .cine-header-story,
+.cine.is-opening .cine-case { animation: cine-fade-in calc(360ms * var(--cine-time, 1)) var(--cine-fade) calc(640ms * var(--cine-time, 1)) both; }
+.cine.is-opening .cine-case,
+.cine.is-story .cine-case { margin-left: auto; }
+/* Whichever header group is hidden leaves the flow, so the visible one never gets squeezed (320px). */
+.cine.is-collection .cine-case,
+.cine.is-closing .cine-case,
+.cine.is-collection .cine-header-story,
+.cine.is-closing .cine-header-story { position: absolute; }
+.cine.is-opening .cine-header-info,
+.cine.is-story .cine-header-info { position: absolute; right: var(--cine-gutter); }
+
+/* ── Opening: one screen, cars dominate ─────────────────────────────────────────────────── */
+.cine-collection {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: var(--cine-header-h) auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  transition: opacity calc(320ms * var(--cine-time, 1)) var(--cine-fade) calc(100ms * var(--cine-time, 1));
+}
+.cine.is-opening .cine-collection,
+.cine.is-story .cine-collection { opacity: 0; visibility: hidden; transition: opacity calc(320ms * var(--cine-time, 1)) var(--cine-fade) calc(100ms * var(--cine-time, 1)), visibility 0s calc(440ms * var(--cine-time, 1)); }
+.cine.is-closing .cine-collection { transition: opacity calc(320ms * var(--cine-time, 1)) var(--cine-fade) calc(380ms * var(--cine-time, 1)); }
+
+.cine-title {
+  grid-row: 2;
+  padding: clamp(0px, 1.2vh, 16px) var(--cine-gutter) 0;
+  font-family: var(--cine-display);
+  font-weight: 800;
+  font-stretch: 62%;
+  font-size: clamp(54px, min(11vw, 16vh), 168px);
+  line-height: 0.84;
+  letter-spacing: -0.008em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+.cine-title span:last-child { color: var(--cine-text); }
+
+.cine-track {
+  grid-row: 3;
+  position: relative;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cine-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--cine-band-inset);
+  bottom: var(--cine-label-h);
+  pointer-events: none;
+}
+.cine-cars { position: absolute; inset: 0; }
+.cine-car {
+  position: absolute;
+  left: 0;
+  top: calc(var(--cine-car-top, 24) * 1px);
+  height: calc(var(--cine-car-h, 400) * 1px);
+  width: var(--cine-item-w, 360px);
+  will-change: transform;
+  transform: translate3d(-9999px, 0, 0);
+}
+.cine-car-button {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.cine-car-button:focus-visible { outline-offset: 6px; outline-color: rgba(242, 240, 235, 0.7); }
+/* Carousel poster: an 840x480 frame at 120 px/m with the car's bounds centred (POSTERS.carousel), scaled to
+   this carousel's pixels per metre so it lines up with the model that replaces it. */
+.cine-car-poster {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--cine-ppu, 70) * 7px);
+  height: calc(var(--cine-ppu, 70) * 4px);
+  max-width: none;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  pointer-events: none;
+  transition: opacity calc(360ms * var(--cine-time, 1)) var(--cine-fade);
+}
+.cine-car.is-loaded .cine-car-poster { opacity: 0; }
+.cine-car-label {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  width: max-content;
+  max-width: min(calc(var(--cine-item-w, 360px) + 48px), 86vw);
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  pointer-events: none;
+  opacity: var(--cine-label-o, 1);
+}
+.cine-car-name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--cine-display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: var(--cine-muted);
+  transition: color calc(200ms * var(--cine-time, 1)) ease;
+}
+.cine-car-index {
+  font-family: "Toyyo Middle Dot", var(--font-ui), sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--cine-faint);
+  font-variant-numeric: tabular-nums;
+}
+.cine-car-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13.5px;
+  color: var(--cine-muted);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity calc(200ms * var(--cine-time, 1)) ease, transform calc(240ms * var(--cine-time, 1)) var(--cine-ease);
+}
+.cine-car-case { display: grid; justify-items: center; gap: 2px; max-width: 340px; }
+.cine-car-who { font-size: 13.5px; font-weight: 600; color: var(--cine-text); }
+.cine-car-ctx { font-size: 12.5px; line-height: 1.35; color: var(--cine-muted); }
+.cine-car-more:has(.cine-car-quote) { display: grid; justify-items: center; gap: 4px; white-space: normal; max-width: 340px; text-align: center; }
+.cine-car-quote { font-size: 12.5px; line-height: 1.35; color: var(--cine-muted); }
+.cine-car-explore { display: inline-flex; align-items: center; gap: 4px; color: var(--cine-text); font-weight: 600; }
+.cine-car-explore svg { color: var(--cine-red); }
+.cine-car.is-active .cine-car-name { color: var(--cine-text); }
+.cine-car.is-active .cine-car-more { opacity: 1; transform: none; }
+.cine-car-retry {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 60px);
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--cine-muted);
+}
+.cine-car-retry:hover { color: var(--cine-text); }
+
+.cine-footer {
+  grid-row: 4;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 16px 24px;
+  padding: 4px var(--cine-gutter) clamp(16px, 3.4vh, 36px);
+}
+.cine-controls { display: flex; align-items: center; gap: 8px; }
+.cine-count {
+  margin-right: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--cine-faint);
+  font-variant-numeric: tabular-nums;
+}
+.cine-count span { color: var(--cine-text); }
+.cine-pause,
+.cine-arrow {
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--cine-line);
+  border-radius: 4px;
+  color: var(--cine-text);
+  transition: border-color calc(160ms * var(--cine-time, 1)) ease, background-color calc(160ms * var(--cine-time, 1)) ease;
+}
+.cine-pause { min-width: 96px; padding: 0 16px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+.cine-arrow { width: 44px; }
+.cine-pause:hover,
+.cine-arrow:hover { border-color: var(--cine-line-strong); background: rgba(242, 240, 235, 0.05); }
+
+/* ── Ownership view ──────────────────────────────────────────────────────────────────────── */
+.cine-story { z-index: 3; }
+.cine-car-slot { position: relative; pointer-events: none; }
+/* Top-down poster (POSTERS.selected: 480x720 at 120 px/m), at the scale the stage gives the selected model. */
+.cine-slot-poster {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--cine-slot-ppu, 120) * 4px);
+  height: calc(var(--cine-slot-ppu, 120) * 6px);
+  max-width: none;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  transition: opacity calc(360ms * var(--cine-time, 1)) var(--cine-fade);
+}
+.cine-slot-poster.is-hidden { opacity: 0; }
+.cine-slot-poster.is-fallback { width: 100%; height: 88%; }
+.cine-slot-retry {
+  position: absolute;
+  left: 0;
+  bottom: 52px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-size: 13px;
+  color: var(--cine-muted);
+  pointer-events: auto;
+}
+.cine-slot-caption {
+  position: absolute;
+  left: 0;
+  bottom: clamp(16px, 3vh, 32px);
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cine-muted);
+}
+.cine-slot-caption span { color: var(--cine-red); font-variant-numeric: tabular-nums; }
+
+/* Entrance after the car settles; exit before it travels back. */
+.cine.is-opening .cine-ownership { animation: cine-rise calc(440ms * var(--cine-time, 1)) var(--cine-ease) calc(720ms * var(--cine-time, 1)) both; }
+.cine.is-opening .cine-slot-caption { animation: cine-fade-in calc(400ms * var(--cine-time, 1)) var(--cine-fade) calc(860ms * var(--cine-time, 1)) both; }
+.cine.is-closing .cine-story { opacity: 0; transition: opacity calc(200ms * var(--cine-time, 1)) var(--cine-fade); }
+@keyframes cine-rise { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: none; } }
+@keyframes cine-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Desktop: the top-down car sits in a column of at most a quarter of the screen (design review), on a slot
+   capped below half the screen height so a long car never runs floor to ceiling and the driving world shows
+   around it; the dashboard column fills everything to the right (design review: no empty right side). */
+@media (min-width: 900px) {
+  .cine-story {
+    position: fixed;
+    top: var(--cine-header-h);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: minmax(200px, min(24vw, 400px)) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: clamp(32px, 4vw, 72px);
+    padding: 0 var(--cine-gutter);
+    pointer-events: none;
+  }
+  .cine-car-slot { grid-column: 1; grid-row: 1; align-self: center; height: min(100%, 42svh); }
+  .cine-ownership {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: auto;
+  }
+  .cine-ownership-body { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(242, 240, 235, 0.35) transparent; }
+  /* The chat sits below the scroller, not over it: scrolled cluster content ends at this edge instead of sliding
+     behind the controls. The thin mask only softens that edge; at rest the bottom of the cluster is padding. */
+  .cine-ownership-body { mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent); }
+  .cine-chat-dock { flex: none; padding: 0 clamp(0px, 1vw, 24px) 0 4px; } /* the cluster's own side padding (.dash) */
+}
+/* Phones scroll the whole page, so the composer stays pinned to the bottom edge on the page's own ground. */
+@media (max-width: 899px) { .cine-chat-dock { position: sticky; bottom: 0; z-index: 5; padding: 0 var(--cine-gutter); background: var(--cine-bg, #090909); } }
+/* Tablet and phone: compact car stage on top, a sticky horizontal tab strip, then normal page flow. */
+@media (max-width: 899px) {
+  .cine { --cine-header-h: 60px; --cine-label-h: 70px; }
+  .cine-wordmark { font-size: 25px; }
+  .cine.is-opening .cine-stage,
+  .cine.is-story .cine-stage,
+  .cine.is-closing .cine-stage { position: absolute; inset: 0 0 auto; height: 100lvh; }
+  .cine.is-opening .cine-header,
+  .cine.is-story .cine-header { background: #000; }
+  .cine-story { position: relative; padding-top: var(--cine-header-h); }
+  .cine-car-slot { height: clamp(240px, 46svh, 440px); margin: 0 var(--cine-gutter); }
+  .cine-slot-caption { bottom: 10px; }
+  .cine-ownership { min-height: 60svh; }
+  .cine-footer { flex-direction: column; align-items: stretch; gap: 10px; }
+      .cine-controls { justify-content: center; }
+  .cine-count { margin-right: auto; }
+  .cine-header-info button { padding: 0 8px; letter-spacing: 0.1em; }
+}
+@media (max-width: 899px) and (min-width: 600px) {
+  .cine-footer { flex-direction: row; align-items: flex-end; }
+      .cine-count { margin-right: 10px; }
+}
+@media (max-width: 520px) {
+  .cine-header { gap: 4px; }
+  .cine-wordmark { margin-right: 6px; }
+  .cine-header-story { padding-left: 10px; }
+  .cine-back,
+  .cine-case { letter-spacing: 0.1em; font-size: 12px; }
+  .cine-case-word { display: none; }
+}
+@media (max-width: 380px) {
+  .cine-case-total { display: none; }
+  .cine-pause { min-width: 0; padding: 0 12px; }
+}
+
+/* ── Dialogs (About, Credits) ────────────────────────────────────────────────────────────── */
+.cine-dialog {
+  margin: auto;
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(86vh, 820px);
+  padding: 0;
+  border: 1px solid var(--cine-line);
+  border-radius: 6px;
+  background: #0d0d0d;
+  color: var(--cine-text);
+  overflow: auto;
+}
+.cine-dialog::backdrop { background: rgba(0, 0, 0, 0.74); backdrop-filter: blur(3px); }
+.cine-dialog[open] { animation: cine-rise 280ms var(--cine-ease) both; }
+.cine-dialog-body { position: relative; padding: clamp(28px, 5vw, 48px); display: grid; gap: 16px; font-size: 16.5px; line-height: 1.6; }
+.cine-dialog-body p { color: #d6d4cf; max-width: 60ch; }
+.cine-dialog h2 {
+  font-family: var(--cine-display);
+  font-weight: 800;
+  font-stretch: 70%;
+  font-size: clamp(34px, 5.4vw, 52px);
+  line-height: 0.98;
+  margin-bottom: 4px;
+}
+.cine-eyebrow { font-size: 12px !important; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cine-muted) !important; }
+.cine-dialog-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  color: var(--cine-muted);
+}
+.cine-dialog-close:hover { color: var(--cine-text); background: rgba(242, 240, 235, 0.06); }
+.cine-dialog-note { font-size: 13.5px; color: var(--cine-muted) !important; border-top: 1px solid var(--cine-line); padding-top: 14px; }
+.cine-dialog-note a,
+.cine-credits a,
+.cine-inline-link { color: var(--cine-text); text-decoration: underline; text-decoration-color: rgba(242, 240, 235, 0.35); text-underline-offset: 3px; }
+.cine-credits { display: grid; border-top: 1px solid var(--cine-line); }
+.cine-credits li { display: grid; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--cine-line); }
+.cine-credits strong { font-weight: 700; }
+.cine-credit-meta { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 14px; color: var(--cine-muted); }
+.cine-credits a { display: inline-flex; align-items: center; gap: 2px; }
+
+/* ── Reduced motion: no travel, short fades only; nothing is ever left invisible ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  .cine,
+  .cine *,
+  .cine *::before,
+  .cine *::after {
+    transition-duration: 120ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 140ms !important;
+    animation-delay: 0ms !important;
+  }
+}
+
+/* ── Not found ───────────────────────────────────────────────────────────────────────────── */
+.cine-notfound { display: flex; flex-direction: column; }
+.cine-notfound-main {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: calc(var(--cine-header-h) + clamp(32px, 9vh, 96px)) var(--cine-gutter) 64px;
+  display: grid;
+  gap: 18px;
+}
+.cine-notfound h1 {
+  font-family: var(--cine-display);
+  font-weight: 800;
+  font-stretch: 66%;
+  font-size: clamp(44px, 7.4vw, 88px);
+  line-height: 0.94;
+  letter-spacing: -0.005em;
+}
+.cine-notfound-lead { max-width: 52ch; font-size: 18px; color: var(--cine-muted); }
+.cine-notfound-primary {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-top: 6px;
+  padding: 0 20px;
+  border-radius: 4px;
+  background: var(--cine-text);
+  color: #000;
+  font-weight: 700;
+  text-decoration: none;
+}
+.cine-notfound-primary:hover { background: #fff; }
+.cine-notfound-stories { margin-top: clamp(24px, 6vh, 56px); display: grid; gap: 10px; }
+.cine-notfound-stories ul { border-top: 1px solid var(--cine-line); }
+.cine-notfound-stories a {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  min-height: 48px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--cine-line);
+  font-family: var(--cine-display);
+  font-weight: 700;
+  font-size: 20px;
+  text-decoration: none;
+}
+.cine-notfound-stories a span { font-family: var(--font-ui), sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: var(--cine-faint); }
+.cine-notfound-stories a small { margin-left: auto; font-family: var(--font-ui), sans-serif; font-size: 14px; font-weight: 400; color: var(--cine-muted); }
+.cine-notfound-stories a:hover small { color: var(--cine-text); }

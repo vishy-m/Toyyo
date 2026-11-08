@@ -1,0 +1,66 @@
+{
+  "id": "ava",
+  "name": "Ava",
+  "displayName": "Ava, 24 \u00b7 First-car owner",
+  "age": 24,
+  "city": "Dallas",
+  "avatarEmoji": "\ud83d\udcda",
+  "vehicle": {
+    "year": 2025,
+    "make": "Toyota",
+    "model": "Corolla Cross LE",
+    "bodyStyle": "suv",
+    "modelAsset": "/models/cinematic/optimized/toyota-corolla-cross.glb",
+    "paintHex": "#D6D5CA",
+    "odometer": 11900,
+    "vin": "SYNTHETIC-AVA-001",
+    "isHybrid": false,
+    "mpg": 32
+  },
+  "contract": {
+    "kind": "loan",
+    "startDate": "2025-08-27",
+    "termMonths": 72,
+    "monthsRemaining": 58,
+    "monthlyPayment": 498.31,
+    "apr": 11.4,
+    "principalRemaining": 22142,
+    "autopay": false
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 144,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2025-08-27",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "building",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": true
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.55,
+      "totalCost": 0.2,
+      "flexibility": 0.15,
+      "lifestyleFit": 0.1
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [
+    "first financed car"
+  ],
+  "intendedBestMove": "payment"
+}

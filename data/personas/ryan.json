@@ -1,0 +1,78 @@
+{
+  "id": "ryan",
+  "name": "Ryan",
+  "displayName": "Ryan, 36 · Richardson software engineer",
+  "age": 36,
+  "city": "Richardson",
+  "avatarEmoji": "🌄",
+  "vehicle": {
+    "year": 2025,
+    "make": "Toyota",
+    "model": "Camry XSE",
+    "bodyStyle": "sedan",
+    "modelAsset": "/models/camry.glb",
+    "paintHex": "#B3122C",
+    "odometer": 18000,
+    "vin": "SYNTHETIC-RYAN-001",
+    "isHybrid": true,
+    "mpg": 44
+  },
+  "contract": {
+    "kind": "lease",
+    "startDate": "2025-05-07",
+    "termMonths": 36,
+    "monthsRemaining": 18,
+    "monthlyPayment": 434.95,
+    "annualMileageAllowance": 12000,
+    "overageRatePerMile": 0.25,
+    "residualValue": 19680,
+    "purchaseOptionFee": 350,
+    "dispositionFee": 395
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 172,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2025-05-07",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "excellent",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": false
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.25,
+      "totalCost": 0.4,
+      "flexibility": 0.25,
+      "lifestyleFit": 0.1
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [
+    "relocating to Denver in 2 months"
+  ],
+  "intendedBestMove": "lease-end",
+  "profile": {
+    "packCustomerId": "C010",
+    "occupation": "Software engineer",
+    "annualIncome": 118000,
+    "preferredChannel": "App",
+    "marketingConsent": true,
+    "vulnerable": false,
+    "financialStressScore": 12,
+    "digitalEngagement": "High"
+  }
+}

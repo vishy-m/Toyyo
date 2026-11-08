@@ -1,0 +1,27 @@
+{
+  "personaId": "jordan",
+  "source": "toyyo",
+  "driver": {
+    "firstName": "Jordan",
+    "age": 22,
+    "city": "Houston",
+    "state": "TX",
+    "occupation": "Line cook"
+  },
+  "quote": "My GR Supra is the one thing I splurged on, but insurance eats my paycheck and my payment lands before I get paid. I have been late twice this year. What can I do?",
+  "context": "Insurance and payment timing squeeze; 2 late payments, building credit; driving score 68",
+  "bestMove": {
+    "title": "Start free driving coaching, and talk to a specialist about your payment date",
+    "nextStepType": "Follow-up",
+    "message": "Your driving score is 68, mostly from harsh braking at night. Free coaching shows how to move it toward 83, and it shares nothing with insurers. Your payment is due on the 3rd but you are paid every other Friday, so a specialist can walk you through moving the date to the 17th. No new product is being offered.",
+    "whyNotOthers": "Insurance quotes stay off until you choose to share your driving data, and a refinance would not help while your credit tier is still building. Extra principal is not the priority while payments are tight.",
+    "guardrails": "Two late payments in 12 months and a building credit tier: per the pack's rule 6, no upsell and no marketing, and a person is offered. Coaching is private (insurer sharing is off).",
+    "optionId": "insurance:coaching"
+  },
+  "notes": [
+    "Toyyo-authored case: the figures come from Toyyo's own simulated persona data and engines, not from the hackathon data pack. All data is synthetic.",
+    "The driver's occupation is illustrative; the persona data does not specify one.",
+    "Next-step label follows the pack's definitions: Self-service (customer does it in the app), Follow-up (a specialist continues), Offer (an eligible product offer).",
+    "Engine ranking: coaching first, payment due-date change second. The case adds the specialist follow-up because of the two late payments."
+  ]
+}

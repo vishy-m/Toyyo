@@ -2,7 +2,7 @@
 // Every task (data/engines, agent API, dashboard UI, 3D) builds against these types.
 // Changing a type here is a cross-team change: note it in .plans/tasks/STATUS.md.
 
-export type PersonaId = "maya" | "garcia" | "jordan" | "raj";
+export type PersonaId = "maya" | "garcia" | "jordan" | "raj" | "nora" | "eli" | "ava" | "theo" | "ryan" | "devon" | "priya";
 
 export type BodyStyle = "sedan" | "suv" | "truck";
 
@@ -38,6 +38,7 @@ export interface LeaseContract {
   residualValue: number;
   purchaseOptionFee: number;
   dispositionFee: number;
+  startingOdometer?: number; // present after a simulated lease switch
 }
 
 export interface LoanContract {
@@ -81,6 +82,49 @@ export interface Persona {
   preferences: Preferences; // seed; runtime copy lives in the server store
   lifeEvents: string[]; // e.g. ["new baby (3 mo)"]
   intendedBestMove: MoveType; // design intent, used by tests
+  /** Present on personas imported from the hackathon data pack; drives the pack's responsible-AI rules. */
+  profile?: PersonaProfile;
+}
+
+export interface PersonaProfile {
+  packCustomerId: string; // e.g. "C010"
+  occupation: string;
+  annualIncome: number;
+  preferredChannel: string; // "App" | "Phone" | ...
+  marketingConsent: boolean; // false => no new-vehicle offers
+  vulnerable: boolean; // true => offer a person, no upsell
+  financialStressScore: number; // 0-100, demo signal
+  digitalEngagement: string; // "High" | "Medium" | "Low"
+}
+
+// ---------- Case file (the customer's situation and the reference best next move) ----------
+
+export type NextStepType = "Self-service" | "Follow-up" | "Offer";
+
+/** One pack option row, camelCased. Numbers are the pack's own, unchanged. */
+export interface CaseOption {
+  optionId: string;
+  optionName: string;
+  newMonthlyPayment: number | null;
+  monthlyPaymentChange: number | null;
+  upfrontCost: number | null;
+  totalCostVsKeepAsIs: number | null;
+  eligibility: string; // "Y" | "N" | "Review"
+  plainLanguageSummary: string;
+  keyAssumption: string;
+  tradeoff: string;
+}
+
+export interface CaseFile {
+  personaId: PersonaId;
+  source: "pack" | "toyyo";
+  packCustomerId?: string;
+  driver: { firstName: string; age: number; city: string; state: string; occupation: string };
+  quote: string; // the situation in their own words
+  context: string; // one-line summary
+  bestMove: { title: string; nextStepType: NextStepType; message: string; whyNotOthers: string; guardrails: string; optionId?: string };
+  options?: CaseOption[]; // pack personas only
+  notes: string[]; // assumptions and caveats
 }
 
 // ---------- Trips / driving ----------
@@ -280,6 +324,7 @@ export interface DashboardData {
   tripInsights: TripInsight[];
   trips: Omit<Trip, "path" | "events">[]; // list view; fetch full trip separately
   preferences: Preferences; // runtime copy
+  caseFile?: CaseFile; // the carousel case (situation, reference best next move, options)
 }
 
 // GET /api/trips/[tripId] -> Trip (full path + events)
@@ -299,11 +344,15 @@ export interface AgentChatRequest {
   context?: { widget?: string; optionId?: string; tripId?: string };
 }
 
+/** Pages the dashboard and the copilot can open. `next-move` and `recommendations` stay URL-only. */
+export type DashboardPage = "overview" | "repairs" | "driving" | "finances";
+
 export type UiAction =
   | { kind: "open_trip_replay"; tripId: string; focusEventT?: number }
   | { kind: "focus_vehicle_hotspot"; hotspot: Hotspot }
   | { kind: "set_whatif"; control: keyof WhatIfOverrides; value: number }
-  | { kind: "open_move"; moveType: MoveType };
+  | { kind: "open_move"; moveType: MoveType }
+  | { kind: "open_page"; page: DashboardPage; issue?: string };
 
 export type Hotspot = "odometer" | "tires" | "engine" | "driver-seat";
 

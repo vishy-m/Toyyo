@@ -3,7 +3,6 @@ import type { AgentPanelState, DashboardData, MoveOption, PersonaId, Recommendat
 import { getDashboard } from "../server/dashboard";
 import { getState, invalidatePanel, panelFromState, runtimeStore } from "../server/store";
 import { getProvider, providerConfig } from "./llm";
-import { systemPrompt } from "./prompt";
 import { startDiagnostic } from "./diagnostics";
 import { checkGrounding } from "./grounding";
 
@@ -46,18 +45,23 @@ const copySchema = z.strictObject({ recommendations: z.array(z.strictObject({
   optionId: z.string(), title: z.string(), action: z.string(), why: z.string(), impactLabel: z.string(), urgencyLabel: z.string().nullable(),
 })) });
 
-async function draftRecommendations(dashboard: DashboardData): Promise<Recommendation[]> {
+function providerStatus(error: unknown) {
+  return error && typeof error === "object" && "status" in error ? Number((error as { status?: unknown }).status) : 0;
+}
+async function draftRecommendations(dashboard: DashboardData): Promise<{ recommendations: Recommendation[]; retryable: boolean }> {
   const options = topOptions(dashboard);
   const templates = options.map(templateRecommendation);
   const diagnostic = startDiagnostic("initial", dashboard.persona.id);
   let correction = "";
   let best = templates;
+  let retryable = false;
   try {
     const provider = getProvider();
-    if (!provider || !options.length) { diagnostic.record.fallback = true; return templates; }
+    if (!provider || !options.length) { diagnostic.record.fallback = true; return { recommendations: templates, retryable: false }; }
     for (let attempt = 0; attempt < 2; attempt++) {
       const text = await provider.generateJson(z.toJSONSchema(copySchema), {
-        system: [...systemPrompt(dashboard), ...(correction ? [{ type: "text" as const, text: correction }] : [])],
+        // The chat system prompt makes Gemma's structured call return HTTP 500. The options below are the evidence.
+        system: [{ type: "text" as const, text: "Draft recommendation copy from the supplied options only. Copy every number verbatim. Do not calculate or invent amounts, percentages, or mileage. Mention a TFS specialist when an option is high stakes." }, ...(correction ? [{ type: "text" as const, text: correction }] : [])],
         prompt: `Draft recommendation copy for exactly these options in this order. Keep why to two sentences and every number verbatim from each option. Include specialist assistance for highStakes options. ${JSON.stringify(options)}`,
       });
       const parsed = copySchema.parse(JSON.parse(text));
@@ -70,22 +74,25 @@ async function draftRecommendations(dashboard: DashboardData): Promise<Recommend
         if (!checked.grounded) { failed = true; return templates[index]; }
         return { ...templates[index], ...copy, impactLabel, urgencyLabel: copy.urgencyLabel ?? undefined, action: option.highStakes && !/specialist/i.test(copy.action) ? `${/[.!?]$/.test(copy.action) ? copy.action : `${copy.action}.`} A TFS specialist can help.` : copy.action, grounded: true };
       });
-      if (!failed) return best;
+      if (!failed) return { recommendations: best, retryable: false };
       if (attempt === 0) diagnostic.record.groundingRetries += 1;
       else diagnostic.record.fallback = true;
       correction = "Your previous draft contained ungrounded numbers. Regenerate using only exact numeric values in each option. Do not calculate or invent any other amount, percentage, or mileage. If unsure, omit numbers.";
     }
   } catch (error) {
     diagnostic.record.fallback = true;
-    console.warn("[agent/initial] Using engine templates:", error instanceof Error ? error.name : "Unknown error");
+    const status = providerStatus(error);
+    // A 500 or 503 is demand, not a bad draft. Leave the panel uncached so the next view can try again.
+    retryable = status === 500 || status === 503;
+    console.warn("[agent/initial] Using engine templates:", error instanceof Error ? `${error.name}${status ? ` ${status}` : ""}` : "Unknown error");
   } finally { diagnostic.finish(); }
-  return best;
+  return { recommendations: best, retryable };
 }
 export async function getInitialPanel(id: PersonaId): Promise<AgentPanelState> {
   const state = getState(id);
   const dashboard = getDashboard(id);
   const options = topOptions(dashboard);
-  const source = JSON.stringify({ llm: providerConfig(), options, templates: options.map(templateRecommendation) });
+  const source = JSON.stringify({ llm: providerConfig(), draft: "options", options, templates: options.map(templateRecommendation) });
   // The runtime store survives HMR, so engine/data changes must invalidate its copy.
   if (state.panelSource !== source) {
     invalidatePanel(state);
@@ -95,10 +102,11 @@ export async function getInitialPanel(id: PersonaId): Promise<AgentPanelState> {
   if (state.initialPromise) return state.initialPromise;
   const revision = state.revision;
   const pending = (async () => {
-    const recommendations = await draftRecommendations(dashboard);
+    const drafted = await draftRecommendations(dashboard);
     // A consent/action change during generation must not resurrect stale copy.
     if (state.revision !== revision || getState(id) !== state) return getInitialPanel(id);
-    state.recommendations = recommendations;
+    state.recommendations = drafted.recommendations;
+    if (drafted.retryable) return panelFromState(id);
     state.panel = panelFromState(id);
     return state.panel;
   })();
@@ -106,8 +114,11 @@ export async function getInitialPanel(id: PersonaId): Promise<AgentPanelState> {
   try { return await pending; } finally { if (state.initialPromise === pending) state.initialPromise = undefined; }
 }
 export async function warmInitialPanels() {
-  const source = JSON.stringify(providerConfig());
+  const config = providerConfig();
+  const source = JSON.stringify(config);
   if (runtimeStore.warmingSource === source) return;
   runtimeStore.warmingSource = source;
-  await Promise.allSettled((["maya", "garcia", "jordan", "raj"] as const).map(getInitialPanel));
+  // Gemma 4 shares 16K tokens per minute. Building every persona up front spends that minute before anyone asks.
+  if (config.model.startsWith("gemma-")) return;
+  await Promise.allSettled((["maya", "garcia", "jordan", "raj", "nora", "eli", "ava", "theo", "ryan", "devon", "priya"] as const).map(getInitialPanel));
 }

@@ -7,8 +7,9 @@ vi.mock("@google/genai", async importOriginal => {
   return { ...actual, GoogleGenAI: class { models = { generateContentStream: mock.stream, generateContent: mock.json }; } };
 });
 import { geminiSchema } from "../llm/schema";
-import { geminiMessages, geminiProvider, geminiTurn } from "../llm/gemini";
+import { estimateTokens, GEMMA_OUTPUT_TOKENS, GEMMA_RPD, GEMMA_RPM, GEMMA_TPM, geminiMessages, geminiProvider, geminiTurn, gemmaWaitMs } from "../llm/gemini";
 import { getProvider, providerConfig } from "../llm";
+import { systemPrompt } from "../prompt";
 import { agentTools } from "../tools";
 import { runAgent } from "../loop";
 import { agentDiagnostics } from "../diagnostics";
@@ -43,7 +44,7 @@ afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 
 describe("Gemini schemas and configuration", () => {
   it("converts all 15 schemas, nested bounds, enums, literals and nullable fields without unsupported keys", () => {
-    expect(agentTools).toHaveLength(15);
+    expect(agentTools).toHaveLength(16);
     for (const tool of agentTools) {
       const converted = geminiSchema(tool.input_schema);
       expect(converted.type).toBe(Type.OBJECT);
@@ -61,11 +62,11 @@ describe("Gemini schemas and configuration", () => {
     expect(result.required).toEqual(["name", "source", "choice", "note", "rows"]);
     expect(() => geminiSchema({ $ref: "#/$defs/unknown" })).toThrow();
   });
-  it("defaults to Gemini flash, supports the nonstandard key and model override", () => {
+  it("defaults to Gemma 4, supports the nonstandard key and model override", () => {
     vi.stubEnv("AGENT_PROVIDER", undefined);
     vi.stubEnv("GEMINI_API_KEY", undefined);
     vi.stubEnv("GEMINI_API", "fake-fallback-key");
-    expect(providerConfig()).toEqual({ provider: "gemini", model: "gemini-3.5-flash" });
+    expect(providerConfig()).toEqual({ provider: "gemini", model: "gemma-4-31b-it" });
     expect(getProvider()).not.toBeNull();
     vi.stubEnv("AGENT_MODEL", "gemini-3.1-pro-preview");
     expect(providerConfig().model).toBe("gemini-3.1-pro-preview");
@@ -84,7 +85,9 @@ describe("Gemini streaming and tool loop", () => {
     expect(messages[0].parts).toContainEqual(parts[1]);
     expect(messages[1].parts).toHaveLength(2);
     expect(messages[1].parts?.[1].functionResponse).toMatchObject({ id: "two", name: "get_driving_summary", response: { error: { error: "Denied" } } });
-    expect(mock.stream.mock.calls[0][0].config.tools[0].functionDeclarations).toHaveLength(15);
+    expect(mock.stream.mock.calls[0][0].config.tools[0].functionDeclarations).toHaveLength(16);
+    expect(mock.stream.mock.calls[0][0]).toMatchObject({ model: "gemma-4-31b-it", config: { maxOutputTokens: 1024, thinkingConfig: { thinkingLevel: "MINIMAL" } } });
+    expect(GEMMA_OUTPUT_TOKENS).toBe(1024);
   });
   it("returns all tool results together, validates inputs and keeps the SSE contract", async () => {
     mock.stream.mockResolvedValueOnce(reply(chunk([
@@ -182,6 +185,20 @@ describe("Gemini initial structured copy and cache", () => {
     expect((await getInitialPanel("maya")).recommendations.every(rec => !rec.grounded)).toBe(true);
     expect(mock.json).toHaveBeenCalledTimes(1);
   });
+  it("retries one structured HTTP 500 and keeps the grounded copy", async () => {
+    mock.json.mockRejectedValueOnce(Object.assign(new Error("Internal"), { status: 500 }))
+      .mockResolvedValueOnce(chunk([{ text: JSON.stringify(copyForMaya()) }], FinishReason.STOP));
+    const panel = await getInitialPanel("maya");
+    expect(mock.json).toHaveBeenCalledTimes(2);
+    expect(panel.recommendations.every(rec => rec.grounded)).toBe(true);
+  });
+  it("tries a Gemma 503 again on the next view", async () => {
+    mock.json.mockRejectedValue(Object.assign(new Error("Busy"), { status: 503 }));
+    const first = await getInitialPanel("maya");
+    expect(first.recommendations.every(rec => !rec.grounded)).toBe(true);
+    await getInitialPanel("maya");
+    expect(mock.json).toHaveBeenCalledTimes(4);
+  });
   it("retries structured rate limits once and caches the offline result", async () => {
     mock.json.mockRejectedValue(Object.assign(new Error("Busy"), { status: 429 }));
     const first = await getInitialPanel("maya");
@@ -189,16 +206,32 @@ describe("Gemini initial structured copy and cache", () => {
     expect(await getInitialPanel("maya")).toEqual(first);
     expect(mock.json).toHaveBeenCalledTimes(2);
   });
-  it("warms all four personas once per provider/model even after HMR's old warming flag", async () => {
+  it("does not prebuild Gemma panels, and warms the eleven Gemini panels once per model", async () => {
     runtimeStore.warming = true;
     mock.json.mockRejectedValue(new Error("Offline"));
     await Promise.all([warmInitialPanels(), warmInitialPanels()]);
-    expect(mock.json).toHaveBeenCalledTimes(4);
-    await warmInitialPanels();
-    expect(mock.json).toHaveBeenCalledTimes(4);
+    expect(mock.json).not.toHaveBeenCalled();
     vi.stubEnv("AGENT_MODEL", "gemini-3.1-pro-preview");
+    await Promise.all([warmInitialPanels(), warmInitialPanels()]);
+    expect(mock.json).toHaveBeenCalledTimes(11);
     await warmInitialPanels();
-    expect(mock.json).toHaveBeenCalledTimes(8);
+    expect(mock.json).toHaveBeenCalledTimes(11);
+  });
+  it("keeps a Gemma tool round-trip inside the 16K token minute", () => {
+    const tools = JSON.stringify(agentTools.map(tool => tool.input_schema));
+    for (const id of ["maya", "devon", "ryan", "priya"] as const) {
+      const system = systemPrompt(getDashboard(id)).map(block => block.text).join("\n\n");
+      expect(system).not.toMatch(/"engines":/);
+      const call = estimateTokens(system) + estimateTokens(tools) + GEMMA_OUTPUT_TOKENS;
+      expect(call * 2).toBeLessThanOrEqual(GEMMA_TPM);
+    }
+  });
+  it("waits out the Gemma minute and refuses a request that cannot fit", () => {
+    expect(gemmaWaitMs(1_000_000, [], 1_000)).toBe(0);
+    expect(gemmaWaitMs(1_000_000, [{ at: 990_000, tokens: GEMMA_TPM - 100 }], 200)).toBe(50_000);
+    expect(gemmaWaitMs(1_000_000, [], GEMMA_TPM + 1)).toBe(-1);
+    expect(gemmaWaitMs(1_000_000, Array.from({ length: GEMMA_RPM }, (_, index) => ({ at: 1_000_000 - index, tokens: 1 })), 10)).toBeGreaterThan(0);
+    expect(gemmaWaitMs(1_000_000, Array.from({ length: GEMMA_RPD }, () => ({ at: 1_000_000, tokens: 1 })), 10)).toBe(-1);
   });
   it("passes cancellation into the SDK without retrying a cancelled operation", async () => {
     const abort = new AbortController(); abort.abort();

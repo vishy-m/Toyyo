@@ -6,11 +6,11 @@
   "city": "San Antonio",
   "avatarEmoji": "\ud83c\udf31",
   "vehicle": {
-    "year": 2022,
+    "year": 2021,
     "make": "Toyota",
     "model": "RAV4 Hybrid XLE",
     "bodyStyle": "suv",
-    "modelAsset": "/models/rav4.glb",
+    "modelAsset": "/models/cinematic/optimized/toyota-rav4.glb",
     "paintHex": "#2B3F5C",
     "odometer": 23100,
     "vin": "SYNTHETIC-GARCIA-001",

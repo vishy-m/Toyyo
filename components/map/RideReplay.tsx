@@ -37,6 +37,8 @@ export interface RideReplayProps {
   autoPlay?: boolean;
   /** Force a map provider (testing); default comes from NEXT_PUBLIC_MAP_PROVIDER. */
   provider?: ProviderName;
+  /** Embedded in a page: no close button, and keyboard shortcuts only while focus is inside the replay. */
+  inline?: boolean;
 }
 
 const BASE_SPEEDS = [1, 10, 60];
@@ -65,7 +67,7 @@ const EVENT_SLOW_RATE = 3; // × real time near events
 
 type Status = "loading" | "ready" | "error" | "nowebgl";
 
-export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A1E", autoPlay = true, provider: providerProp }: RideReplayProps) {
+export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A1E", autoPlay = true, provider: providerProp, inline = false }: RideReplayProps) {
   const tl = useMemo(() => buildTimeline(trip), [trip]);
   const speeds = useMemo(() => speedOptions(tl.duration), [tl.duration]);
   const reducedMotion = useShouldReduceMotion();
@@ -410,6 +412,7 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       const inRoot = !!(t && rootRef.current?.contains(t));
+      if (inline && !inRoot) return;
       if (t && !inRoot && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
       if (t && inRoot && t.tagName === "INPUT" && e.key !== " ") return; // range handles arrows itself
       const step = e.shiftKey ? 120 : 30;
@@ -424,7 +427,7 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
         e.preventDefault();
         seek(st.current.t - step);
       } else if (e.key === "Escape") {
-        close();
+        if (!inline) close();
       } else if (e.key.toLowerCase() === "c" && !e.metaKey && !e.ctrlKey) {
         const i = MODES.findIndex((m) => m.id === st.current.mode);
         changeMode(MODES[(i + 1) % MODES.length].id);
@@ -434,7 +437,7 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [play, seek, close, changeMode, resetView]);
+  }, [play, seek, close, changeMode, resetView, inline]);
 
   const provider = providerProp ?? chosenProvider();
   const date = useMemo(() => {
@@ -473,8 +476,9 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
         </div>
       )}
 
-      {/* Header */}
-      <header className="absolute inset-x-0 top-0 z-[5] flex items-start justify-between gap-3 p-3 sm:p-4">
+      {/* Header: full-screen replay only. The inline one (car Driving page) is titled by its page and stays minimal:
+          no trip card, no legend, no readouts. */}
+      {!inline && <header className="absolute inset-x-0 top-0 z-[5] flex items-start justify-between gap-3 p-3 sm:p-4">
         <div className="min-w-0 rounded-lg border border-white/10 bg-black/40 px-3 py-2 backdrop-blur-md">
           <p className="text-[11px] font-medium text-white/55">Ride replay, {trip.category.replace("-", " ")}</p>
           <h2 className="truncate text-sm font-semibold sm:text-base">{trip.destinationLabel}</h2>
@@ -491,10 +495,10 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
             <span aria-hidden>×</span>
           </button>
         </div>
-      </header>
+      </header>}
 
       {/* Legend */}
-      {legendOpen && (
+      {legendOpen && !inline && (
         <aside className="absolute right-3 top-[76px] z-[5] hidden w-48 rounded-lg border border-white/10 bg-black/45 p-3 text-xs text-white/75 backdrop-blur-md sm:block sm:right-4">
           <p className="mb-2 text-[11px] font-medium text-white/50">Legend</p>
           <ul className="space-y-1.5">
@@ -505,13 +509,13 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
               <li key={k} className="flex items-center gap-2"><span className="ml-1.5 h-2.5 w-2.5 rounded-full ring-2 ring-white/80" style={{ background: EVENT_STYLE[k].color }} /><span className="ml-1">{EVENT_STYLE[k].label}</span></li>
             ))}
           </ul>
-          <p className="mt-2 border-t border-white/10 pt-2 text-[10px] leading-relaxed text-white/45">Space play, ←/→ scrub, C camera, R reset, Esc close</p>
+          <p className="mt-2 border-t border-white/10 pt-2 text-[10px] leading-relaxed text-white/45">{inline ? "Space play, ←/→ scrub, C camera, R reset" : "Space play, ←/→ scrub, C camera, R reset, Esc close"}</p>
         </aside>
       )}
 
       {/* Event callout */}
       {callout && (
-        <div role="status" aria-live="polite" key={callout.idx} className="nm-replay-callout absolute left-1/2 top-[86px] z-[6] flex items-center gap-2 whitespace-nowrap rounded-full border border-white/15 bg-black/60 px-4 py-2 text-sm font-medium shadow-2xl backdrop-blur-md" style={{ boxShadow: `0 0 0 1px ${callout.color}55, 0 10px 40px ${callout.color}40` }}>
+        <div role="status" aria-live="polite" key={callout.idx} className={`nm-replay-callout absolute left-1/2 ${inline ? "top-3 sm:top-4" : "top-[86px]"} z-[6] flex items-center gap-2 whitespace-nowrap rounded-full border border-white/15 bg-black/60 px-4 py-2 text-sm font-medium shadow-2xl backdrop-blur-md`} style={{ boxShadow: `0 0 0 1px ${callout.color}55, 0 10px 40px ${callout.color}40` }}>
           <span className="h-2.5 w-2.5 rounded-full" style={{ background: callout.color, boxShadow: `0 0 10px ${callout.color}` }} />
           {callout.text}
         </div>
@@ -519,7 +523,8 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
 
       {/* HUD + controls */}
       <div className="absolute inset-x-0 bottom-0 z-[5] p-3 sm:p-4">
-        <div className="mb-3 flex flex-wrap items-end gap-2 sm:gap-3">
+        {/* Readouts only in the full-screen replay; the inline one keeps just the timeline and controls. */}
+        {!inline && <div className="mb-3 flex flex-wrap items-end gap-2 sm:gap-3">
           <div className="rounded-lg border border-white/10 bg-black/45 px-3 py-2 backdrop-blur-md">
             <p className="text-[11px] text-white/50">Speed</p>
             <p className="font-mono text-2xl font-semibold tabular-nums leading-none sm:text-3xl"><span ref={hudSpeed}>0</span><span className="ml-1 text-xs font-normal text-white/50">mph</span></p>
@@ -528,7 +533,7 @@ export default function RideReplay({ trip, onClose, className, paintHex = "#EB0A
           <Stat label="Elapsed" className="hidden sm:block"><span ref={hudElapsed}>0:00</span></Stat>
           <Stat label="Clock" className="hidden sm:block"><span ref={hudClock}>{formatClock(trip.start)}</span></Stat>
           <Stat label="Score change"><span ref={hudScore} className="data-[neg=1]:text-[#FF6B7A]">±0</span></Stat>
-        </div>
+        </div>}
 
         <div className="rounded-lg border border-white/10 bg-black/50 p-2.5 backdrop-blur-md sm:p-3">
           {/* Scrubber */}

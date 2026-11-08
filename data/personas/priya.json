@@ -1,0 +1,78 @@
+{
+  "id": "priya",
+  "name": "Priya",
+  "displayName": "Priya, 34 · Plano marketing manager",
+  "age": 34,
+  "city": "Plano",
+  "avatarEmoji": "📈",
+  "vehicle": {
+    "year": 2024,
+    "make": "Toyota",
+    "model": "Corolla Cross LE",
+    "bodyStyle": "suv",
+    "modelAsset": "/models/cinematic/optimized/toyota-corolla-cross.glb",
+    "paintHex": "#2F9AA0",
+    "odometer": 45375,
+    "vin": "SYNTHETIC-PRIYA-001",
+    "isHybrid": false,
+    "mpg": 32
+  },
+  "contract": {
+    "kind": "lease",
+    "startDate": "2024-02-07",
+    "termMonths": 36,
+    "monthsRemaining": 3,
+    "monthlyPayment": 367.1,
+    "annualMileageAllowance": 12000,
+    "overageRatePerMile": 0.25,
+    "residualValue": 16320,
+    "purchaseOptionFee": 350,
+    "dispositionFee": 395
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 178,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2024-02-07",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "excellent",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": false
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.25,
+      "totalCost": 0.4,
+      "flexibility": 0.25,
+      "lifestyleFit": 0.1
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [
+    "driving more than planned"
+  ],
+  "intendedBestMove": "lease-end",
+  "profile": {
+    "packCustomerId": "C003",
+    "occupation": "Marketing manager",
+    "annualIncome": 96000,
+    "preferredChannel": "App",
+    "marketingConsent": true,
+    "vulnerable": false,
+    "financialStressScore": 11,
+    "digitalEngagement": "High"
+  }
+}

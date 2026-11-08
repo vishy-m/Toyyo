@@ -6,24 +6,24 @@
   "city": "Austin",
   "avatarEmoji": "\ud83c\udf07",
   "vehicle": {
-    "year": 2023,
+    "year": 2025,
     "make": "Toyota",
-    "model": "Camry SE",
+    "model": "Camry Hybrid SE",
     "bodyStyle": "sedan",
     "modelAsset": "/models/camry.glb",
     "paintHex": "#B3122E",
     "odometer": 41200,
     "vin": "SYNTHETIC-MAYA-001",
-    "isHybrid": false,
-    "mpg": 32
+    "isHybrid": true,
+    "mpg": 48
   },
   "contract": {
     "kind": "lease",
-    "startDate": "2024-02-27",
-    "termMonths": 36,
+    "startDate": "2024-11-27",
+    "termMonths": 27,
     "monthsRemaining": 4,
     "monthlyPayment": 389,
-    "annualMileageAllowance": 12000,
+    "annualMileageAllowance": 16000,
     "overageRatePerMile": 0.25,
     "residualValue": 19400,
     "purchaseOptionFee": 300,
@@ -35,7 +35,7 @@
     "usageBased": false
   },
   "toyotaCare": {
-    "startDate": "2024-02-27",
+    "startDate": "2024-11-27",
     "expiresMonths": 24,
     "expiresMiles": 25000
   },

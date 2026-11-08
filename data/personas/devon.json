@@ -1,0 +1,78 @@
+{
+  "id": "devon",
+  "name": "Devon",
+  "displayName": "Devon, 29 · Dallas UX designer",
+  "age": 29,
+  "city": "Dallas",
+  "avatarEmoji": "🎨",
+  "vehicle": {
+    "year": 2024,
+    "make": "Toyota",
+    "model": "RAV4 Hybrid XSE",
+    "bodyStyle": "suv",
+    "modelAsset": "/models/cinematic/optimized/toyota-rav4.glb",
+    "paintHex": "#3F6FB0",
+    "odometer": 20666,
+    "vin": "SYNTHETIC-DEVON-001",
+    "isHybrid": true,
+    "mpg": 40
+  },
+  "contract": {
+    "kind": "lease",
+    "startDate": "2024-04-07",
+    "termMonths": 36,
+    "monthsRemaining": 5,
+    "monthlyPayment": 510.98,
+    "annualMileageAllowance": 12000,
+    "overageRatePerMile": 0.25,
+    "residualValue": 22200,
+    "purchaseOptionFee": 350,
+    "dispositionFee": 395
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 148,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2024-04-07",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "excellent",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": false
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.25,
+      "totalCost": 0.4,
+      "flexibility": 0.25,
+      "lifestyleFit": 0.1
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [
+    "open to a newer hybrid"
+  ],
+  "intendedBestMove": "lease-end",
+  "profile": {
+    "packCustomerId": "C006",
+    "occupation": "UX designer",
+    "annualIncome": 84000,
+    "preferredChannel": "App",
+    "marketingConsent": true,
+    "vulnerable": false,
+    "financialStressScore": 16,
+    "digitalEngagement": "High"
+  }
+}

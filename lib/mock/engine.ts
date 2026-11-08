@@ -7,9 +7,9 @@ import type {
   MoveOption,
   MoveType,
   Persona,
-  PersonaId,
   WhatIfOverrides,
 } from "@/lib/types";
+import { type LegacyPersonaId, legacyId } from "./personas";
 
 export const SNAPSHOT_DATE = "2026-10-27";
 
@@ -50,7 +50,7 @@ function payoff(principal: number, aprPct: number, payment: number, extra: numbe
 
 // Per-persona tuning the real engines read from data/reference/*.json.
 const leaseTuning: Partial<
-  Record<PersonaId, { startOdo: number; marketValueAt: number; marketValueOdo: number; wear: number; reLease: number; upgrade: { name: string; monthly: number; asset: string; body: "sedan" | "suv" | "truck"; why: string } }>
+  Record<LegacyPersonaId, { startOdo: number; marketValueAt: number; marketValueOdo: number; wear: number; reLease: number; upgrade: { name: string; monthly: number; asset: string; body: "sedan" | "suv" | "truck"; why: string } }>
 > = {
   maya: {
     startOdo: 7000,
@@ -70,7 +70,7 @@ const leaseTuning: Partial<
   },
 };
 
-export const mockDrivingBase: Record<PersonaId, { avgMonthlyMiles: number; score: number }> = {
+export const mockDrivingBase: Record<LegacyPersonaId, { avgMonthlyMiles: number; score: number }> = {
   maya: { avgMonthlyMiles: 1450, score: 82 },
   garcia: { avgMonthlyMiles: 620, score: 91 },
   jordan: { avgMonthlyMiles: 780, score: 64 },
@@ -79,7 +79,7 @@ export const mockDrivingBase: Record<PersonaId, { avgMonthlyMiles: number; score
 
 function leaseEnd(p: Persona, o: WhatIfOverrides): EngineResult {
   const c = p.contract;
-  const t = leaseTuning[p.id];
+  const t = leaseTuning[legacyId(p.id)];
   if (c.kind !== "lease" || !t) {
     return {
       moveType: "lease-end",
@@ -102,7 +102,7 @@ function leaseEnd(p: Persona, o: WhatIfOverrides): EngineResult {
       ],
     };
   }
-  const miles = o.monthlyMiles ?? mockDrivingBase[p.id].avgMonthlyMiles;
+  const miles = o.monthlyMiles ?? mockDrivingBase[legacyId(p.id)].avgMonthlyMiles;
   const projectedOdo = p.vehicle.odometer + miles * c.monthsRemaining;
   const allowance = (c.annualMileageAllowance * c.termMonths) / 12;
   const driven = projectedOdo - t.startOdo;
@@ -210,7 +210,7 @@ function leaseEnd(p: Persona, o: WhatIfOverrides): EngineResult {
 }
 
 function insurance(p: Persona, o: WhatIfOverrides): EngineResult {
-  const base = mockDrivingBase[p.id].score;
+  const base = mockDrivingBase[legacyId(p.id)].score;
   const prem = p.insurance.monthlyPremium;
   const mult = (s: number) => Math.min(1.15, Math.max(0.65, 1.1 - (s - 50) * 0.012));
   const shared = p.consent.shareWithInsurers && p.consent.driving;
@@ -292,7 +292,7 @@ function insurance(p: Persona, o: WhatIfOverrides): EngineResult {
 
 const tierApr: Record<Persona["creditTier"], number> = { excellent: 4.9, good: 6.4, fair: 8.9, building: 9.9 };
 const paydayDay: Record<string, number> = { "biweekly-fri": 5, "semimonthly-1-15": 2, "monthly-1": 2 };
-export const mockCashflowPayday: Record<PersonaId, string> = {
+export const mockCashflowPayday: Record<LegacyPersonaId, string> = {
   maya: "semimonthly-1-15",
   garcia: "semimonthly-1-15",
   jordan: "biweekly-fri",
@@ -389,7 +389,7 @@ function payment(p: Persona, o: WhatIfOverrides): EngineResult {
   }
   const banking = p.consent.banking;
   if (!banking) limitedBy.push("banking");
-  const target = o.paymentDueDay ?? paydayDay[mockCashflowPayday[p.id]] + 1;
+  const target = o.paymentDueDay ?? paydayDay[mockCashflowPayday[legacyId(p.id)]] + 1;
   options.push({
     id: "payment:due-date",
     moveType: "payment",
@@ -398,7 +398,7 @@ function payment(p: Persona, o: WhatIfOverrides): EngineResult {
     savingsVsBaseline: p.id === "jordan" ? 78 : 0,
     tradeoffs: ["One partial-month payment during the switch"],
     assumptions: [
-      { label: "Payday (from cash flow)", value: banking ? mockCashflowPayday[p.id] : "unknown" },
+      { label: "Payday (from cash flow)", value: banking ? mockCashflowPayday[legacyId(p.id)] : "unknown" },
       { label: "Late fees avoided (est.)", value: p.id === "jordan" ? "$78/yr" : "$0" },
     ],
     math: [],
@@ -419,7 +419,7 @@ function ordinal(n: number) {
 
 function protection(p: Persona): EngineResult {
   const startMonths = monthsBetween(p.toyotaCare.startDate, SNAPSHOT_DATE);
-  const milesPerMonth = mockDrivingBase[p.id].avgMonthlyMiles;
+  const milesPerMonth = mockDrivingBase[legacyId(p.id)].avgMonthlyMiles;
   const monthsLeftByTime = Math.max(0, 24 - startMonths);
   const tcMilesUsed = Math.min(25000, milesPerMonth * startMonths);
   const monthsLeftByMiles = Math.max(0, Math.round((25000 - tcMilesUsed) / milesPerMonth));

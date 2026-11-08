@@ -8,7 +8,7 @@ import { computeProtectionOptions } from './protection';
 import { computeTripInsights } from './insights';
 import { rankMoves } from './rank';
 export { computeTfsMetrics } from './tfs';
-export type EngineRuntime = { preferences: Preferences; consent: Persona['consent'] };
+export type EngineRuntime = { preferences: Preferences; consent: Persona['consent']; currentVehicle?: Persona['vehicle']; currentContract?: Persona['contract']; currentPaymentDueDay?: number };
 function tripSummary(trip: Trip): Omit<Trip, 'path' | 'events'> {
   return {
     id: trip.id, personaId: trip.personaId, start: trip.start, end: trip.end,
@@ -21,11 +21,14 @@ function tripSummary(trip: Trip): Omit<Trip, 'path' | 'events'> {
 }
 function context(personaId:PersonaId,runtime:EngineRuntime) {
   const persona=getPersona(personaId);
+  if(runtime.currentVehicle) persona.vehicle=structuredClone(runtime.currentVehicle);
+  if(runtime.currentContract) persona.contract=structuredClone(runtime.currentContract);
   persona.consent=structuredClone(runtime.consent);
   persona.preferences=structuredClone(runtime.preferences);
   const trips=persona.consent.driving?getTrips(personaId):[];
   const driving=computeDrivingSummary(persona,trips);
   const cashflow=persona.consent.banking?getCashflow(personaId):null;
+  if(cashflow&&runtime.currentPaymentDueDay) cashflow.paymentDueDay=runtime.currentPaymentDueDay;
   if(cashflow&&!persona.consent.paymentHistory) cashflow.latePaymentsLast12=0;
   return {persona,trips,driving,cashflow};
 }

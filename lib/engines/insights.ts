@@ -4,7 +4,7 @@ export function computeTripInsights(persona: Persona, trips: Trip[], driving: Dr
   if(!persona.consent.driving) return [];
   const insights:TripInsight[]=[];
   const longTrip=[...trips].sort((a,b)=>b.miles-a.miles)[0];
-  if(persona.vehicle.isHybrid) {
+  if(persona.vehicle.isHybrid && persona.vehicle.mpg > 0) {
     const comparableGasMpg=28;
     const gallons=driving.totalMiles*(1/comparableGasMpg-1/persona.vehicle.mpg);
     insights.push({id:'hybrid-fuel',text:`Your hybrid used about ${round(gallons)} fewer gallons over ${driving.totalMiles} miles: ${dollars(gallons*rates.gasPricePerGallon)} at a simulated $3.05/gal, compared with a 28 MPG gas model (${persona.vehicle.mpg} MPG hybrid).`,relatedMove:'lease-end',relatedTripId:longTrip?.id});

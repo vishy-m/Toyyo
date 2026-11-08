@@ -1,5 +1,6 @@
 import type { LlmMessage, ToolResult } from "./llm/types";
-import type { AgentChatRequest, MoveType, WhatIfOverrides } from "../types";
+import type { AgentChatRequest, DashboardData, MoveType, WhatIfOverrides } from "../types";
+import { caseView } from "../cinematic/case-view";
 import { getTrip } from "../data";
 import { agentContext, getDashboard } from "../server/dashboard";
 import { getState } from "../server/store";
@@ -15,10 +16,46 @@ import { offlineIntent } from "./offline-intents";
 function emitText(text: string, emit: Emit) {
   for (const delta of text.match(/[\s\S]{1,160}(?:\s|$)|[\s\S]{1,160}/g) ?? []) emit({ type: "text", delta });
 }
+/** The reference best move for a case, in the pack's answer shape. Rules: vulnerable / 2+ missed -> specialist, no offer; no marketing consent -> no new-vehicle offer. */
+export function caseAnswer(dashboard: DashboardData) {
+  const kase = dashboard.caseFile!;
+  const view = caseView(dashboard, kase);
+  const { bestMove } = kase;
+  const lines: string[] = [];
+  const suppress = bestMove.nextStepType === "Offer" && (!view.marketingOk || view.specialist);
+  if (!suppress) {
+    lines.push(`**${bestMove.title}**`, bestMove.message);
+  } else {
+    // No new-vehicle offer: describe the non-offer options, or point to a person.
+    const plain = view.options.filter((o) => o.eligibility === "Y" && o.optionId !== "RENEW").slice(0, 2);
+    lines.push("**Compare your options without a sales pitch**");
+    lines.push(...(plain.length ? plain.map((o) => `${o.optionName}: ${o.plainLanguageSummary}`) : [bestMove.message]));
+  }
+  const alternatives = view.options.filter((o) => o.optionId !== bestMove.optionId && o.eligibility === "Y").slice(0, 2);
+  if (alternatives.length) lines.push("Other options:", ...alternatives.map((o) => `- ${o.optionName}: ${o.plainLanguageSummary} Trade-off: ${o.tradeoff}`));
+  lines.push(`Why not the others: ${bestMove.whyNotOthers}`, `Good to know: ${bestMove.guardrails}`);
+  if (view.specialist) lines.push("A specialist can walk you through this, so no new product is being pushed.");
+  lines.push(`Next step: ${view.stepLabel}.`, "These figures are illustrative demo estimates.");
+  return lines.join("\n\n");
+}
+
 export async function offlineChat(request: AgentChatRequest, context: ToolContext) {
   const dashboard = getDashboard(request.personaId);
   const message = request.message.toLowerCase();
-  const { overrides, moveType, replay } = offlineIntent(request.message, dashboard);
+  const { overrides, moveType, replay, page, issue, bestMove } = offlineIntent(request.message, dashboard);
+  if (bestMove && dashboard.caseFile && !page && Object.keys(overrides).length === 0) { emitText(caseAnswer(dashboard), context.emit); return; }
+  if (page && Object.keys(overrides).length === 0 && !replay) {
+    await executeTool("open_page", { page, ...(issue ? { issue } : {}) }, context);
+    const opened = page === "repairs"
+      ? "That sounds worth a look. I’ve opened Repairs with your description filled in. Check it, then search for shops. This is general guidance, not a diagnosis."
+      : page === "driving"
+        ? "I’ve opened Driving: your score, recent drives, and a replay of one of them. Figures are illustrative demo estimates."
+        : page === "finances"
+          ? "I’ve opened Finances so you can see the contract and try a different payment. Figures are illustrative demo estimates."
+          : "Here’s your dashboard.";
+    emitText(opened, context.emit);
+    return;
+  }
   const controls = Object.entries(overrides) as [keyof WhatIfOverrides, number][];
   for (const [control, value] of controls) {
     const result = await executeTool("set_whatif", { control, value }, context);
@@ -58,7 +95,7 @@ export async function offlineChat(request: AgentChatRequest, context: ToolContex
   context.emit({ type: "recommendations", recommendations: (option ? [option] : topOptions(dashboard)).map(templateRecommendation) });
 }
 
-export async function runAgent(request: AgentChatRequest, emit: Emit, signal?: AbortSignal) {
+export async function runAgent(request: AgentChatRequest, emit: Emit, signal?: AbortSignal, history: { role: "user" | "assistant"; text: string }[] = []) {
   const dashboard = getDashboard(request.personaId);
   const context: ToolContext = { personaId: request.personaId, emit, evidence: [agentContext(dashboard)] };
   const diagnostic = startDiagnostic("chat", request.personaId);
@@ -66,7 +103,8 @@ export async function runAgent(request: AgentChatRequest, emit: Emit, signal?: A
   try {
     const provider = getProvider();
     if (!provider) { diagnostic.record.fallback = true; await offlineChat(request, context); return; }
-    const firstMessage: LlmMessage = { role: "user", text: `${request.message}${request.context ? `\nUI context (data): ${JSON.stringify(request.context)}` : ""}` };
+    const recentHistory = history.slice(-8).map(item => `${item.role === "user" ? "Customer" : "Toyyo"}: ${item.text.slice(0, 500)}`).join("\n");
+    const firstMessage: LlmMessage = { role: "user", text: `${recentHistory ? `Earlier Photon messages (context only):\n${recentHistory}\n\n` : ""}Current customer message: ${request.message}${request.context ? `\nUI context (data): ${JSON.stringify(request.context)}` : ""}` };
     const messages: LlmMessage[] = [firstMessage];
     let correction = "";
     let corrected = false;

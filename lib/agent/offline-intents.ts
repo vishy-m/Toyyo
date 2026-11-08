@@ -16,5 +16,13 @@ export function offlineIntent(message: string, dashboard: DashboardData) {
     : dashboard.ranked[0]?.moveType ?? "lease-end";
   if (overrides.monthlyMiles !== undefined) moveType = "lease-end";
   else if (overrides.extraPrincipal !== undefined) moveType = "payment";
-  return { moveType, overrides, replay: /replay|worst trip|trip.*hurt/.test(text) };
+  const repair = /\b(?:brakes?|braking|grinding|squeal\w*|won'?t start|wont start|dead battery|check[- ]engine|engine light|a\/c|air conditioning|vibrat\w*|overheat\w*|knocking|stalling|broke\w*|noise)\b/.test(text);
+  const askOpen = /\b(?:show|open|see|view|go to|take me to|look at|check)\b/.test(text);
+  const page = repair ? "repairs" as const
+    : askOpen && /\b(?:dashboard|overview|home)\b/.test(text) ? "overview" as const
+    : askOpen && /\b(?:driving|drives?|trips?|mileage|score|replay)\b/.test(text) ? "driving" as const
+    : askOpen && /\b(?:finances?|loan|lease|payments?|refinanc\w*)\b/.test(text) ? "finances" as const
+    : undefined;
+  const bestMove = /\b(?:what should i do|best (?:next )?move|smartest|what are my options|my options|next move|what now|what do i do)\b/.test(text);
+  return { moveType, overrides, bestMove, page, issue: repair ? message.trim().slice(0, 240) : undefined, replay: /replay|worst trip|trip.*hurt/.test(text) };
 }

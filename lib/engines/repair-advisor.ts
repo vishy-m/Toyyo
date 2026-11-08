@@ -53,11 +53,11 @@ export interface RepairDecision {
 }
 
 const repairTable: Record<Exclude<RepairCategory, "unknown">, { label: string; low: number; high: number; words: string[] }> = {
-  brakes: { label: "Brake repair", low: 420, high: 980, words: ["brake", "brakes", "rotor", "pads", "squeal"] },
-  battery: { label: "Battery or charging", low: 190, high: 620, words: ["battery", "alternator", "charge", "starting", "start"] },
-  tires: { label: "Tires", low: 620, high: 1180, words: ["tire", "tires", "flat", "tread"] },
-  ac: { label: "A/C repair", low: 760, high: 1900, words: ["a/c", "ac ", "air conditioning", "compressor", "cold air"] },
-  engine: { label: "Engine repair", low: 1450, high: 4600, words: ["engine", "overheat", "oil leak", "knock", "misfire"] },
+  brakes: { label: "Brake repair", low: 420, high: 980, words: ["brake", "brakes", "rotor", "disc", "disk", "pads", "squeal", "grind"] },
+  battery: { label: "Battery or charging", low: 190, high: 620, words: ["battery", "alternator", "charge", "starting", "start", "dead", "jump"] },
+  tires: { label: "Tires", low: 620, high: 1180, words: ["tire", "tires", "flat", "tread", "vibrat", "wobble", "alignment", "pulls"] },
+  ac: { label: "A/C repair", low: 760, high: 1900, words: ["a/c", "ac ", "air conditioning", "compressor", "cold air", "blowing warm", "warm air", "heater"] },
+  engine: { label: "Engine repair", low: 1450, high: 4600, words: ["engine", "overheat", "oil leak", "knock", "misfire", "check-engine", "check engine", "rough idle", "stall"] },
   transmission: { label: "Transmission repair", low: 2400, high: 5600, words: ["transmission", "gear", "shifting", "shift", "slipping"] },
 };
 

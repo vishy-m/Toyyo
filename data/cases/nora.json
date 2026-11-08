@@ -1,0 +1,27 @@
+{
+  "personaId": "nora",
+  "source": "toyyo",
+  "driver": {
+    "firstName": "Nora",
+    "age": 52,
+    "city": "Boerne",
+    "state": "TX",
+    "occupation": "Teacher"
+  },
+  "quote": "I love this Land Cruiser and plan to keep it for years. My credit is better than when I financed it. Am I paying too much, and what should I do about repairs now that the free service has ended?",
+  "context": "Keeping a 2017 Land Cruiser; credit improved; 52 payments left at 7.4%; ToyotaCare expired",
+  "bestMove": {
+    "title": "Refinance to a lower rate, then price optional service coverage",
+    "nextStepType": "Offer",
+    "message": "At the simulated 5.9% rate your payment would be about $693 a month instead of $716, saving roughly $1,000 after the $150 refinance fee, with the same 52 months. Your free ToyotaCare service has ended, so optional service coverage (about $42 a month) is the next thing to compare.",
+    "whyNotOthers": "Extra principal helps but saves less than the refinance; changing your due date does not save money; trading in would cost you a vehicle you want to keep.",
+    "guardrails": "Savings are estimates from a simulated rate; final rate is set after credit review. Show the credit-check disclosure before applying.",
+    "optionId": "payment:refinance"
+  },
+  "notes": [
+    "Toyyo-authored case: the figures come from Toyyo's own simulated persona data and engines, not from the hackathon data pack. All data is synthetic.",
+    "The driver's occupation is illustrative; the persona data does not specify one.",
+    "Next-step label follows the pack's definitions: Self-service (customer does it in the app), Follow-up (a specialist continues), Offer (an eligible product offer).",
+    "Engine ranking: refinance first, extended service coverage second."
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "personaId": "devon",
+  "source": "pack",
+  "packCustomerId": "C006",
+  "driver": {
+    "firstName": "Devon",
+    "age": 29,
+    "city": "Dallas",
+    "state": "TX",
+    "occupation": "UX designer"
+  },
+  "quote": "My RAV4 Hybrid lease ends in 5 months and I barely drove it. Should I turn it in, buy it, or get something new?",
+  "context": "Lease ends in 5 months; low mileage; open to a newer hybrid",
+  "bestMove": {
+    "title": "Early lease renewal into a new hybrid",
+    "nextStepType": "Offer",
+    "message": "You drove far less than allowed, so you will not owe mileage fees. A loyalty renewal can waive the $395 turn-in fee and start a new hybrid lease early. Buying out is also possible: the car is worth about $4,100 more than the buyout price.",
+    "whyNotOthers": "Returning leaves you with no car and no equity.",
+    "guardrails": "Show the new-lease payment before asking for any commitment.",
+    "optionId": "RENEW"
+  },
+  "options": [
+    {
+      "optionId": "RETURN",
+      "optionName": "Return the car at lease end",
+      "newMonthlyPayment": null,
+      "monthlyPaymentChange": null,
+      "upfrontCost": 395,
+      "totalCostVsKeepAsIs": 395,
+      "eligibility": "Y",
+      "plainLanguageSummary": "Projected 23,999 miles vs 36,000 allowed: about $0 excess-mileage charge plus $395 turn-in fee.",
+      "keyAssumption": "$0.25/mile over; $395 disposition fee.",
+      "tradeoff": "Nothing owned afterwards."
+    },
+    {
+      "optionId": "BUYOUT",
+      "optionName": "Buy the car at lease end",
+      "newMonthlyPayment": null,
+      "monthlyPaymentChange": null,
+      "upfrontCost": 22550,
+      "totalCostVsKeepAsIs": null,
+      "eligibility": "Y",
+      "plainLanguageSummary": "Buyout is $22,550 (residual plus $350 fee). Estimated market value is $26,650, so you would be $4,100 ahead.",
+      "keyAssumption": "Taxes and registration extra; financing rate from tier table.",
+      "tradeoff": "Over-the-mileage fee goes away if you buy."
+    },
+    {
+      "optionId": "RENEW",
+      "optionName": "Loyalty move into a new Toyota lease",
+      "newMonthlyPayment": null,
+      "monthlyPaymentChange": null,
+      "upfrontCost": 0,
+      "totalCostVsKeepAsIs": -395,
+      "eligibility": "Y",
+      "plainLanguageSummary": "Early or on-time renewal with Toyota waives the turn-in fee and the excess-mileage charge (synthetic loyalty rule).",
+      "keyAssumption": "Capped at $1,500 waived.",
+      "tradeoff": "New payment depends on the model; you start a new contract."
+    },
+    {
+      "optionId": "EXTENDLEASE",
+      "optionName": "Extend the lease 6 months",
+      "newMonthlyPayment": 510.98,
+      "monthlyPaymentChange": 0,
+      "upfrontCost": 0,
+      "totalCostVsKeepAsIs": 3065.88,
+      "eligibility": "Y",
+      "plainLanguageSummary": "Keep the same payment for up to 6 more months to buy time.",
+      "keyAssumption": "Same payment; mileage allowance increases pro rata.",
+      "tradeoff": "Pay without building toward anything."
+    },
+    {
+      "optionId": "EARLYEND",
+      "optionName": "End the lease early",
+      "newMonthlyPayment": null,
+      "monthlyPaymentChange": null,
+      "upfrontCost": 1289.22,
+      "totalCostVsKeepAsIs": null,
+      "eligibility": "Review",
+      "plainLanguageSummary": "Estimated early-termination cost about $1,289 (35% of remaining payments plus fee).",
+      "keyAssumption": "Synthetic formula; real cost varies by contract.",
+      "tradeoff": "Usually costly. Transfer or renewal can be cheaper."
+    }
+  ],
+  "notes": [
+    "The pack's clock is 2026-11-07 and Toyyo's is 2026-10-27; the pack's 5 months remaining are kept as supplied.",
+    "Vehicle, lease terms, credit tier, cash-flow dates and profile come from the pack (C006). Annual allowance is mileage_allowance_total divided by the term in years; overage $0.25/mile, disposition fee $395 and purchase option fee $350 are the pack's stated assumptions.",
+    "Insurance is not in the pack: $148/month with \"Lone Star Mutual (simulated)\" is a simulated placeholder, and the insurer-sharing consent is off by default.",
+    "MPG is not in the pack: 40 is an approximate EPA combined figure for the model.",
+    "Toyota Care start is the pack end date minus 24 months. Average balance is a simulated 40% of monthly income. Drive history (90 days, real OSRM routes) is synthetic, calibrated to the pack annual_miles_est.",
+    "The pack ignores sales tax in its buyout figures; the Toyyo lease-end engine adds 6.25% Texas tax, so its buyout totals are slightly higher than the pack option rows."
+  ]
+}

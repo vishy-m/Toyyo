@@ -1,0 +1,150 @@
+{
+  "downloadedAt": "2026-11-08",
+  "models": [
+    {
+      "id": "toyota-rav4",
+      "title": "2021 Toyota RAV4 Hybrid",
+      "file": "toyota-rav4.glb",
+      "bytes": 2946512,
+      "sha256": "7bd7659f11807c257c4f0d6ca017c53fd59e0dbc73c294b1381353b3f86154bf",
+      "sourceUrl": "https://sketchfab.com/3d-models/2021-toyota-rav4-hybrid-de74fe4e98004c92b1103947597d1b53",
+      "author": "tonielpro520",
+      "authorUrl": "https://sketchfab.com/tonielpro520",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerifiedAt": "2026-11-08",
+      "downloadUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/2d18dfd9db96bbf0d9cffa949deaf7f571388cbf/assets/toyota-rav4.glb",
+      "upstreamRepository": "https://github.com/pedrosoandre/carros",
+      "upstreamCommit": "2d18dfd9db96bbf0d9cffa949deaf7f571388cbf",
+      "upstreamChanges": "Upstream reports weld, simplify, prune, and meshopt compression. Toyyo downloaded these bytes without modification.",
+      "sourceFaceCount": 172455,
+      "sourceVertexCount": 93919,
+      "upstreamPaintHint": {
+        "materials": [
+          "BlackTrim"
+        ],
+        "textured": false,
+        "confidence": "alta"
+      },
+      "status": "downloaded; not connected to application",
+      "previewFile": "../../../docs/design/assets/toyota-rav4.jpg",
+      "previewSource": "https://media.sketchfab.com/models/de74fe4e98004c92b1103947597d1b53/thumbnails/85a944611f454cdda3ef1ff8c3281ca1/23e26a23e09e4e7c811062322bd02c6a.jpeg"
+    },
+    {
+      "id": "toyota-land-cruiser",
+      "title": "Toyota Land Cruiser J200 2017",
+      "file": "toyota-land-cruiser.glb",
+      "bytes": 3117348,
+      "sha256": "5af0befd64927eac496f8f4bd0a888d011f84db728cf5da3815fa3c3e05c992a",
+      "sourceUrl": "https://sketchfab.com/3d-models/toyota-land-cruiser-j200-2017-374e85a6e18743429f6d9c0e7bbffb3c",
+      "author": "David_Holiday",
+      "authorUrl": "https://sketchfab.com/David_Holiday",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerifiedAt": "2026-11-08",
+      "downloadUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/2d18dfd9db96bbf0d9cffa949deaf7f571388cbf/assets/toyota-land-cruiser.glb",
+      "upstreamRepository": "https://github.com/pedrosoandre/carros",
+      "upstreamCommit": "2d18dfd9db96bbf0d9cffa949deaf7f571388cbf",
+      "upstreamChanges": "Upstream reports weld, simplify, prune, and meshopt compression. Toyyo downloaded these bytes without modification.",
+      "sourceFaceCount": 262168,
+      "sourceVertexCount": 264020,
+      "upstreamPaintHint": {
+        "materials": [
+          "body"
+        ],
+        "textured": false,
+        "confidence": "alta"
+      },
+      "status": "downloaded; not connected to application",
+      "previewFile": "../../../docs/design/assets/toyota-land-cruiser.jpg",
+      "previewSource": "https://media.sketchfab.com/models/374e85a6e18743429f6d9c0e7bbffb3c/thumbnails/d0e50ee243b24ec4ad0c04b06a9d9411/ebfb943c1d0043e1b841ccb56e31deca.jpeg"
+    },
+    {
+      "id": "toyota-hilux",
+      "title": "Toyota Hilux 2007",
+      "file": "toyota-hilux.glb",
+      "bytes": 2054816,
+      "sha256": "231a8262217c1a16483d1558a79f2811ecec35d4cd0dc7ace959e4710db81c92",
+      "sourceUrl": "https://sketchfab.com/3d-models/toyota-hilux-2007-0234ebed01ee4b87affed0e58673247e",
+      "author": "David_Holiday",
+      "authorUrl": "https://sketchfab.com/David_Holiday",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerifiedAt": "2026-11-08",
+      "downloadUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/2d18dfd9db96bbf0d9cffa949deaf7f571388cbf/assets/toyota-hilux.glb",
+      "upstreamRepository": "https://github.com/pedrosoandre/carros",
+      "upstreamCommit": "2d18dfd9db96bbf0d9cffa949deaf7f571388cbf",
+      "upstreamChanges": "Upstream reports weld, simplify, prune, and meshopt compression. Toyyo downloaded these bytes without modification.",
+      "sourceFaceCount": 290236,
+      "sourceVertexCount": 167546,
+      "upstreamPaintHint": {
+        "materials": [
+          "vpc_v1_006_carpaint_1"
+        ],
+        "textured": false,
+        "confidence": "alta"
+      },
+      "status": "downloaded; not connected to application",
+      "previewFile": "../../../docs/design/assets/toyota-hilux.jpg",
+      "previewSource": "https://media.sketchfab.com/models/0234ebed01ee4b87affed0e58673247e/thumbnails/a71af43d0ec54539bc5910598c87faec/3dd21bcb904d4db48b3c94d7e9386d7f.jpeg"
+    },
+    {
+      "id": "toyota-corolla-cross",
+      "title": "Toyota Corolla Cross",
+      "file": "toyota-corolla-cross.glb",
+      "bytes": 902568,
+      "sha256": "bbafded5432913132a62211f3a564de4a54f9a12caf5bc634029b0e51acb8873",
+      "sourceUrl": "https://sketchfab.com/3d-models/toyota-corolla-cross-cc503d26ea694dce85e7d0f1491b0e30",
+      "author": "Nieve5677",
+      "authorUrl": "https://sketchfab.com/niev",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerifiedAt": "2026-11-08",
+      "downloadUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/2d18dfd9db96bbf0d9cffa949deaf7f571388cbf/assets/toyota-corolla-cross.glb",
+      "upstreamRepository": "https://github.com/pedrosoandre/carros",
+      "upstreamCommit": "2d18dfd9db96bbf0d9cffa949deaf7f571388cbf",
+      "upstreamChanges": "Upstream reports weld, simplify, prune, and meshopt compression. Toyyo downloaded these bytes without modification.",
+      "sourceFaceCount": 419710,
+      "sourceVertexCount": 229601,
+      "upstreamPaintHint": {
+        "materials": [
+          "2020_Toyota_Corolla_Cross_Platinum_White_Pearl_Mica"
+        ],
+        "textured": false,
+        "confidence": "alta"
+      },
+      "status": "downloaded; not connected to application",
+      "previewFile": "../../../docs/design/assets/toyota-corolla-cross.jpg",
+      "previewSource": "https://media.sketchfab.com/models/cc503d26ea694dce85e7d0f1491b0e30/thumbnails/ce8dd85dd1d24227910c27d971c568c3/ce7e660bf1cd4d1e81d52dbc4e1aab50.jpeg"
+    },
+    {
+      "id": "toyota-yaris",
+      "title": "2020 Toyota GR Yaris",
+      "file": "toyota-yaris.glb",
+      "bytes": 1305384,
+      "sha256": "72950d75629e230a5ed96f0bd0a995888c3a0ab6cc75729e2b64520628b2171f",
+      "sourceUrl": "https://sketchfab.com/3d-models/2020-toyota-gr-yaris-44cb958908b94aa5aad0d856994f35a3",
+      "author": "DisneyCars",
+      "authorUrl": "https://sketchfab.com/supercarmodels",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "licenseVerifiedAt": "2026-11-08",
+      "downloadUrl": "https://raw.githubusercontent.com/pedrosoandre/carros/2d18dfd9db96bbf0d9cffa949deaf7f571388cbf/assets/toyota-yaris.glb",
+      "upstreamRepository": "https://github.com/pedrosoandre/carros",
+      "upstreamCommit": "2d18dfd9db96bbf0d9cffa949deaf7f571388cbf",
+      "upstreamChanges": "Upstream reports weld, simplify, prune, and meshopt compression. Toyyo downloaded these bytes without modification.",
+      "sourceFaceCount": 26419,
+      "sourceVertexCount": 16672,
+      "upstreamPaintHint": {
+        "materials": [
+          "Intbodyunrefunblendbodyunrefunblend1Mtl"
+        ],
+        "textured": true,
+        "confidence": "alta"
+      },
+      "status": "downloaded; not connected to application",
+      "previewFile": "../../../docs/design/assets/toyota-yaris.jpg",
+      "previewSource": "https://media.sketchfab.com/models/44cb958908b94aa5aad0d856994f35a3/thumbnails/5de5c51a0db043e2bddb2bb790cd1e89/f6fc192f89944512b81151e9a659b6b6.jpeg"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+"use client";
+// TEMPORARY poster renderer (deleted after use; template kept at scripts/models/dev-posters.page.tsx.txt).
+// /dev-posters?id=<vehicle>&pose=carousel|selected renders one car in the exact stage pose, centred the way the
+// stage centres it (projected bounds of the model's box corners), on a transparent frame from POSTERS.
+import { useEffect, useMemo, useState } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
+import { Environment, Lightformer, useGLTF } from "@react-three/drei";
+import * as THREE from "three";
+import { getVehicle, VEHICLES, type CinematicVehicle } from "@/lib/cinematic/vehicles";
+import { prepareModel } from "@/lib/cinematic/prepare-model";
+import { POSES, POSTERS } from "@/components/cinematic/stage-controller";
+
+type PoseName = keyof typeof POSES;
+
+function Car({ vehicle, pose }: { vehicle: CinematicVehicle; pose: PoseName }) {
+  const { scene } = useGLTF(vehicle.model.url);
+  const { root } = useMemo(() => prepareModel(scene, vehicle), [scene, vehicle]);
+  const offset = useMemo(() => {
+    // Same corners as VehicleStage.measureCorners, same projection as projectedBounds.
+    const box = new THREE.Box3();
+    const ignore = new Set(vehicle.model.excludeFromBounds ?? []);
+    root.updateMatrixWorld(true);
+    root.traverse((object) => {
+      const mesh = object as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      for (let p: THREE.Object3D | null = mesh; p; p = p.parent) if (ignore.has(p.name)) return;
+      box.expandByObject(mesh);
+    });
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(...POSES[pose]));
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
+      const v = new THREE.Vector3(x, y, z).applyQuaternion(q);
+      minX = Math.min(minX, v.x); maxX = Math.max(maxX, v.x); minY = Math.min(minY, v.y); maxY = Math.max(maxY, v.y);
+    }
+    return [-(minX + maxX) / 2, -(minY + maxY) / 2] as const;
+  }, [root, vehicle, pose]);
+  useEffect(() => { (window as unknown as { __loaded: boolean }).__loaded = true; }, []);
+  return <group position={[offset[0], offset[1], 0]} rotation={POSES[pose] as unknown as [number, number, number]}><primitive object={root} /></group>;
+}
+
+function Frame({ w, h, ppu }: { w: number; h: number; ppu: number }) {
+  const { camera } = useThree();
+  useEffect(() => {
+    const c = camera as THREE.OrthographicCamera;
+    c.left = -w / ppu / 2; c.right = w / ppu / 2; c.top = h / ppu / 2; c.bottom = -h / ppu / 2;
+    c.updateProjectionMatrix();
+  }, [camera, w, h, ppu]);
+  return null;
+}
+
+export default function DevPosters() {
+  const [q, setQ] = useState<URLSearchParams | null>(null);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- temporary dev route
+  useEffect(() => { setQ(new URLSearchParams(window.location.search)); }, []);
+  if (!q) return null;
+  const vehicle = getVehicle(q.get("id") ?? "") ?? VEHICLES[0];
+  const pose: PoseName = q.get("pose") === "selected" ? "selected" : "carousel";
+  const { width: w, height: h, ppu } = POSTERS[pose];
+  return <div style={{ background: "transparent", width: w, height: h, position: "fixed", inset: 0 }}>
+    <style>{`nextjs-portal{display:none !important}html,body{background:transparent !important;margin:0}`}</style>
+    <Canvas orthographic camera={{ position: [0, 0, 35], near: 0.1, far: 100, zoom: 1 }} dpr={1} style={{ width: w, height: h }}
+      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
+      onCreated={({ gl }) => { gl.toneMapping = THREE.ACESFilmicToneMapping; gl.toneMappingExposure = 0.9; }}>
+      <Frame w={w} h={h} ppu={ppu} />
+      {/* Identical to VehicleStage's Scene lights. */}
+      <ambientLight intensity={0.3} />
+      <directionalLight position={[-8, 10, 12]} intensity={1.1} color="#fff5e8" />
+      <directionalLight position={[10, -4, 8]} intensity={0.55} color="#d7e6f6" />
+      <Environment resolution={256} frames={1}>
+        <color attach="background" args={["#14161a"]} />
+        <Lightformer form="circle" position={[0, 12, 6]} scale={[26, 26, 1]} intensity={0.8} />
+        <Lightformer form="circle" position={[-14, 2, 4]} rotation={[0, Math.PI / 2, 0]} scale={[16, 16, 1]} intensity={0.5} />
+        <Lightformer form="circle" position={[14, 2, 2]} rotation={[0, -Math.PI / 2, 0]} scale={[16, 16, 1]} intensity={0.45} />
+      </Environment>
+      <Car vehicle={vehicle} pose={pose} />
+    </Canvas>
+  </div>;
+}

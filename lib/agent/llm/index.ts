@@ -5,7 +5,7 @@ import type { LlmProvider } from "./types";
 
 export function providerConfig() {
   const provider = process.env.AGENT_PROVIDER ?? "gemini";
-  return { provider, model: process.env.AGENT_MODEL ?? (provider === "anthropic" ? "claude-opus-5-5" : "gemini-3.5-flash") };
+  return { provider, model: process.env.AGENT_MODEL ?? (provider === "anthropic" ? "claude-opus-5-5" : "gemma-4-31b-it") };
 }
 export function getProvider(): LlmProvider | null {
   const { provider, model } = providerConfig();

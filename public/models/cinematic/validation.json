@@ -1,0 +1,295 @@
+{
+  "checkedAt": "2026-11-08",
+  "checks": [
+    {
+      "id": "toyota-rav4",
+      "decoded": true,
+      "scenes": 1,
+      "meshCount": 61,
+      "materialCount": 16,
+      "textureCount": 1,
+      "vertices": 490291,
+      "triangles": 168940,
+      "invalidPositionValues": 0,
+      "externalBuffers": 0,
+      "missingImages": 0,
+      "bounds": {
+        "min": [
+          -0.0011708275328174977,
+          0.002079933880855478,
+          -180.83647685956558
+        ],
+        "max": [
+          87.37237138905625,
+          66.85820278526765,
+          0
+        ]
+      },
+      "extensionsRequired": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ],
+      "materialNames": [
+        "BlackTrim",
+        "Color_A06",
+        "Color_A07",
+        "Color_A08",
+        "Color_C05",
+        "Color_I05",
+        "Color_M02",
+        "Color_M03",
+        "Color_M04",
+        "Color_M08",
+        "Color_M09",
+        "Lights_Glass",
+        "Philippine_License_Plate_Recovered",
+        "Silver_Sky_Metallic",
+        "Tires",
+        "UnderCarrier"
+      ],
+      "renderReview": "Source thumbnail inspected; downloaded GLB not yet reviewed in the application."
+    },
+    {
+      "id": "toyota-land-cruiser",
+      "decoded": true,
+      "scenes": 1,
+      "meshCount": 1694,
+      "materialCount": 37,
+      "textureCount": 2,
+      "vertices": 275788,
+      "triangles": 117273,
+      "invalidPositionValues": 0,
+      "externalBuffers": 0,
+      "missingImages": 0,
+      "bounds": {
+        "min": [
+          -437.4190507831179,
+          -1.079188351106552,
+          -949.6648559570312
+        ],
+        "max": [
+          2292.527099609375,
+          362.8613375205309,
+          0.17737335626907225
+        ]
+      },
+      "extensionsRequired": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ],
+      "materialNames": [
+        "edge_color000158",
+        "Material__1388",
+        "tinted_window",
+        "Material__1390",
+        "Material__1389",
+        "body",
+        "Material__1399",
+        "Material__1408",
+        "Material__1428",
+        "Material__1436",
+        "Material__1437",
+        "Material__1434",
+        "Material__1435",
+        "Material__1438",
+        "material",
+        "Material__1440",
+        "Material__1410",
+        "Material__1458",
+        "Material__1460",
+        "Material__1498",
+        "Material__1398",
+        "Material__1415",
+        "edge_color000255",
+        "windows",
+        "Material__1409",
+        "Material__1400",
+        "edge_color173173173255",
+        "Color_001",
+        "Material__1567",
+        "Material__1411",
+        "Material__1404",
+        "Material__1405",
+        "Material__1402",
+        "Material__1412",
+        "Material__1393",
+        "Material__1572",
+        "material_0"
+      ],
+      "renderReview": "Source thumbnail inspected; downloaded GLB not yet reviewed in the application."
+    },
+    {
+      "id": "toyota-hilux",
+      "decoded": true,
+      "scenes": 1,
+      "meshCount": 44,
+      "materialCount": 44,
+      "textureCount": 0,
+      "vertices": 224852,
+      "triangles": 259220,
+      "invalidPositionValues": 0,
+      "externalBuffers": 0,
+      "missingImages": 0,
+      "bounds": {
+        "min": [
+          8.186263057344235,
+          -1.5168538963597769,
+          -191.8791046142578
+        ],
+        "max": [
+          78.95879080618116,
+          57.82194894413077,
+          -28.26626205444336
+        ]
+      },
+      "extensionsRequired": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ],
+      "materialNames": [
+        "edge_color343434255",
+        "vpc_v1_006_04",
+        "edge_color555255",
+        "vpc_v1_006_05",
+        "edge_color434343255",
+        "vpc_v1_006_07",
+        "edge_color147147147255",
+        "vpc_v1_006_06",
+        "edge_color585858255",
+        "Color_M07",
+        "edge_color153153153255",
+        "vpc_v1_006_08",
+        "edge_color444444255",
+        "vpc_v1_006_10",
+        "edge_color216760255",
+        "vpc_v1_006_12",
+        "edge_color210210210255",
+        "vpc_v1_006_14",
+        "edge_color145145145255",
+        "vpc_v1_006_19",
+        "vpc_v1_006_03",
+        "edge_color12812812813",
+        "edge_color183183183255",
+        "vpc_v1_006_18",
+        "edge_color000255",
+        "vpc_v1_006_16",
+        "edge_color163163163255",
+        "vpc_v1_006_carpaint_1",
+        "edge_color555555255",
+        "vpc_v1_006_15",
+        "edge_color777255",
+        "vpc_v1_006_22",
+        "edge_color190190190255",
+        "vpc_v1_006_23",
+        "edge_color891079",
+        "vpc_v1_006_13",
+        "edge_color19300115",
+        "vpc_v1_006_09",
+        "vpc_v1_006_17",
+        "edge_color127127127255",
+        "edge_color130130130255",
+        "vpc_v1_006_25",
+        "edge_color202020255",
+        "vpc_v1_006_27"
+      ],
+      "renderReview": "Source thumbnail inspected; downloaded GLB not yet reviewed in the application."
+    },
+    {
+      "id": "toyota-corolla-cross",
+      "decoded": true,
+      "scenes": 1,
+      "meshCount": 44,
+      "materialCount": 26,
+      "textureCount": 0,
+      "vertices": 107328,
+      "triangles": 168266,
+      "invalidPositionValues": 0,
+      "externalBuffers": 0,
+      "missingImages": 0,
+      "bounds": {
+        "min": [
+          0.0000670000008540228,
+          -0.000008075870920054573,
+          -4.550994873046875
+        ],
+        "max": [
+          2.1823389530181885,
+          1.664229942227898,
+          -0.0004970000009052455
+        ]
+      },
+      "extensionsRequired": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ],
+      "materialNames": [
+        "2020_Toyota_Corolla_Cross_BlackTrims",
+        "2020_Toyota_Corolla_Cross_BrakeLights1",
+        "2020_Toyota_Corolla_Cross_BrakeLights2",
+        "2020_Toyota_Corolla_Cross_BrakeLightsBase",
+        "2020_Toyota_Corolla_Cross_BrakeLightsGlass",
+        "2020_Toyota_Corolla_Cross_BrakeRotors",
+        "2020_Toyota_Corolla_Cross_BrakeRotors2",
+        "2020_Toyota_Corolla_Cross_Calipers",
+        "2020_Toyota_Corolla_Cross_Chrome1",
+        "2020_Toyota_Corolla_Cross_Default_Material",
+        "2020_Toyota_Corolla_Cross_Exhausts",
+        "2020_Toyota_Corolla_Cross_Grille1",
+        "2020_Toyota_Corolla_Cross_Grille2",
+        "2020_Toyota_Corolla_Cross_HeadLightsBase",
+        "2020_Toyota_Corolla_Cross_HeadLightsGlass",
+        "2020_Toyota_Corolla_Cross_HybridBadge",
+        "2020_Toyota_Corolla_Cross_Mirrors",
+        "2020_Toyota_Corolla_Cross_Platinum_White_Pearl_Mica",
+        "2020_Toyota_Corolla_Cross_Reflector",
+        "2020_Toyota_Corolla_Cross_Rims1",
+        "2020_Toyota_Corolla_Cross_Rims2",
+        "2020_Toyota_Corolla_Cross_SignalLights",
+        "2020_Toyota_Corolla_Cross_Tires",
+        "2020_Toyota_Corolla_Cross_UnderCarrier",
+        "2020_Toyota_Corolla_Cross_Windows",
+        "2020_Toyota_Corolla_Cross_WindowsTrims"
+      ],
+      "renderReview": "Source thumbnail inspected; downloaded GLB not yet reviewed in the application."
+    },
+    {
+      "id": "toyota-yaris",
+      "decoded": true,
+      "scenes": 1,
+      "meshCount": 8,
+      "materialCount": 7,
+      "textureCount": 8,
+      "vertices": 19542,
+      "triangles": 12562,
+      "invalidPositionValues": 0,
+      "externalBuffers": 0,
+      "missingImages": 0,
+      "bounds": {
+        "min": [
+          -78.79826699012796,
+          0.00046893196224906397,
+          -46.02939987182617
+        ],
+        "max": [
+          -71.16296835600826,
+          5.521548730589915,
+          -30.640100479125977
+        ]
+      },
+      "extensionsRequired": [
+        "EXT_meshopt_compression",
+        "KHR_mesh_quantization"
+      ],
+      "materialNames": [
+        "Bonnetunrefunblend1Mtl",
+        "Glass1Mtl",
+        "Intbodyunrefunblendbodyunrefunblend1Mtl",
+        "Numberplate0021Mtl",
+        "Puncheffnuminnernaddlightaddita0011Mtl",
+        "Puncheffnuminnernalphaalphaita0171Mtl",
+        "Whbodyunrefunblend1004bodyunrefunblend10041Mtl"
+      ],
+      "renderReview": "Source thumbnail inspected; downloaded GLB not yet reviewed in the application."
+    }
+  ]
+}

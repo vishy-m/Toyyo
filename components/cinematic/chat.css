@@ -1,0 +1,72 @@
+/* Car voice/infotainment style chat bar, pinned to the bottom of the dashboard column. */
+.chat {
+  --c-text: #f2f0eb; --c-muted: #a5a5a2; --c-line: rgba(242, 240, 235, 0.22);
+  position: sticky; bottom: 0; z-index: 5;
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 10px 0 clamp(8px, 2vh, 20px);
+  color: var(--c-text);
+  font-family: "Toyyo Middle Dot", var(--font-ui, system-ui, sans-serif);
+  font-size: 15px; line-height: 1.5;
+}
+.chat button { font: inherit; color: inherit; cursor: pointer; }
+.chat :focus-visible { outline: 2px solid var(--c-text); outline-offset: 2px; }
+.chat-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.chat-bar {
+  display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 6px 0 20px;
+  border: 1px solid var(--c-line); border-radius: 28px; background: rgba(8, 8, 8, 0.82); backdrop-filter: blur(6px);
+}
+.chat-bar:focus-within { border-color: rgba(242, 240, 235, 0.6); }
+.chat-bar input { flex: 1; min-width: 0; min-height: 44px; border: 0; background: transparent; color: var(--c-text); font: inherit; font-size: 16px; outline: none; }
+.chat-bar input::placeholder { color: #8d8d8a; }
+.chat-send { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #eb0a1e; color: #fff; }
+.chat-send:disabled { background: rgba(242, 240, 235, 0.12); color: #a5a5a2; cursor: default; }
+.chat-send.is-stop { background: transparent; border: 1.5px solid var(--c-text); }
+.chat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.chat-chips button { min-height: 44px; padding: 0 14px; border: 1px solid var(--c-line); border-radius: 22px; background: rgba(8, 8, 8, 0.6); }
+.chat-chips button:hover { background: rgba(242, 240, 235, 0.1); }
+.chat-panel {
+  position: absolute; left: 0; right: 0; bottom: calc(100% - 6px);
+  display: flex; flex-direction: column; max-height: min(46vh, 380px);
+  border: 1px solid var(--c-line); border-radius: 12px; background: rgba(8, 8, 8, 0.94); backdrop-filter: blur(8px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+}
+.chat-panel-bar { display: flex; align-items: center; justify-content: space-between; padding-left: 16px; border-bottom: 1px solid var(--c-line); font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--c-muted); }
+.chat-panel-bar button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: transparent; }
+.chat-scroll { overflow-y: auto; overscroll-behavior: contain; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: thin; }
+.chat-hint { margin: 0; color: var(--c-muted); }
+.chat-user { align-self: flex-end; max-width: 85%; margin: 0; padding: 8px 14px; border-radius: 16px 16px 4px 16px; background: rgba(242, 240, 235, 0.12); }
+.chat-agent { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; max-width: 70ch; }
+.chat-md p, .chat-md ul, .chat-md ol { margin: 0 0 8px; }
+.chat-md ul, .chat-md ol { padding-left: 20px; }
+.chat-md > :last-child { margin-bottom: 0; }
+.chat-md table { border-collapse: collapse; font-size: 14px; }
+.chat-md th, .chat-md td { padding: 4px 10px; border-bottom: 1px solid var(--c-line); text-align: left; }
+.chat-md code { padding: 0 4px; border-radius: 3px; background: rgba(242, 240, 235, 0.12); }
+.chat-tool { margin: 0; font-size: 13px; color: var(--c-muted); }
+.chat-error { margin: 0; color: #ffb4b4; }
+.chat-action { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--c-text); border-radius: 22px; background: transparent; }
+.chat-action:hover { background: rgba(242, 240, 235, 0.12); }
+@media (max-width: 899px) { .chat { padding-left: 0; padding-right: 0; } .chat-panel { max-height: 52svh; } }
+.chat-md, .chat-md * { color: var(--c-text) !important; }
+.chat-md table, .chat-md th, .chat-md td { background: transparent !important; }
+.chat-panel { max-height: min(38vh, 330px); }
+/* No strip, no ground: the chat lives in .cine-chat-dock under the scrolling cluster, so only the controls show,
+   sitting straight on the scene like the rest of the dashboard. The chips match the Repairs pill; the input is a
+   lightly frosted pill so typed text stays legible over the moving road. */
+.chat { position: relative; background: none; padding: 14px 0 clamp(14px, 2.6vh, 28px); }
+.chat-chips button {
+  min-height: 40px; padding: 0 16px; border: 1px solid rgba(242, 240, 235, 0.34); border-radius: 22px;
+  background: transparent; font-size: 14px; transition: background-color 160ms ease, border-color 160ms ease;
+}
+.chat-chips button:hover { background: rgba(242, 240, 235, 0.1); border-color: rgba(242, 240, 235, 0.5); }
+.chat-bar {
+  min-height: 54px; padding: 0 5px 0 22px; border: 1px solid rgba(242, 240, 235, 0.3); border-radius: 28px;
+  background: rgba(10, 10, 10, 0.34); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+.chat-bar:focus-within { border-color: rgba(242, 240, 235, 0.62); background: rgba(10, 10, 10, 0.46); }
+.chat-send { transition: background-color 160ms ease, color 160ms ease; }
+.chat-send:disabled { background: rgba(242, 240, 235, 0.1); }
+@media (prefers-reduced-motion: reduce) { .chat-chips button, .chat-bar, .chat-send { transition: none; } }
+@media (max-width: 899px) { .chat-chips-bar { display: none; } .chat { padding-top: 12px; } }

@@ -10,6 +10,13 @@ import maya from "@/data/personas/maya.json";
 import garcia from "@/data/personas/garcia.json";
 import jordan from "@/data/personas/jordan.json";
 import raj from "@/data/personas/raj.json";
+import nora from "@/data/personas/nora.json";
+import eli from "@/data/personas/eli.json";
+import ava from "@/data/personas/ava.json";
+import ryan from "@/data/personas/ryan.json";
+import devon from "@/data/personas/devon.json";
+import priya from "@/data/personas/priya.json";
+import theo from "@/data/personas/theo.json";
 
 const RideReplay = dynamic(() => import("@/components/map/RideReplay"), { ssr: false });
 const HeroCar = dynamic(() => import("@/components/three/HeroCar"), { ssr: false });
@@ -21,6 +28,13 @@ const VEHICLES: Record<PersonaId, Vehicle> = {
   garcia: garcia.vehicle as Vehicle,
   jordan: jordan.vehicle as Vehicle,
   raj: raj.vehicle as Vehicle,
+  nora: nora.vehicle as Vehicle,
+  eli: eli.vehicle as Vehicle,
+  ava: ava.vehicle as Vehicle,
+  theo: theo.vehicle as Vehicle,
+  ryan: ryan.vehicle as Vehicle,
+  devon: devon.vehicle as Vehicle,
+  priya: priya.vehicle as Vehicle,
 };
 const UPGRADES: Partial<Record<PersonaId, NonNullable<MoveOption["upgradeModel"]>>> = {
   raj: { name: "4Runner TRD Off-Road", modelAsset: "/models/4runner.glb", bodyStyle: "suv" },
@@ -33,8 +47,15 @@ const TRIPS = [
   { id: "garcia-001", label: "Garcias · daycare" },
   { id: "raj-008", label: "Raj · Enchanted Rock" },
   { id: "raj-018", label: "Raj · Big Bend road trip" },
+  { id: "nora-001", label: "Nora · Boerne errand run" },
+  { id: "eli-001", label: "Eli · San Juan workshop commute" },
+  { id: "ava-001", label: "Ava · Dallas commute" },
+  { id: "theo-001", label: "Theo · Fort Worth commute" },
+  { id: "ryan-001", label: "Ryan · Richardson to Plano commute" },
+  { id: "devon-001", label: "Devon · Dallas studio commute" },
+  { id: "priya-001", label: "Priya · Plano to Dallas commute" },
 ];
-const PERSONAS: PersonaId[] = ["maya", "garcia", "jordan", "raj"];
+const PERSONAS: PersonaId[] = ["maya", "garcia", "jordan", "raj", "nora", "eli", "ava", "theo", "ryan", "devon", "priya"];
 
 export default function LabClient() {
   const [tab, setTab] = useState<Tab>("replay");

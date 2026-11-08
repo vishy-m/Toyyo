@@ -1,5 +1,5 @@
 import { getPersona } from "../data";
-import type { AgentPanelState, Draft, HandoffPacket, Persona, PersonaId, Preferences, Recommendation } from "../types";
+import type { AgentPanelState, Contract, Draft, HandoffPacket, Persona, PersonaId, Preferences, Recommendation, Vehicle } from "../types";
 
 export interface PersonaState {
   preferences: Preferences;
@@ -14,6 +14,9 @@ export interface PersonaState {
   initialPromise?: Promise<AgentPanelState>;
   revision: number;
   drivingSeeded: boolean;
+  currentVehicle?: Vehicle;
+  currentContract?: Contract;
+  currentPaymentDueDay?: number;
 }
 interface RuntimeStore { personas: Map<PersonaId, PersonaState>; warming: boolean; warmingSource?: string }
 const root = globalThis as typeof globalThis & { __nextMoveRuntime?: RuntimeStore };

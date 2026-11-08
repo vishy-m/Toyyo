@@ -217,9 +217,18 @@ const garciaTrip = build({
 
 export const mockTrips: Trip[] = [mockTrip, garciaTrip, jordanTrip, rajTrip];
 
+// The four carousel cases have no hand-written offline replay; they reuse the generic sample route
+// (the live /api/trips endpoint serves their real routes).
 export const showcaseTripByPersona: Record<PersonaId, Trip> = {
   maya: mockTrip,
   garcia: garciaTrip,
   jordan: jordanTrip,
   raj: rajTrip,
+  nora: { ...mockTrip, personaId: "nora" },
+  eli: { ...mockTrip, personaId: "eli" },
+  ava: { ...mockTrip, personaId: "ava" },
+  theo: { ...mockTrip, personaId: "theo" },
+  ryan: { ...mockTrip, personaId: "ryan" },
+  devon: { ...mockTrip, personaId: "devon" },
+  priya: { ...mockTrip, personaId: "priya" },
 };

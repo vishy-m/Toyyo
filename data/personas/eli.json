@@ -1,0 +1,66 @@
+{
+  "id": "eli",
+  "name": "Eli",
+  "displayName": "Eli, 41 \u00b7 San Juan workshop maker",
+  "age": 41,
+  "city": "San Juan",
+  "avatarEmoji": "\ud83d\udd27",
+  "vehicle": {
+    "year": 2007,
+    "make": "Toyota",
+    "model": "Hilux",
+    "bodyStyle": "truck",
+    "modelAsset": "/models/cinematic/optimized/toyota-hilux.glb",
+    "paintHex": "#A8B0AA",
+    "odometer": 187400,
+    "vin": "SYNTHETIC-ELI-001",
+    "isHybrid": false,
+    "mpg": 24
+  },
+  "contract": {
+    "kind": "loan",
+    "startDate": "2025-01-27",
+    "termMonths": 48,
+    "monthsRemaining": 27,
+    "monthlyPayment": 479.32,
+    "apr": 12.9,
+    "principalRemaining": 11181,
+    "autopay": false
+  },
+  "insurance": {
+    "carrier": "Isla Mutual (simulated)",
+    "monthlyPremium": 112,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2007-06-01",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "good",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": true
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.3,
+      "totalCost": 0.45,
+      "flexibility": 0.15,
+      "lifestyleFit": 0.1
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [
+    "workshop tools in the truck"
+  ],
+  "intendedBestMove": "payment"
+}

@@ -88,6 +88,7 @@ define("set_whatif", "Move a dashboard what-if control. Also call the matching c
   return ui(context, { kind: "set_whatif", ...input });
 });
 define("open_move", "Open the requested move detail tile.", z.strictObject({ moveType: moveTypeSchema }), (input, context) => ui(context, { kind: "open_move", ...input }));
+define("open_page", "Take the user to a page of their car dashboard: \"repairs\" (describe a problem, get repair guidance and nearby shops), \"driving\" (score, recent drives and a replay), \"finances\" (the contract and payment scenarios) or \"overview\" (alerts and monthly costs). For a car problem, pass the user's own words as issue.", z.strictObject({ page: z.enum(["overview", "repairs", "driving", "finances"]), issue: z.string().trim().min(1).max(240).optional() }), (input, context) => ui(context, { kind: "open_page", ...input }));
 export const agentTools = [...definitions.values()].map(definition => definition.tool);
 export async function executeTool(name: string, input: unknown, context: ToolContext): Promise<{ value: unknown; isError: boolean }> {
   context.emit({ type: "tool", name, status: "start" });

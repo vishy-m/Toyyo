@@ -10,6 +10,9 @@ import { computeDrivingSummary } from '../driving';
 import { computeLeaseEndOptions } from '../lease-end';
 import { payment, addMonths } from '../common';
 import type { PersonaId, MoveType, HandoffPacket } from '../../types';
+import { VEHICLES } from '../../cinematic/vehicles';
+import { CASE_SUMMARIES } from '../../cinematic/cases';
+import { getCaseFile } from '../../data';
 const runtime=(id:PersonaId)=>{const p=getPersona(id);return {preferences:p.preferences,consent:p.consent};};
 const dashboard=(id:PersonaId)=>buildDashboard(id,runtime(id));
 const option=(id:PersonaId,type:MoveType,optionId:string)=>dashboard(id).engines[type].options.find(o=>o.id===optionId)!;
@@ -17,7 +20,8 @@ const number=(s:string)=>Number(s.replace(/[^\d.-]/g,''));
 
 describe('persona acceptance criteria',()=>{
   for(const p of listPersonas()) {
-    it(`${p.id} ranks its intended move first without consulting design intent`,()=>{
+    // Pack personas (profile.packCustomerId) are checked against the pack's golden answers instead (see the pack describe below).
+    it.skipIf(!!p.profile)(`${p.id} ranks its intended move first without consulting design intent`,()=>{
       const d=dashboard(p.id);
       expect(d.ranked[0].moveType).toBe(p.intendedBestMove);
       expect(d.ranked[0].score).toBeGreaterThan(d.ranked[1].score);
@@ -273,5 +277,194 @@ describe('static data and route integrity',()=>{
     const packet=(id:PersonaId,mode:HandoffPacket['mode']):HandoffPacket=>({id:'packet',personaId:id,optionId:'lease-end:buyout',moveType:'lease-end',mode,customerSummary:'Synthetic',numbers:[],consentedData:[],statedPreferences:[],createdAt:'2026-10-27'});
     const metrics=computeTfsMetrics('maya',true,[packet('maya','self-service'),packet('maya','specialist-callback'),packet('raj','self-service')]);
     expect(metrics.callsAvoided).toBe(1.5);expect(metrics.openPackets).toBe(2);expect(metrics.retentionLikelihood).toBe(.88);expect(metrics.assumptions.length).toBeGreaterThan(0);
+  });
+});
+
+describe('carousel case studies match their stories',()=>{
+  const move=(id:PersonaId,n:number)=>dashboard(id).ranked[n].optionId;
+  it('every persona contract agrees with its start date, term and months remaining',()=>{
+    for(const p of listPersonas()) {
+      const end=addMonths(p.contract.startDate,p.contract.termMonths);
+      const left=Math.round((Date.parse(end)-Date.parse('2026-10-27'))/(365.25/12*86400000));
+      expect(Math.abs(left-p.contract.monthsRemaining),p.id).toBeLessThanOrEqual(1);
+    }
+  });
+  it('Maya and the Garcias now match the 3D assets and keep a possible lease start',()=>{
+    const maya=getPersona('maya'),garcia=getPersona('garcia');
+    expect([maya.vehicle.year,maya.vehicle.model,maya.vehicle.isHybrid]).toEqual([2025,'Camry Hybrid SE',true]);
+    expect(Date.parse(maya.contract.startDate)).toBeGreaterThanOrEqual(Date.parse('2024-09-01'));
+    expect(maya.contract.kind==='lease'&&maya.contract.annualMileageAllowance*maya.contract.termMonths/12).toBe(36000);
+    expect([garcia.vehicle.year,garcia.vehicle.model]).toEqual([2021,'RAV4 Hybrid XLE']);
+  });
+  it('Nora keeps a used Land Cruiser on a loan; refinance first, older-vehicle service second',()=>{
+    const p=getPersona('nora');
+    expect([p.vehicle.year,p.vehicle.model,p.contract.kind,p.contract.monthsRemaining]).toEqual([2017,'Land Cruiser','loan',52]);
+    expect(move('nora',0)).toBe('payment:refinance');
+    expect(move('nora',1)).toBe('protection:service');
+    expect(option('nora','protection','protection:current').summary).toMatch(/expired/);
+  });
+  it('Eli lives in Puerto Rico with a 2007 Hilux on a used-vehicle loan and a payoff plan',()=>{
+    const p=getPersona('eli');
+    expect([p.city,p.vehicle.year,p.vehicle.model,p.contract.kind,p.contract.monthsRemaining]).toEqual(['San Juan',2007,'Hilux','loan',27]);
+    expect(p.insurance.carrier).toMatch(/\(simulated\)$/);
+    expect(p.insurance.carrier).not.toMatch(/Lone Star/);
+    expect(dashboard('eli').engines['lease-end'].options.every(o=>!o.eligible)).toBe(true);
+    expect(option('eli','payment','payment:extra-principal').eligible).toBe(true);
+    expect(move('eli',0)).toBe('payment:refinance');
+  });
+  it('Ava is in a 2025 Corolla Cross (US model year 2022+) with due-date and extra-principal options',()=>{
+    const p=getPersona('ava');
+    expect(p.vehicle.year).toBeGreaterThanOrEqual(2022);
+    expect([p.contract.kind,p.contract.monthsRemaining]).toEqual(['loan',58]);
+    expect(option('ava','payment','payment:extra-principal').eligible).toBe(true);
+    expect(option('ava','payment','payment:extra-principal').savingsVsBaseline).toBeGreaterThan(0);
+    expect(move('ava',0)).toBe('payment:due-date');
+    expect(option('ava','payment','payment:refinance').savingsVsBaseline).toBeLessThan(0);
+    expect(option('ava','protection','protection:current').summary).toMatch(/projected to end/);
+  });
+  it('Theo’s fast starts hold his score under 80 and coaching could lower his quote',()=>{
+    const d=dashboard('theo');
+    expect(d.driving.score).toBe(78);
+    expect(d.driving.scoreFactors.filter(f=>f.impact<=-3).map(f=>f.factor)).toContain('Fast acceleration');
+    expect(move('theo',0)).toBe('insurance:coaching');
+    const current=option('theo','insurance','insurance:current'),improved=option('theo','insurance','insurance:ubi-improved');
+    expect(improved.monthlyCost!).toBeLessThan(current.monthlyCost!);
+    expect(getPersona('theo').contract.kind==='loan'&&(getPersona('theo').contract as {autopay:boolean}).autopay).toBe(true);
+    expect(option('theo','protection','protection:tire-wheel').eligible).toBe(true);
+  });
+  it('car summaries quote figures that match the data',()=>{
+    const copy=(id:string)=>VEHICLES.find(v=>v.id===id)!.summary;
+    expect(copy('land-cruiser')).toContain(`${getPersona('nora').contract.monthsRemaining} payments left`);
+    expect(copy('hilux')).toContain(`${getPersona('eli').contract.monthsRemaining} payments left`);
+    const lease=(id:PersonaId)=>{const c=getPersona(id).contract;if(c.kind!=='lease') throw new Error('lease expected');return c;};
+    const money=(n:number)=>`$${Math.round(n).toLocaleString('en-US')}`;
+    const opt=(id:PersonaId,optionId:string)=>getCaseFile(id)!.options!.find(o=>o.optionId===optionId)!;
+    // Priya: pack RETURN $3,770 and BUYOUT $16,670; $1,930 ahead.
+    expect(copy('corolla-cross')).toContain(`${lease('priya').monthsRemaining} months`);
+    expect(copy('corolla-cross')).toContain(money(opt('priya','RETURN').upfrontCost!));
+    expect(copy('corolla-cross')).toContain(money(opt('priya','BUYOUT').upfrontCost!));
+    expect(copy('corolla-cross')).toContain('49,500');
+    expect(copy('corolla-cross')).toContain('$1,930');
+    expect(copy('gr-yaris')).toContain(`${getPersona('theo').contract.monthsRemaining} payments left`);
+    expect(copy('gr-yaris')).toContain(`score at ${dashboard('theo').driving.score}`);
+    expect(copy('camry')).toContain(`${lease('ryan').monthsRemaining} months left at ${money(lease('ryan').monthlyPayment)}`);
+    expect(copy('camry')).toContain(money(opt('ryan','EARLYEND').upfrontCost!));
+    expect(copy('rav4')).toContain(`${lease('devon').monthsRemaining} months`);
+    expect(copy('rav4')).toContain(money(opt('devon','BUYOUT').upfrontCost!));
+    expect(copy('rav4')).toContain(money(opt('devon','RETURN').upfrontCost!));
+    expect(copy('rav4')).toContain('$26,650');
+    expect(copy('gr-supra')).toContain(`score from ${dashboard('jordan').driving.score}`);
+    // The car copy stays car-centric (second person); driver names appear only in the case UI.
+    for(const v of VEHICLES) expect(`${v.descriptor} ${v.headline} ${v.summary}`).not.toContain(getPersona(v.personaId).name.replace(/^The /,''));
+    expect(VEHICLES.map(v=>v.year)).toEqual(VEHICLES.map(v=>getPersona(v.personaId).vehicle.year));
+  });
+});
+
+// ---------- Hackathon data pack cases (ryan = C010, devon = C006, priya = C003) ----------
+function csv(file:string):Record<string,string>[]{
+  const text=readFileSync(resolve('data/pack/data',file),'utf8');const rows:string[][]=[];let row:string[]=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){cell+='"';i++;}else q=false;}else cell+=c;}
+    else if(c==='"') q=true;else if(c===',') {row.push(cell);cell='';}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n') i++;row.push(cell);cell='';if(row.length>1||row[0]!=='') rows.push(row);row=[];}
+    else cell+=c;}
+  const [head,...body]=rows;return body.map(r=>Object.fromEntries(head.map((h,i)=>[h,r[i]??''])));
+}
+const PACK:[PersonaId,string][]=[['ryan','C010'],['devon','C006'],['priya','C003']];
+const CAROUSEL:PersonaId[]=['ryan','devon','jordan','nora','eli','priya','theo'];
+describe('hackathon pack cases match the pack',()=>{
+  for(const [id,packId] of PACK) {
+    const golden=csv('golden_answers.csv').find(r=>r.customer_id===packId)!;
+    const acct=csv('accounts.csv').find(r=>r.customer_id===packId)!;
+    const veh=csv('vehicles.csv').find(r=>r.customer_id===packId)!;
+    const cust=csv('customers.csv').find(r=>r.customer_id===packId)!;
+    const situation=csv('situations.csv').find(r=>r.customer_id===packId)!;
+    const opts=csv('option_scenarios.csv').filter(r=>r.customer_id===packId);
+    it(`${id}: case best move equals the golden answer verbatim`,()=>{
+      const c=getCaseFile(id)!;
+      expect(c.source).toBe('pack');expect(c.packCustomerId).toBe(packId);
+      expect(c.bestMove).toEqual({title:golden.best_next_move,nextStepType:golden.next_step_type,message:golden.plain_language_message,whyNotOthers:golden.why_not_the_others,guardrails:golden.guardrail_notes,optionId:golden.offer_id});
+      expect(c.quote).toBe(situation.customer_says);expect(c.context).toBe(situation.context_summary);
+      expect(c.driver).toEqual({firstName:cust.first_name,age:Number(cust.age),city:cust.city,state:cust.state,occupation:cust.occupation});
+    });
+    it(`${id}: persona vehicle and lease contract match accounts.csv and vehicles.csv`,()=>{
+      const p=getPersona(id),c=p.contract;
+      if(c.kind!=='lease') throw new Error('lease expected');
+      expect(c.startDate).toBe(acct.contract_start);expect(c.termMonths).toBe(Number(acct.term_months));expect(c.monthsRemaining).toBe(Number(acct.months_remaining));
+      expect(c.monthlyPayment).toBe(Number(acct.monthly_payment));expect(c.residualValue).toBe(Number(acct.residual_value));
+      expect(c.annualMileageAllowance*c.termMonths/12).toBe(Number(acct.mileage_allowance_total));
+      expect([c.overageRatePerMile,c.dispositionFee,c.purchaseOptionFee]).toEqual([.25,395,350]);
+      expect([p.vehicle.year,p.vehicle.odometer]).toEqual([Number(veh.model_year),Number(veh.odometer_now)]);
+      expect(p.vehicle.model).toContain(veh.trim);expect(p.age).toBe(Number(cust.age));expect(p.profile?.packCustomerId).toBe(packId);
+      expect(p.profile?.vulnerable).toBe(cust.vulnerable_flag==='Y');expect(p.profile?.marketingConsent).toBe(cust.marketing_consent==='Y');
+      expect(getCashflow(id).latePaymentsLast12).toBe(Number(acct.missed_payments_12m));
+      expect(p.insurance.carrier).toMatch(/\(simulated\)$/);
+    });
+    it(`${id}: the pack option rows are preserved with their numbers`,()=>{
+      const c=getCaseFile(id)!;
+      expect(c.options!.map(o=>o.optionId)).toEqual(opts.map(o=>o.option_id));
+      expect(c.options!.map(o=>o.upfrontCost)).toEqual(opts.map(o=>o.upfront_cost===''?null:Number(o.upfront_cost)));
+      expect(c.options!.map(o=>o.plainLanguageSummary)).toEqual(opts.map(o=>o.plain_language_summary));
+      expect(c.options!.map(o=>o.newMonthlyPayment)).toEqual(opts.map(o=>o.new_monthly_payment===''?null:Number(o.new_monthly_payment)));
+      expect(c.options!.map(o=>o.totalCostVsKeepAsIs)).toEqual(opts.map(o=>o.total_cost_vs_keep_as_is===''?null:Number(o.total_cost_vs_keep_as_is)));
+      expect(c.options!.some(o=>o.optionId===golden.offer_id)).toBe(true);
+    });
+    it(`${id}: engine return cost equals the pack RETURN option and mileage agrees with annual_miles_est`,()=>{
+      const ret=option(id,'lease-end','lease-end:return');
+      expect(ret.totalCost).toBe(Number(opts.find(o=>o.option_id==='RETURN')!.upfront_cost));
+      const monthly=dashboard(id).driving.avgMonthlyMiles;
+      expect(monthly).toBeCloseTo(Number(veh.annual_miles_est)/12,1);
+    });
+    it(`${id}: honours the pack's responsible-AI flags and has no NaN`,()=>{
+      expect(getPersona(id).profile?.vulnerable).toBe(false);
+      expect(JSON.stringify(dashboard(id))).not.toMatch(/NaN|Infinity|null,null/);
+    });
+  }
+  it('Priya engine return is $3,770 from 13,500 excess miles; buyout differs from the pack only by sales tax',()=>{
+    const ret=option('priya','lease-end','lease-end:return');
+    expect(ret.math.find(m=>m.label==='Excess miles')?.result).toBe('13500 mi');
+    expect(ret.totalCost).toBe(3770);
+    const buyout=option('priya','lease-end','lease-end:buyout');
+    const packBuyout=Number(csv('option_scenarios.csv').find(r=>r.customer_id==='C003'&&r.option_id==='BUYOUT')!.upfront_cost);
+    expect(buyout.totalCost!-packBuyout).toBeCloseTo(Math.round(packBuyout*.0625*100)/100,0);
+  });
+  it('Ryan and Devon owe no excess mileage',()=>{
+    for(const id of ['ryan','devon'] as const) expect(option(id,'lease-end','lease-end:return').math.find(m=>m.label==='Excess mileage charge')?.result).toBe('$0.00');
+  });
+  it('pack persona showcase routes are pinned genuine OSRM routes',()=>{
+    const cache=JSON.parse(readFileSync(resolve('data/reference/routes.json'),'utf8')) as Record<string,{source:string}>;
+    for(const key of ['richardson-plano-legacy','richardson-dallas-uptown','richardson-austin','dallas-design-district','dallas-bishop-arts','dallas-austin','plano-downtown-dallas','plano-frisco-square','plano-austin']) expect(cache[key]?.source,key).toBe('osrm');
+  });
+});
+describe('carousel case files',()=>{
+  it('exist and are well formed for all seven carousel personas',()=>{
+    expect(VEHICLES.map(v=>v.personaId).sort()).toEqual([...CAROUSEL].sort());
+    for(const id of CAROUSEL) {
+      const c=getCaseFile(id)!;
+      expect(c,id).toBeDefined();expect(c.personaId).toBe(id);
+      expect(['pack','toyyo']).toContain(c.source);
+      expect(['Self-service','Follow-up','Offer']).toContain(c.bestMove.nextStepType);
+      for(const t of [c.driver.firstName,c.driver.city,c.driver.state,c.driver.occupation,c.quote,c.context,c.bestMove.title,c.bestMove.message,c.bestMove.whyNotOthers,c.bestMove.guardrails]) expect(t.length).toBeGreaterThan(0);
+      expect(c.notes.length).toBeGreaterThan(0);
+      expect(c.driver.age).toBe(getPersona(id).age);expect(c.driver.firstName).toBe(getPersona(id).name);
+      expect(c.source==='pack'?c.options!.length>0:c.options===undefined).toBe(true);
+      expect(JSON.stringify(c)).not.toMatch(/NaN|Infinity|undefined/);
+      expect(dashboard(id).caseFile).toBeUndefined(); // attached by the server layer, not the pure engines
+      const s=CASE_SUMMARIES[id]!;
+      expect([s.firstName,s.age,s.city,s.quote,s.context,s.bestMoveTitle,s.nextStepType,s.source]).toEqual([c.driver.firstName,c.driver.age,c.driver.city,c.quote,c.context,c.bestMove.title,c.bestMove.nextStepType,c.source]);
+    }
+  });
+  it('Toyyo cases agree with the engines and the pack responsible-AI rules',()=>{
+    for(const id of ['jordan','nora','eli','theo'] as const) {
+      const c=getCaseFile(id)!;
+      expect(dashboard(id).ranked.slice(0,2).map(r=>r.optionId)).toContain(c.bestMove.optionId);
+    }
+    expect(getCaseFile('nora')!.bestMove.optionId).toBe(dashboard('nora').ranked[0].optionId);
+    expect(getCaseFile('eli')!.bestMove.optionId).toBe(dashboard('eli').ranked[0].optionId);
+    expect(getCaseFile('theo')!.bestMove.optionId).toBe(dashboard('theo').ranked[0].optionId);
+    // Jordan has 2 late payments and a building tier: rule 6 means a person, no upsell.
+    expect(getCashflow('jordan').latePaymentsLast12).toBeGreaterThanOrEqual(2);
+    expect(getCaseFile('jordan')!.bestMove.nextStepType).toBe('Follow-up');
+    expect(getCaseFile('jordan')!.bestMove.guardrails).toMatch(/rule 6/);
   });
 });

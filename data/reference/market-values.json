@@ -1,7 +1,7 @@
 [
   {
-    "model": "Camry SE",
-    "year": 2023,
+    "model": "Camry Hybrid SE",
+    "year": 2025,
     "bands": [
       {
         "maxMiles": 30000,
@@ -23,7 +23,7 @@
   },
   {
     "model": "RAV4 Hybrid XLE",
-    "year": 2022,
+    "year": 2021,
     "bands": [
       {
         "maxMiles": 30000,
@@ -150,6 +150,124 @@
       {
         "maxMiles": 999999,
         "value": 21000
+      }
+    ]
+  },
+  {
+    "model": "Land Cruiser",
+    "year": 2017,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 48500
+      },
+      {
+        "maxMiles": 60000,
+        "value": 47000
+      },
+      {
+        "maxMiles": 100000,
+        "value": 43500
+      },
+      {
+        "maxMiles": 999999,
+        "value": 40500
+      }
+    ]
+  },
+  {
+    "model": "Hilux",
+    "year": 2007,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 18500
+      },
+      {
+        "maxMiles": 60000,
+        "value": 17000
+      },
+      {
+        "maxMiles": 100000,
+        "value": 13500
+      },
+      {
+        "maxMiles": 999999,
+        "value": 10500
+      }
+    ]
+  },
+  {
+    "model": "Corolla Cross LE",
+    "year": 2025,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 23900
+      },
+      {
+        "maxMiles": 60000,
+        "value": 22400
+      },
+      {
+        "maxMiles": 100000,
+        "value": 18900
+      },
+      {
+        "maxMiles": 999999,
+        "value": 15900
+      }
+    ]
+  },
+  {
+    "model": "GR Yaris",
+    "year": 2020,
+    "bands": [
+      {
+        "maxMiles": 30000,
+        "value": 40000
+      },
+      {
+        "maxMiles": 60000,
+        "value": 38500
+      },
+      {
+        "maxMiles": 100000,
+        "value": 35000
+      },
+      {
+        "maxMiles": 999999,
+        "value": 32000
+      }
+    ]
+  },
+  {
+    "model": "Camry XSE",
+    "year": 2025,
+    "bands": [
+      {
+        "maxMiles": 999999,
+        "value": 27050
+      }
+    ]
+  },
+  {
+    "model": "RAV4 Hybrid XSE",
+    "year": 2024,
+    "bands": [
+      {
+        "maxMiles": 999999,
+        "value": 26650
+      }
+    ]
+  },
+  {
+    "model": "Corolla Cross LE",
+    "year": 2024,
+    "bands": [
+      {
+        "maxMiles": 999999,
+        "value": 18600
       }
     ]
   }

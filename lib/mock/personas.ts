@@ -1,6 +1,20 @@
 // Mock personas. Numbers mirror data/personas/*.json (task 01) so mock → real switch shows no jumps.
 
 import type { Persona, PersonaId, Preferences } from "@/lib/types";
+import nora from "@/data/personas/nora.json";
+import eli from "@/data/personas/eli.json";
+import ava from "@/data/personas/ava.json";
+import ryan from "@/data/personas/ryan.json";
+import devon from "@/data/personas/devon.json";
+import priya from "@/data/personas/priya.json";
+import theo from "@/data/personas/theo.json";
+
+/** The four original hand-written offline samples. The carousel cases (nora, eli, ava, theo) need the live API. */
+export type LegacyPersonaId = "maya" | "garcia" | "jordan" | "raj";
+export function legacyId(id: PersonaId): LegacyPersonaId {
+  if (id === "maya" || id === "garcia" || id === "jordan" || id === "raj") return id;
+  throw new Error(`No offline sample for ${id}; the live API is required.`);
+}
 
 const prefs = (w: Preferences["priorityWeights"], tags: string[] = []): Preferences => ({
   priorityWeights: w,
@@ -24,31 +38,31 @@ export const mockPersonas: Record<PersonaId, Persona> = {
     city: "Austin",
     avatarEmoji: "🌇",
     vehicle: {
-      year: 2023,
+      year: 2025,
       make: "Toyota",
-      model: "Camry SE",
+      model: "Camry Hybrid SE",
       bodyStyle: "sedan",
       modelAsset: "/models/camry.glb",
       paintHex: "#B3122E",
       odometer: 41200,
       vin: "SYNTHETIC-MAYA-001",
-      isHybrid: false,
-      mpg: 32,
+      isHybrid: true,
+      mpg: 48,
     },
     contract: {
       kind: "lease",
-      startDate: "2024-02-27",
-      termMonths: 36,
+      startDate: "2024-11-27",
+      termMonths: 27,
       monthsRemaining: 4,
       monthlyPayment: 389,
-      annualMileageAllowance: 12000,
+      annualMileageAllowance: 16000,
       overageRatePerMile: 0.25,
       residualValue: 19400,
       purchaseOptionFee: 300,
       dispositionFee: 350,
     },
     insurance: { carrier: "Lone Star Mutual (simulated)", monthlyPremium: 156, usageBased: false },
-    toyotaCare: { startDate: "2024-02-27", expiresMonths: 24, expiresMiles: 25000 },
+    toyotaCare: { startDate: "2024-11-27", expiresMonths: 24, expiresMiles: 25000 },
     creditTier: "good",
     consent: { ...allOn },
     preferences: prefs({ monthlyPayment: 0.15, totalCost: 0.25, flexibility: 0.5, lifestyleFit: 0.1 }),
@@ -63,11 +77,11 @@ export const mockPersonas: Record<PersonaId, Persona> = {
     city: "Austin",
     avatarEmoji: "🌱",
     vehicle: {
-      year: 2022,
+      year: 2021,
       make: "Toyota",
       model: "RAV4 Hybrid XLE",
       bodyStyle: "suv",
-      modelAsset: "/models/rav4.glb",
+      modelAsset: "/models/cinematic/optimized/toyota-rav4.glb",
       paintHex: "#2B3F5C",
       odometer: 23100,
       vin: "SYNTHETIC-GARCIA-001",
@@ -168,6 +182,13 @@ export const mockPersonas: Record<PersonaId, Persona> = {
     lifeEvents: ["weekend camping"],
     intendedBestMove: "lease-end",
   },
+  nora: nora as Persona,
+  eli: eli as Persona,
+  ava: ava as Persona,
+  theo: theo as Persona,
+  ryan: ryan as Persona,
+  devon: devon as Persona,
+  priya: priya as Persona,
 };
 
 export const personaOrder: PersonaId[] = ["maya", "garcia", "jordan", "raj"];

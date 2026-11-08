@@ -1,0 +1,64 @@
+{
+  "id": "nora",
+  "name": "Nora",
+  "displayName": "Nora, 52 \u00b7 Hill Country family driver",
+  "age": 52,
+  "city": "Boerne",
+  "avatarEmoji": "\u26f0\ufe0f",
+  "vehicle": {
+    "year": 2017,
+    "make": "Toyota",
+    "model": "Land Cruiser",
+    "bodyStyle": "suv",
+    "modelAsset": "/models/cinematic/optimized/toyota-land-cruiser.glb",
+    "paintHex": "#D3D0C5",
+    "odometer": 96400,
+    "vin": "SYNTHETIC-NORA-001",
+    "isHybrid": false,
+    "mpg": 15
+  },
+  "contract": {
+    "kind": "loan",
+    "startDate": "2025-02-27",
+    "termMonths": 72,
+    "monthsRemaining": 52,
+    "monthlyPayment": 715.53,
+    "apr": 7.4,
+    "principalRemaining": 31749,
+    "autopay": false
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 158,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2017-03-10",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "good",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": true
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.2,
+      "totalCost": 0.45,
+      "flexibility": 0.2,
+      "lifestyleFit": 0.15
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [],
+  "intendedBestMove": "payment"
+}

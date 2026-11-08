@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const personaIdSchema = z.enum(["maya", "garcia", "jordan", "raj"]);
+export const personaIdSchema = z.enum(["maya", "garcia", "jordan", "raj", "nora", "eli", "ava", "theo", "ryan", "devon", "priya"]);
 export const moveTypeSchema = z.enum(["lease-end", "insurance", "payment", "protection"]);
 export const prioritySchema = z.enum(["monthlyPayment", "totalCost", "flexibility", "lifestyleFit"]);
 export const detailSchema = z.enum(["brief", "standard", "show-math"]);

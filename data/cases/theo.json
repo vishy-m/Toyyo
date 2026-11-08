@@ -1,0 +1,28 @@
+{
+  "personaId": "theo",
+  "source": "toyyo",
+  "driver": {
+    "firstName": "Theo",
+    "age": 27,
+    "city": "Fort Worth",
+    "state": "TX",
+    "occupation": "Mechanical engineer"
+  },
+  "quote": "I love driving my GR Yaris hard, and my insurance quote is high. Is there anything I can do about it, and is the loan fine?",
+  "context": "Enthusiast driving style holds his score at 78; autopay on; 47 payments left at 6.4%",
+  "bestMove": {
+    "title": "Try free driving coaching, then re-check an insurance quote",
+    "nextStepType": "Self-service",
+    "message": "Your driving score is 78, held down by fast launches and speeding. Coaching on those two habits could move it toward 93, and a simulated improved-score quote is about $186 a month versus your current $212, roughly $316 a year. Your loan is on autopay at a fair rate, so nothing needs to change there.",
+    "whyNotOthers": "Refinancing saves little at 6.4%, extra principal is optional, and optional service coverage can wait; coaching costs nothing and can be started in the app today.",
+    "guardrails": "The improved-score quote is an illustration, not a promise. Coaching shares no data with insurers.",
+    "optionId": "insurance:coaching"
+  },
+  "notes": [
+    "Toyyo-authored case: the figures come from Toyyo's own simulated persona data and engines, not from the hackathon data pack. All data is synthetic.",
+    "The driver's occupation is illustrative; the persona data does not specify one.",
+    "Next-step label follows the pack's definitions: Self-service (customer does it in the app), Follow-up (a specialist continues), Offer (an eligible product offer).",
+    "The GR Yaris was never sold in the US, so this is a fictional US-dollar scenario.",
+    "Engine ranking: coaching first, extended service coverage second."
+  ]
+}

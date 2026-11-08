@@ -13,7 +13,7 @@ import type {
   TripInsight,
 } from "@/lib/types";
 import { mockDrivingBase, mockEngines } from "./engine";
-import { mockPersonas } from "./personas";
+import { type LegacyPersonaId, legacyId, mockPersonas } from "./personas";
 import { showcaseTripByPersona } from "./trip";
 
 type TripRow = Omit<Trip, "path" | "events">;
@@ -29,7 +29,7 @@ function mulberry32(seed: number) {
   };
 }
 
-const tripPlan: Record<PersonaId, { cat: TripCategory; label: string; miles: [number, number]; night?: number; score: [number, number] }[]> = {
+const tripPlan: Record<LegacyPersonaId, { cat: TripCategory; label: string; miles: [number, number]; night?: number; score: [number, number] }[]> = {
   maya: [
     { cat: "commute", label: "Round Rock (I-35 north)", miles: [16, 19], score: [72, 88] },
     { cat: "commute", label: "Downtown Austin", miles: [16, 19], score: [75, 90] },
@@ -65,8 +65,8 @@ function stripTrip(t: Trip): TripRow {
 
 export function mockTripRows(id: PersonaId): TripRow[] {
   const rand = mulberry32(id.length * 7919 + id.charCodeAt(0));
-  const plan = tripPlan[id];
-  const rows: TripRow[] = [stripTrip(showcaseTripByPersona[id])];
+  const plan = tripPlan[legacyId(id)];
+  const rows: TripRow[] = [stripTrip(showcaseTripByPersona[legacyId(id)])];
   const snapshot = new Date("2026-10-26T18:00:00-05:00").getTime();
   for (let i = 0; i < 17; i++) {
     const spec = plan[Math.floor(rand() * plan.length)];
@@ -96,7 +96,7 @@ export function mockTripRows(id: PersonaId): TripRow[] {
   return rows;
 }
 
-const drivingExtras: Record<PersonaId, Pick<DrivingSummary, "scoreFactors" | "smoothStreak" | "lifestyleTags" | "topDestinations" | "categoryMiles">> = {
+const drivingExtras: Record<LegacyPersonaId, Pick<DrivingSummary, "scoreFactors" | "smoothStreak" | "lifestyleTags" | "topDestinations" | "categoryMiles">> = {
   maya: {
     scoreFactors: [
       { factor: "Hard braking", impact: -8, detail: "I-35 stop-and-go near 51st St" },
@@ -164,8 +164,8 @@ function monthsTrail(avg: number, seed: number) {
 }
 
 export function mockDriving(id: PersonaId): DrivingSummary {
-  const base = mockDrivingBase[id];
-  const ex = drivingExtras[id];
+  const base = mockDrivingBase[legacyId(id)];
+  const ex = drivingExtras[legacyId(id)];
   const monthly = monthsTrail(base.avgMonthlyMiles, id.charCodeAt(1) * 31);
   return {
     windowDays: 90,
@@ -181,21 +181,21 @@ export function mockDriving(id: PersonaId): DrivingSummary {
   };
 }
 
-const cashflows: Record<PersonaId, CashflowSummary> = {
+const cashflows: Record<LegacyPersonaId, CashflowSummary> = {
   maya: { payday: "semimonthly-1-15", avgBalance: 3400, paymentDueDay: 18, latePaymentsLast12: 0, recurringShortfall: false },
   garcia: { payday: "semimonthly-1-15", avgBalance: 2600, paymentDueDay: 18, latePaymentsLast12: 0, recurringShortfall: false },
   jordan: { payday: "biweekly-fri", avgBalance: 560, paymentDueDay: 3, latePaymentsLast12: 2, recurringShortfall: false },
   raj: { payday: "biweekly-fri", avgBalance: 6200, paymentDueDay: 18, latePaymentsLast12: 0, recurringShortfall: false },
 };
 
-const rankPlan: Record<PersonaId, string[]> = {
+const rankPlan: Record<LegacyPersonaId, string[]> = {
   maya: ["lease-end:buyout", "insurance:ubi", "protection:extended"],
   garcia: ["payment:refinance", "protection:extended", "insurance:ubi"],
   jordan: ["insurance:ubi-coached", "payment:due-date", "payment:refinance"],
   raj: ["lease-end:upgrade", "protection:tire-wheel", "insurance:ubi"],
 };
 
-const insights: Record<PersonaId, TripInsight[]> = {
+const insights: Record<LegacyPersonaId, TripInsight[]> = {
   maya: [
     { id: "maya-i1", text: "You've driven to Dallas 4 times this quarter, about 1,560 miles of your lease allowance.", relatedMove: "lease-end" },
     { id: "maya-i2", text: "Your worst trip this month was an I-35 evening commute: 2 hard brakes near 51st St.", relatedMove: "insurance", relatedTripId: "maya-trip-showcase-i35" },
@@ -227,7 +227,7 @@ export function mockDashboard(
   const engines = mockEngines(persona);
   const prefs = persona.preferences;
   const dismissed = new Set(prefs.dismissed.map((d) => d.optionId));
-  const ranked: RankedMove[] = rankPlan[id]
+  const ranked: RankedMove[] = rankPlan[legacyId(id)]
     .filter((oid) => !dismissed.has(oid))
     .filter((oid) => !prefs.suppressedMoveTypes.includes(oid.split(":")[0] as never))
     .map((oid, i) => ({
@@ -241,10 +241,10 @@ export function mockDashboard(
   return {
     persona,
     driving: persona.consent.driving ? driving : { ...driving, scoreFactors: [], topDestinations: [], lifestyleTags: [] },
-    cashflow: persona.consent.banking ? cashflows[id] : null,
+    cashflow: persona.consent.banking ? cashflows[legacyId(id)] : null,
     engines,
     ranked,
-    tripInsights: persona.consent.driving ? insights[id] : [],
+    tripInsights: persona.consent.driving ? insights[legacyId(id)] : [],
     trips: persona.consent.driving ? mockTripRows(id) : [],
     preferences: prefs,
   };

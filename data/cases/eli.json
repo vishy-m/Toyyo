@@ -1,0 +1,28 @@
+{
+  "personaId": "eli",
+  "source": "toyyo",
+  "driver": {
+    "firstName": "Eli",
+    "age": 41,
+    "city": "San Juan",
+    "state": "PR",
+    "occupation": "Carpenter and workshop owner"
+  },
+  "quote": "My 2007 Hilux carries my tools to every job. The loan rate feels high and I want a clear plan to finish paying it off without hurting the business.",
+  "context": "Working truck on a used-vehicle loan; 27 payments left at 12.9%; credit improved",
+  "bestMove": {
+    "title": "Refinance to a lower rate, then use extra principal as the payoff plan",
+    "nextStepType": "Offer",
+    "message": "At the simulated 5.9% rate your payment would be about $443 a month instead of $479, saving roughly $825 after the $150 fee over the same 27 months. Adding a little extra principal each month can bring the payoff date forward.",
+    "whyNotOthers": "Extending the term lowers the payment but costs more interest; optional service coverage is worth pricing later, but the rate matters more right now.",
+    "guardrails": "Estimate from a simulated rate; a final rate follows credit review. Insurer and local rules in Puerto Rico may differ from the mainland.",
+    "optionId": "payment:refinance"
+  },
+  "notes": [
+    "Toyyo-authored case: the figures come from Toyyo's own simulated persona data and engines, not from the hackathon data pack. All data is synthetic.",
+    "The driver's occupation is illustrative; the persona data does not specify one.",
+    "Next-step label follows the pack's definitions: Self-service (customer does it in the app), Follow-up (a specialist continues), Offer (an eligible product offer).",
+    "Puerto Rico case with a simulated local insurer; sales tax is not used (loan).",
+    "Engine ranking: refinance first, extended service coverage second."
+  ]
+}

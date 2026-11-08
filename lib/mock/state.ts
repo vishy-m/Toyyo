@@ -13,7 +13,7 @@ import type {
 } from "@/lib/types";
 import { mockAgentInitial } from "./agent";
 import { mockDashboard } from "./dashboard";
-import { mockPersonas } from "./personas";
+import { type LegacyPersonaId, legacyId, mockPersonas } from "./personas";
 
 interface Runtime {
   preferences: Preferences;
@@ -99,7 +99,7 @@ export function mockAction(req: ActionRequest): ActionResponse {
   }
 }
 
-const tfsBase: Record<PersonaId, Omit<TfsMetrics, "accepted" | "openPackets" | "personaId">> = {
+const tfsBase: Record<LegacyPersonaId, Omit<TfsMetrics, "accepted" | "openPackets" | "personaId">> = {
   maya: {
     recommendedMove: "Lease buyout",
     retentionLikelihood: 0.78,
@@ -135,7 +135,7 @@ export function mockTfs(): TfsData {
   const metrics = ids.map((id) => {
     const open = packets.filter((p) => p.personaId === id).length;
     const accepted = rt(id).preferences.accepted.length > 0;
-    const b = tfsBase[id];
+    const b = tfsBase[legacyId(id)];
     return {
       personaId: id,
       ...b,

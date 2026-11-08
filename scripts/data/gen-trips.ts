@@ -26,6 +26,30 @@ const patterns: Record<string, Pattern> = {
   rock: { key: 'austin-enchanted-rock', from: austin, to: [-98.8198,30.4960], miles: 96, highway: .76, category: 'trailhead', label: 'Enchanted Rock' },
   falls: { key: 'austin-pedernales', from: austin, to: [-98.2589,30.3089], miles: 47, highway: .55, category: 'trailhead', label: 'Pedernales Falls' },
   rajBigBend: { key: 'austin-big-bend', from: austin, to: [-103.2433,29.3287], miles: 470, highway: .96, category: 'road-trip', label: 'Big Bend NP' },
+  noraErrand: { key: 'boerne-la-cantera', from: [-98.7320,29.7947], to: [-98.6115,29.6001], miles: 27, highway: .85, category: 'errand', label: 'San Antonio (La Cantera)' },
+  noraFredericksburg: { key: 'boerne-fredericksburg', from: [-98.7320,29.7947], to: [-98.8719,30.2752], miles: 34, highway: .7, category: 'other', label: 'Fredericksburg' },
+  noraKerrville: { key: 'boerne-kerrville', from: [-98.7320,29.7947], to: [-99.1403,30.0474], miles: 32, highway: .9, category: 'other', label: 'Kerrville' },
+  noraCorpus: { key: 'boerne-corpus-christi', from: [-98.7320,29.7947], to: [-97.3964,27.8006], miles: 190, highway: .93, category: 'road-trip', label: 'Corpus Christi' },
+  eliWorkshop: { key: 'san-juan-caguas', from: [-66.1057,18.4655], to: [-66.0352,18.2341], miles: 24, highway: .8, category: 'commute', label: 'Caguas workshop' },
+  eliBayamon: { key: 'san-juan-bayamon', from: [-66.1057,18.4655], to: [-66.1557,18.3985], miles: 9, highway: .45, category: 'errand', label: 'Bayamón hardware store' },
+  eliPonce: { key: 'san-juan-ponce', from: [-66.1057,18.4655], to: [-66.6141,18.0111], miles: 75, highway: .9, category: 'road-trip', label: 'Ponce' },
+  avaWork: { key: 'dallas-addison', from: [-96.7970,32.7767], to: [-96.8290,32.9618], miles: 14, highway: .75, category: 'commute', label: 'Addison work' },
+  avaCampus: { key: 'dallas-ut-dallas', from: [-96.7970,32.7767], to: [-96.7501,32.9886], miles: 17, highway: .7, category: 'commute', label: 'UT Dallas campus' },
+  avaWaco: { key: 'dallas-waco', from: [-96.7970,32.7767], to: [-97.1467,31.5493], miles: 95, highway: .95, category: 'other', label: 'Waco' },
+  theoCommute: { key: 'fort-worth-arlington', from: [-97.3308,32.7555], to: [-97.1081,32.7357], miles: 22, highway: .85, category: 'commute', label: 'Arlington' },
+  theoCultural: { key: 'fort-worth-cultural-district', from: [-97.3308,32.7555], to: [-97.3640,32.7500], miles: 3.5, highway: .1, category: 'errand', label: 'Fort Worth Cultural District' },
+  theoGlenRose: { key: 'fort-worth-glen-rose', from: [-97.3308,32.7555], to: [-97.8120,32.2420], miles: 70, highway: .8, category: 'other', label: 'Glen Rose' },
+  // Hackathon pack cases (ryan: Richardson, devon: Dallas, priya: Plano). Public places only, never residences.
+  ryanOffice: { key: 'richardson-plano-legacy', from: [-96.7299,32.9483], to: [-96.8267,33.0786], miles: 17.3, highway: .8, category: 'commute', label: 'Plano Legacy office' },
+  ryanUptown: { key: 'richardson-dallas-uptown', from: [-96.7299,32.9483], to: [-96.8050,32.8000], miles: 15.5, highway: .85, category: 'errand', label: 'Dallas Uptown' },
+  ryanAustin: { key: 'richardson-austin', from: [-96.7299,32.9483], to: austin, miles: 205, highway: .95, category: 'road-trip', label: 'Austin' },
+  devonStudio: { key: 'dallas-design-district', from: [-96.7970,32.7767], to: [-96.8200,32.7950], miles: 4.2, highway: .3, category: 'commute', label: 'Design District studio' },
+  devonBishop: { key: 'dallas-bishop-arts', from: [-96.7970,32.7767], to: [-96.8280,32.7490], miles: 5.1, highway: .35, category: 'errand', label: 'Bishop Arts' },
+  devonStockyards: { key: 'dallas-fort-worth-stockyards', from: [-96.7970,32.7767], to: [-97.3485,32.7890], miles: 35, highway: .92, category: 'other', label: 'Fort Worth Stockyards' },
+  devonAustin: { key: 'dallas-austin', from: [-96.7970,32.7767], to: austin, miles: 196, highway: .94, category: 'road-trip', label: 'Austin' },
+  priyaOffice: { key: 'plano-downtown-dallas', from: [-96.6989,33.0198], to: [-96.7970,32.7767], miles: 22, highway: .85, category: 'commute', label: 'Downtown Dallas office' },
+  priyaFrisco: { key: 'plano-frisco-square', from: [-96.6989,33.0198], to: [-96.8236,33.1507], miles: 12, highway: .6, category: 'errand', label: 'Frisco Square' },
+  priyaAustin: { key: 'plano-austin', from: [-96.6989,33.0198], to: austin, miles: 200, highway: .95, category: 'road-trip', label: 'Austin' },
   austinErrand: { key: 'austin-zilker', from: austin, to: [-97.7729,30.2669], miles: 4.2, highway: .05, category: 'errand', label: 'Austin Zilker Park' },
 };
 function mulberry32(seed: number) { return () => { let t = seed += 0x6D2B79F5; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -63,7 +87,7 @@ async function main() {
     }
     return cache[p.key];
   }
-  for (const [personIndex,id] of (['maya','garcia','jordan','raj'] as PersonaId[]).entries()) {
+  for (const [personIndex,id] of (['maya','garcia','jordan','raj','nora','eli','ava','theo','ryan','devon','priya'] as PersonaId[]).entries()) {
     const random=mulberry32(20261027+personIndex);
     // Separate telemetry seed keeps mileage and route geometry stable when tuning events.
     const telemetry=mulberry32(20261027+personIndex+1000);
@@ -82,6 +106,35 @@ async function main() {
         if ([31,34].includes(day)) plans.splice(0,plans.length,patterns.garciaBigBend);
       } else if (id==='jordan') {
         plans.push(patterns.urban,day%3===0?patterns.houstonPark:patterns.urban);
+      } else if (id==='nora') {
+        if (weekday===2||weekday===4) plans.push(patterns.noraErrand,patterns.noraErrand);
+        if (weekday===6) { const p=day%2===0?patterns.noraFredericksburg:patterns.noraKerrville; plans.push(p,p); }
+        if ([20,21,62,63].includes(day)) plans.splice(0,plans.length,patterns.noraCorpus);
+      } else if (id==='eli') {
+        if ([1,3,5].includes(weekday)) plans.push(patterns.eliWorkshop,patterns.eliWorkshop);
+        if (weekday===6) plans.push(patterns.eliBayamon,patterns.eliBayamon);
+        if ([30,31,75,76].includes(day)) plans.splice(0,plans.length,patterns.eliPonce);
+      } else if (id==='ava') {
+        if ([1,3,5].includes(weekday)) plans.push(patterns.avaWork,patterns.avaWork);
+        if (weekday===2||weekday===4) plans.push(patterns.avaCampus,patterns.avaCampus);
+        if (weekday===0&&Math.floor(day/7)%3===0) plans.push(patterns.avaWaco,patterns.avaWaco);
+      } else if (id==='theo') {
+        if (weekday>0&&weekday<6) plans.push(patterns.theoCommute,patterns.theoCommute);
+        if (weekday===2||weekday===4) plans.push(patterns.theoCultural);
+        if (weekday===6) { const p=Math.floor(day/7)%2===0?patterns.theoGlenRose:patterns.theoCultural; plans.push(p,p); }
+      } else if (id==='ryan') {
+        if (weekday>=2&&weekday<=4) plans.push(patterns.ryanOffice,patterns.ryanOffice);
+        if (weekday===5||weekday===6) plans.push(patterns.ryanUptown,patterns.ryanUptown);
+        if ([20,21,62,63].includes(day)) plans.splice(0,plans.length,patterns.ryanAustin);
+      } else if (id==='devon') {
+        if ([1,3,4].includes(weekday)) plans.push(patterns.devonStudio,patterns.devonStudio);
+        if (weekday===6) plans.push(patterns.devonBishop,patterns.devonBishop);
+        if (weekday===0&&Math.floor(day/7)%2===0) plans.push(patterns.devonStockyards,patterns.devonStockyards);
+        if ([30,31,75,76].includes(day)) plans.splice(0,plans.length,patterns.devonAustin);
+      } else if (id==='priya') {
+        if (weekday>0&&weekday<6) plans.push(patterns.priyaOffice,patterns.priyaOffice);
+        if (weekday===6) plans.push(patterns.priyaFrisco,patterns.priyaFrisco);
+        if ([20,21,62,63].includes(day)) plans.splice(0,plans.length,patterns.priyaAustin);
       } else {
         if (weekday===2||weekday===4) plans.push(patterns.austinErrand,patterns.austinErrand);
         if (weekday===6) plans.push(day%2===0?patterns.rock:patterns.falls);
@@ -89,13 +142,13 @@ async function main() {
       }
       for (let slot=0;slot<plans.length;slot++) {
         const p=plans[slot];
-        const reverse=slot===1||[11,53,34,27].includes(day);
+        const reverse=slot===1||(newIds.includes(id)?[21,63,31,76].includes(day):[11,53,34,27].includes(day));
         const miles=Math.round(p.miles*(.97+random()*.06)*100)/100;
         const night=id==='jordan'?(day%4===0?.3:1):day%13===0?.25:0;
         const start=new Date(date);
-        start.setUTCHours(id==='jordan'?(slot===0?4:6):slot===0?13:22,Math.floor(random()*25));
+        start.setUTCHours(id==='jordan'?(slot===0?4:6):slot===0?13:slot===1?22:23,Math.floor(random()*25));
         const hardBrakes=id==='jordan'?(day%5===0?0:1):random()<.035?1:0;
-        const trip: Trip={id:`${id}-${String(trips.length+1).padStart(3,'0')}`,personaId:id,start:start.toISOString(),end:'',miles,highwayPct:p.highway,nightPct:night,speedingPct:id==='jordan'?.10+random()*.1:random()*.025,hardBrakes,fastAccels:id==='jordan'&&day%7===0?1:0,harshCorners:id==='jordan'&&day%11===0?1:0,category:p.category,destinationLabel:reverse?(id==='garcia'?'San Antonio':id==='jordan'?'Houston':'Austin'):p.label,score:0,showcase:false,path:[],events:[]};
+        const trip: Trip={id:`${id}-${String(trips.length+1).padStart(3,'0')}`,personaId:id,start:start.toISOString(),end:'',miles,highwayPct:p.highway,nightPct:night,speedingPct:id==='jordan'?.10+random()*.1:random()*.025,hardBrakes,fastAccels:id==='jordan'&&day%7===0?1:0,harshCorners:id==='jordan'&&day%11===0?1:0,category:p.category,destinationLabel:reverse?(({garcia:'San Antonio',jordan:'Houston',nora:'Boerne',eli:'San Juan',ava:'Dallas',theo:'Fort Worth',ryan:'Richardson',devon:'Dallas',priya:'Plano'} as Partial<Record<PersonaId,string>>)[id]??'Austin'):p.label,score:0,showcase:false,path:[],events:[]};
         // Keep planning metadata out of the public fixture shape.
         const coords=reverse?fallback(p).reverse():fallback(p);
         trip.path=coords.map(([lng,lat])=>[lng,lat,0]);
@@ -107,7 +160,24 @@ async function main() {
     if(id==='maya') { selected.add(trips.findIndex(t=>t.destinationLabel==='Dallas')); selected.add(Math.floor(trips.length/2)); selected.add(trips.length-1); }
     else if(id==='garcia') { selected.add(trips.findIndex(t=>t.destinationLabel==='Big Bend NP')); selected.add(trips.findIndex(t=>t.category==='errand')); selected.add(trips.length-1); }
     else if(id==='raj') { selected.add(trips.findIndex(t=>t.destinationLabel==='Big Bend NP')); selected.add(trips.findIndex(t=>t.destinationLabel==='Enchanted Rock')); selected.add(trips.findIndex(t=>t.destinationLabel==='Pedernales Falls')); }
-    else { selected.add(30); selected.add(80); selected.add(140); }
+    else if(id==='jordan') { selected.add(30); selected.add(80); selected.add(140); }
+    else {
+      const labels={nora:['Corpus Christi','Fredericksburg'],eli:['Ponce','Bayamón hardware store'],ava:['Waco','UT Dallas campus'],theo:['Glen Rose','Fort Worth Cultural District'],ryan:['Austin','Dallas Uptown'],devon:['Austin','Bishop Arts'],priya:['Austin','Frisco Square']} as Record<string,string[]>;
+      for(const label of labels[id]) selected.add(trips.findIndex(t=>t.destinationLabel===label));
+      selected.add(trips.length-1);
+    }
+    if(id in packMonthlyMiles) {
+      // Calibrate the 90-day total to the customer's annual_miles_est/4 (pack vehicles.csv): showcase miles keep
+      // their OSRM distances, other trips scale uniformly, and rounding residue lands on the last scaled trip.
+      const target=packMonthlyMiles[id]*3;
+      const fixed=trips.filter((t,i)=>selected.has(i));
+      for(const [i,trip] of trips.entries()) if(selected.has(i)) trip.miles=Math.round((await route(metadata.get(trip.id)!.p)).miles*100)/100;
+      const free=trips.filter((t,i)=>!selected.has(i));
+      const factor=(target-fixed.reduce((n,t)=>n+t.miles,0))/free.reduce((n,t)=>n+t.miles,0);
+      for(const t of free) t.miles=Math.round(t.miles*factor*100)/100;
+      free[free.length-1].miles=Math.round((free[free.length-1].miles+target-trips.reduce((n,t)=>n+t.miles,0))*100)/100;
+      console.log(`${id}: calibration factor ${factor.toFixed(3)}`);
+    }
     for (const [i,trip] of trips.entries()) {
       const {p,reverse}=metadata.get(trip.id)!;
       let coords: Point[]=trip.path.map(([lng,lat])=>[lng,lat]);
@@ -140,6 +210,34 @@ async function main() {
           trip.hardBrakes=0; trip.harshCorners=0; trip.speedingPct=0; trip.nightPct=0;
         }
       }
+      if(id==='nora') {
+        trip.hardBrakes=telemetry()<.2?1:0;
+        trip.speedingPct=trip.category==='road-trip'?.3+telemetry()*.12:.2+telemetry()*.12;
+        trip.nightPct=telemetry()<.06?.3:0;
+      } else if(id==='eli') {
+        trip.hardBrakes=telemetry()<.3?1:0;
+        trip.harshCorners=trip.category==='errand'&&telemetry()<.3?1:0;
+        trip.speedingPct=.2+telemetry()*.15;
+        trip.nightPct=0;
+      } else if(id==='ava') {
+        trip.hardBrakes=telemetry()<.4?1:0;
+        trip.fastAccels=telemetry()<.3?1:0;
+        trip.speedingPct=.12+telemetry()*.13;
+        trip.nightPct=telemetry()<.1?.2:0;
+      } else if(id==='ryan'||id==='devon'||id==='priya') {
+        // Smooth, ordinary driving: the pack gives no telemetry for these customers.
+        trip.hardBrakes=telemetry()<.1?1:0;
+        trip.speedingPct=.02+telemetry()*.04;
+        trip.nightPct=telemetry()<.05?.2:0;
+      } else if(id==='theo') {
+        const evening=new Date(trip.start).getUTCHours()>=23||trip.category==='other';
+        // Fast launches scale with distance so long weekend runs also pull the score down.
+        trip.fastAccels=telemetry()<.8?Math.max(1,Math.round(trip.miles*.2*(.6+telemetry()*.8))):0;
+        trip.hardBrakes=telemetry()<.3?1:0;
+        trip.speedingPct=.3+telemetry()*.15;
+        trip.nightPct=evening?.4+telemetry()*.2:0;
+      }
+      if(newIds.includes(id)&&computeTripScore(trip)===100) trip.speedingPct=Math.max(trip.speedingPct,.05);
       let seconds=0;
       trip.path=coords.map(([lng,lat],j)=> {
         if(j>0) {
@@ -170,5 +268,8 @@ async function main() {
   await writeFile(cachePath,JSON.stringify(cache)+'\n');
   console.log(`Pinned routes: ${Object.values(cache).filter(r=>r.source==='osrm').length} OSRM, ${Object.values(cache).filter(r=>r.source==='fallback').length} fallback`);
 }
+const newIds: PersonaId[]=['nora','eli','ava','theo','ryan','devon','priya'];
+// annual_miles_est / 12 from the pack's vehicles.csv (C010, C006, C003).
+const packMonthlyMiles: Record<string,number>={ryan:1000,devon:8000/12,priya:1375};
 const metadata=new Map<string,{p:Pattern;reverse:boolean}>();
 main().catch(error=>{console.error(error);process.exitCode=1;});

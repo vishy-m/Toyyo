@@ -1,0 +1,64 @@
+{
+  "id": "theo",
+  "name": "Theo",
+  "displayName": "Theo, 27 \u00b7 Daily-driver enthusiast",
+  "age": 27,
+  "city": "Fort Worth",
+  "avatarEmoji": "\ud83c\udfc1",
+  "vehicle": {
+    "year": 2020,
+    "make": "Toyota",
+    "model": "GR Yaris",
+    "bodyStyle": "sedan",
+    "modelAsset": "/models/cinematic/optimized/toyota-yaris.glb",
+    "paintHex": "#C9D0D2",
+    "odometer": 31500,
+    "vin": "SYNTHETIC-THEO-001",
+    "isHybrid": false,
+    "mpg": 29
+  },
+  "contract": {
+    "kind": "loan",
+    "startDate": "2025-09-27",
+    "termMonths": 60,
+    "monthsRemaining": 47,
+    "monthlyPayment": 644.14,
+    "apr": 6.4,
+    "principalRemaining": 26716,
+    "autopay": true
+  },
+  "insurance": {
+    "carrier": "Lone Star Mutual (simulated)",
+    "monthlyPremium": 212,
+    "usageBased": false
+  },
+  "toyotaCare": {
+    "startDate": "2020-08-15",
+    "expiresMonths": 24,
+    "expiresMiles": 25000
+  },
+  "creditTier": "good",
+  "consent": {
+    "driving": true,
+    "banking": true,
+    "paymentHistory": true,
+    "shareWithInsurers": true
+  },
+  "preferences": {
+    "priorityWeights": {
+      "monthlyPayment": 0.35,
+      "totalCost": 0.3,
+      "flexibility": 0.2,
+      "lifestyleFit": 0.15
+    },
+    "detailLevel": "standard",
+    "format": "bullets",
+    "lifestyleTags": [],
+    "suppressedMoveTypes": [],
+    "dismissed": [],
+    "accepted": [],
+    "learned": []
+  },
+  "lifeEvents": [],
+  "intendedBestMove": "insurance"
+}

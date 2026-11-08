@@ -7,9 +7,9 @@ import type {
   DashboardData,
   Draft,
   LearnedItem,
-  PersonaId,
   Recommendation,
 } from "@/lib/types";
+import { type LegacyPersonaId, legacyId } from "./personas";
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const NOW = "2026-10-27T15:00:00.000Z";
@@ -76,7 +76,7 @@ export function mockRecommendations(data: DashboardData): Recommendation[] {
   });
 }
 
-const draftsByPersona: Record<PersonaId, Draft[]> = {
+const draftsByPersona: Record<LegacyPersonaId, Draft[]> = {
   maya: [
     {
       id: "draft-maya-compare",
@@ -90,7 +90,7 @@ const draftsByPersona: Record<PersonaId, Draft[]> = {
       id: "draft-maya-msg",
       type: "message",
       title: "Note to a TFS specialist",
-      body: "Hi, I'd like a payoff quote for my 2023 Camry SE lease (4 months left). I'm planning to buy it out and would like financing options.",
+      body: "Hi, I'd like a payoff quote for my 2025 Camry Hybrid SE lease (4 months left). I'm planning to buy it out and would like financing options.",
       relatedOptionId: "lease-end:buyout",
       createdAt: NOW,
     },
@@ -127,7 +127,7 @@ const draftsByPersona: Record<PersonaId, Draft[]> = {
   ],
 };
 
-const learnedByPersona: Record<PersonaId, LearnedItem[]> = {
+const learnedByPersona: Record<LegacyPersonaId, LearnedItem[]> = {
   maya: [
     { id: "l-maya-1", statement: "Drives to Dallas most months", source: "driving", confidence: 0.86, createdAt: NOW },
     { id: "l-maya-2", statement: "Values flexibility over the lowest payment", source: "explicit", confidence: 0.7, createdAt: NOW },
@@ -151,8 +151,8 @@ export function mockAgentInitial(data: DashboardData, deletedLearned: Set<string
   return {
     personaId: id,
     recommendations: mockRecommendations(data),
-    drafts: draftsByPersona[id],
-    learned: [...learnedByPersona[id], ...data.preferences.learned].filter((l) => !deletedLearned.has(l.id)),
+    drafts: draftsByPersona[legacyId(id)],
+    learned: [...learnedByPersona[legacyId(id)], ...data.preferences.learned].filter((l) => !deletedLearned.has(l.id)),
   };
 }
 
