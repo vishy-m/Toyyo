@@ -7,7 +7,7 @@ export function computeLeaseEndOptions(persona: Persona, driving: DrivingSummary
   if(contract.kind!=='lease') return {moveType:'lease-end',baselineOptionId:'lease-end:return',options:['return','buyout','re-lease','upgrade'].map(id=>option('lease-end',id,'Lease-end options unavailable',{eligible:false,ineligibleReason:'This vehicle has a loan, not a lease.',summary:'Your loan does not have a lease-end return or residual buyout.'}))};
   const months=bounded(overrides.monthsAhead,contract.monthsRemaining,0,contract.monthsRemaining);
   const monthlyMiles=bounded(overrides.monthlyMiles,persona.consent.driving?driving.avgMonthlyMiles:contract.annualMileageAllowance/12,0,10000);
-  const startingOdometer=rates.leaseStartingOdometer[persona.id as keyof typeof rates.leaseStartingOdometer]??0;
+  const startingOdometer=contract.startingOdometer??rates.leaseStartingOdometer[persona.id as keyof typeof rates.leaseStartingOdometer]??0;
   const allowance=contract.annualMileageAllowance*contract.termMonths/12;
   const projectedOdometer=round(persona.vehicle.odometer+monthlyMiles*months);
   const excessMiles=Math.max(0,projectedOdometer-startingOdometer-allowance);

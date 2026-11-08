@@ -34,6 +34,8 @@ export interface LeaseContract {
   monthsRemaining: number;
   monthlyPayment: number;
   annualMileageAllowance: number;
+  /** Odometer at lease start; absent for the original synthetic cases. */
+  startingOdometer?: number;
   overageRatePerMile: number; // e.g. 0.25
   residualValue: number;
   purchaseOptionFee: number;

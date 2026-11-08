@@ -61,11 +61,11 @@ describe("Gemini schemas and configuration", () => {
     expect(result.required).toEqual(["name", "source", "choice", "note", "rows"]);
     expect(() => geminiSchema({ $ref: "#/$defs/unknown" })).toThrow();
   });
-  it("defaults to Gemini flash, supports the nonstandard key and model override", () => {
+  it("defaults to Gemma 4, supports the nonstandard key and model override", () => {
     vi.stubEnv("AGENT_PROVIDER", undefined);
     vi.stubEnv("GEMINI_API_KEY", undefined);
     vi.stubEnv("GEMINI_API", "fake-fallback-key");
-    expect(providerConfig()).toEqual({ provider: "gemini", model: "gemini-3.5-flash" });
+    expect(providerConfig()).toEqual({ provider: "gemini", model: "gemma-4-31b-it" });
     expect(getProvider()).not.toBeNull();
     vi.stubEnv("AGENT_MODEL", "gemini-3.1-pro-preview");
     expect(providerConfig().model).toBe("gemini-3.1-pro-preview");

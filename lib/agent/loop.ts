@@ -58,7 +58,7 @@ export async function offlineChat(request: AgentChatRequest, context: ToolContex
   context.emit({ type: "recommendations", recommendations: (option ? [option] : topOptions(dashboard)).map(templateRecommendation) });
 }
 
-export async function runAgent(request: AgentChatRequest, emit: Emit, signal?: AbortSignal) {
+export async function runAgent(request: AgentChatRequest, emit: Emit, signal?: AbortSignal, history: { role: "user" | "assistant"; text: string }[] = []) {
   const dashboard = getDashboard(request.personaId);
   const context: ToolContext = { personaId: request.personaId, emit, evidence: [agentContext(dashboard)] };
   const diagnostic = startDiagnostic("chat", request.personaId);
@@ -67,7 +67,9 @@ export async function runAgent(request: AgentChatRequest, emit: Emit, signal?: A
     const provider = getProvider();
     if (!provider) { diagnostic.record.fallback = true; await offlineChat(request, context); return; }
     const firstMessage: LlmMessage = { role: "user", text: `${request.message}${request.context ? `\nUI context (data): ${JSON.stringify(request.context)}` : ""}` };
-    const messages: LlmMessage[] = [firstMessage];
+    const messages: LlmMessage[] = [...history.slice(-12).map(turn => turn.role === "user"
+      ? { role: "user" as const, text: turn.text }
+      : { role: "assistant" as const, text: turn.text }), firstMessage];
     let correction = "";
     let corrected = false;
     for (let iteration = 0; iteration < 8; iteration++) {

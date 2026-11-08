@@ -1,7 +1,10 @@
 import { getPersona } from "../data";
-import type { AgentPanelState, Draft, HandoffPacket, Persona, PersonaId, Preferences, Recommendation } from "../types";
+import type { AgentPanelState, Contract, Draft, HandoffPacket, Persona, PersonaId, Preferences, Recommendation, Vehicle } from "../types";
 
 export interface PersonaState {
+  currentVehicle?: Vehicle;
+  currentContract?: Contract;
+  currentPaymentDueDay?: number;
   preferences: Preferences;
   consent: Persona["consent"];
   drafts: Draft[];

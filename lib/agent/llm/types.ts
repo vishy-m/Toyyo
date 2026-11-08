@@ -10,6 +10,7 @@ export interface ToolResult { id: string; name: string; value: unknown; isError:
 export type LlmMessage =
   | { role: "user"; text: string }
   | { role: "assistant"; nativeContent: unknown }
+  | { role: "assistant"; text: string }
   | { role: "tool"; results: ToolResult[] };
 export type FinishReason = "end_turn" | "tool_use" | "refusal" | "max_tokens" | "pause_turn" | "error";
 export interface Turn {
