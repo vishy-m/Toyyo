@@ -10,7 +10,8 @@ import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { Chip } from "@/components/ui/Chip";
 import { Drawer } from "@/components/ui/Overlay";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { initials, ShiftMark } from "@/components/dashboard/TopBar";
+import { initials } from "@/components/dashboard/TopBar";
+import { ToyyoLogo } from "@/components/branding/ToyyoLogo";
 import { getTfs } from "@/lib/client/api";
 import { consentLabel, moveLabel, shortDate, timeOfDay, usd } from "@/lib/client/format";
 import { useReducedMotionSync } from "@/lib/client/hooks";
@@ -132,7 +133,7 @@ export function TfsView() {
             <span className="hidden sm:inline">Customer view</span>
           </Link>
           <span className="h-6 w-px bg-line" aria-hidden />
-          <ShiftMark className="size-6 text-ink" />
+          <ToyyoLogo variant="badge" decorative className="!h-9 !w-9" />
           <h1 className="font-display text-[17px] text-ink">TFS Insight</h1>
           <span className="hidden text-sm text-ink-3 md:inline">Internal view</span>
           <button

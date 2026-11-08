@@ -1,15 +1,15 @@
 "use client";
 
 import { transition as motionTransition, useShouldReduceMotion, useTempoTransition } from "@animate-ui/react/utils/motion";
-import { usePageVisible } from "@animate-ui/react/utils/use-page-visible";
 import clsx from "clsx";
 import { ArrowUp, Check, CircleAlert, CornerDownRight, Loader2, Square, X } from "lucide-react";
-import { AnimatePresence, motion, useInView } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { useDataStore, type ChatMessage } from "@/lib/client/data-store";
 import { moveLabel, toolLabel } from "@/lib/client/format";
 import { useUiStore } from "@/lib/client/ui-store";
 import type { DashboardData, UiAction } from "@/lib/types";
+import { ToyyoLoadingState } from "@/components/branding/ToyyoLoadingState";
 import { Markdown } from "./Markdown";
 
 function actionText(a: UiAction) {
@@ -36,30 +36,14 @@ function suggestions(d?: DashboardData) {
 }
 
 function ThinkingIndicator() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref);
-  const visible = usePageVisible();
-  return (
-    <div ref={ref} className="flex gap-1 py-1" aria-label="Copilot is thinking">
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="size-1.5 rounded-full bg-ink-3"
-          animate={{ opacity: inView && visible ? [0.3, 1, 0.3] : 1 }}
-          transition={inView && visible
-            ? { duration: 1.1, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }
-            : motionTransition.instant}
-        />
-      ))}
-    </div>
-  );
+  return <ToyyoLoadingState compact label="Toyyo is checking your options…" />;
 }
 
 function AgentMessage({ m }: { m: ChatMessage }) {
   return (
     <div className="space-y-2">
       {m.tools.length > 0 && (
-        <ul className="space-y-1" aria-label="Copilot activity">
+        <ul className="space-y-1" aria-label="Toyyo activity">
           {m.tools.map((t, i) => (
             <li key={`${t.name}-${i}`} className="flex items-center gap-2 text-xs text-ink-3">
               {t.status === "start" ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} className="text-good" />}
@@ -227,7 +211,7 @@ export function ChatInput() {
       )}
       <div className="flex items-end gap-2 rounded-lg border border-line-2 bg-[var(--glass-hi)] p-1.5 pl-3.5 focus-within:border-ink-3">
         <label htmlFor="agent-input" className="sr-only">
-          Ask the copilot
+          Ask Toyyo
         </label>
         <textarea
           id="agent-input"

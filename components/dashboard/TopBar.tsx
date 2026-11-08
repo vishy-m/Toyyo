@@ -13,16 +13,7 @@ import { useOverlayStore } from "@/lib/client/overlay-store";
 import { useUiStore } from "@/lib/client/ui-store";
 import { mockPersonas, personaOrder } from "@/lib/mock/personas";
 import type { DashboardData, Persona, PersonaId } from "@/lib/types";
-
-/** Shift-gate mark: an H-pattern with the selected gear in red. "Next move" = next gear. */
-export function ShiftMark({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 28 28" className={className} aria-hidden>
-      <path d="M7 6v16M14 6v16M21 6v16M7 14h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" fill="none" opacity="0.9" />
-      <circle cx="21" cy="6" r="3.6" fill="var(--accent)" />
-    </svg>
-  );
-}
+import { ToyyoLogo } from "@/components/branding/ToyyoLogo";
 
 /** Swap recipe: the old glyph shrinks into blur.icon as the new one grows out of it, in place. */
 function IconSwap({ id, children }: { id: string; children: React.ReactNode }) {
@@ -229,9 +220,8 @@ export function TopBar({ data }: { data?: DashboardData }) {
         Skip to dashboard
       </a>
       <div className="mx-auto flex h-16 max-w-[1680px] items-center gap-2 px-3 sm:gap-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 rounded-lg pr-1 text-ink" aria-label="Next Move Copilot home">
-          <ShiftMark className="size-7" />
-          <span className="font-display hidden text-[17px] md:inline">Next Move</span>
+        <Link href="/" className="flex shrink-0 items-center rounded-lg text-ink" aria-label="Toyyo home">
+          <ToyyoLogo className="toyyo-logo-nav" decorative preload />
         </Link>
         <span className="hidden h-6 w-px bg-line-2 md:block" aria-hidden />
         <PersonaSwitcher current={personaId} />
@@ -261,7 +251,7 @@ export function TopBar({ data }: { data?: DashboardData }) {
             <IconSwap id={theme === "dark" ? "sun" : "moon"}>{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</IconSwap>
           </IconButton>
           <span className="hidden lg:contents">
-            <IconButton label={panelOpen ? "Hide copilot panel" : "Show copilot panel"} onClick={() => setPanel(!panelOpen)}>
+            <IconButton label={panelOpen ? "Hide Toyyo assistant" : "Show Toyyo assistant"} onClick={() => setPanel(!panelOpen)}>
               <IconSwap id={panelOpen ? "close" : "open"}>{panelOpen ? <PanelRightClose size={18} /> : <PanelRightOpen size={18} />}</IconSwap>
             </IconButton>
           </span>

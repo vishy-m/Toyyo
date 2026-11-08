@@ -7,8 +7,17 @@ import "./globals.css";
 const overpass = Overpass({ variable: "--font-ui", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Next Move Copilot",
-  description: "Your Toyota lease or loan, insurance and driving in one place, with the next decision worth making. Concept prototype with synthetic data.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://127.0.0.1:3001")),
+  title: "Toyyo | Your next move, made clear",
+  applicationName: "Toyyo",
+  description: "Toyyo brings your Toyota lease or loan, insurance and driving together to explain your next move. Independent hackathon prototype using synthetic data.",
+  openGraph: {
+    title: "Toyyo | Your next move, made clear",
+    description: "A personal automotive assistant that makes ownership decisions easier to understand. Independent prototype with synthetic data.",
+    siteName: "Toyyo",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image", title: "Toyyo | Your next move, made clear", description: "Your car, your options, one clear next step. Independent synthetic prototype." },
 };
 
 export const viewport: Viewport = {

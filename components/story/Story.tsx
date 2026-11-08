@@ -16,9 +16,11 @@ import { DragSurface, ScrubNumber, ScrubReveal, ScrubText } from "@/components/s
 import { useScrollShot } from "@/components/stage/hooks";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
+import { ToyyoLoadingState } from "@/components/branding/ToyyoLoadingState";
 import { Sheet } from "@/components/ui/Sheet";
-import { SHOTS, useDirector, type ShotName } from "@/lib/client/director";
+import { SHOTS, useDirector, type Pose, type ShotName } from "@/lib/client/director";
 import { useOverlayStore } from "@/lib/client/overlay-store";
+import { shortDate } from "@/lib/client/format";
 import { useDashboard } from "@/lib/client/use-dashboard";
 import { useUiStore } from "@/lib/client/ui-store";
 import type { DashboardData } from "@/lib/types";
@@ -42,7 +44,7 @@ export function Story() {
   // Leaving the landing page: put the preview car away.
   useEffect(() => () => useDirector.getState().setPreview(undefined), []);
 
-  if (!data) return <div className="h-[calc(100dvh-var(--hdr))]" aria-busy />;
+  if (!data) return <div className="grid h-[calc(100dvh-var(--hdr))] place-items-center" aria-busy><ToyyoLoadingState label="Toyyo is loading your dashboard…" /></div>;
   return mode === "summary" ? <Summary key={`s-${data.persona.id}`} data={data} /> : <Tour key={`t-${data.persona.id}`} data={data} />;
 }
 
@@ -79,14 +81,18 @@ function ModeSwitch() {
   );
 }
 
-/** The opening screen, shared by both modes: the car's name, where things stand, the next move. */
+// Layout framing only: the existing stage, loading, transitions and drag controls are unchanged.
+const overviewHeroPose = { ...SHOTS.hero, offset: [0.18, -0.02], mobileOffset: [0, -0.05] } satisfies Pose;
+const overviewStillPose = { ...SHOTS.heroStill, offset: [0.18, -0.02], mobileOffset: [0, -0.05] } satisfies Pose;
+
+/** Shared opener for Guided tour and Summary. The fixed stage shows through the vehicle slot. */
 function Opening({ data, motionStyle }: { data: DashboardData; motionStyle?: { y: MotionValue<number>; opacity: MotionValue<number> } }) {
   const setOpenMove = useUiStore((s) => s.setOpenMove);
   const openWhy = useOverlayStore((s) => s.openWhy);
   const setPreview = useDirector((s) => s.setPreview);
   const [preview, setPreviewOn] = useState(false);
   const v = data.persona.vehicle;
-  const { opt, sentence } = nextMove(data);
+  const { opt, impact } = nextMove(data);
   const upgrade = opt?.upgradeModel;
 
   useEffect(() => {
@@ -94,42 +100,51 @@ function Opening({ data, motionStyle }: { data: DashboardData; motionStyle?: { y
   }, [preview, upgrade, setPreview]);
 
   return (
-    <div className="relative h-[calc(100dvh-var(--hdr))] overflow-hidden">
-      <DragSurface className="absolute inset-x-0 top-0 h-[46%] lg:inset-y-0 lg:right-0 lg:left-[46%] lg:h-auto" />
-      <div className="pointer-events-none relative mx-auto flex h-full w-full max-w-[1440px] flex-col px-5 pt-5 pb-8 sm:px-10 lg:pt-8">
-        <div className="pointer-events-auto self-end lg:self-start">
-          <ModeSwitch />
-        </div>
-        <motion.div style={motionStyle} className="mt-auto max-w-[640px] lg:my-auto">
-          <h1 className="font-display text-[clamp(49px,5.8vw,88px)] leading-[0.92] tracking-[-0.04em] text-balance text-ink">
+    <div className="overview-hero">
+      <div className="overview-hero-toolbar">
+        <p className="hidden text-sm text-ink-3 lg:block">Your car. Your next move, made clear.</p>
+        <ModeSwitch />
+      </div>
+      <motion.div style={motionStyle} className="overview-hero-grid">
+        <div className="overview-hero-intro">
+          <p className="text-xs font-semibold text-ink-3">YOUR VEHICLE OVERVIEW</p>
+          <h1 className="overview-hero-heading font-display text-balance text-ink">
             {v.year} {v.model.replace(/^Toyota /, "")}
           </h1>
-          <p className="mt-5 max-w-[36ch] text-[20px] leading-snug text-ink-2">{situation(data)}</p>
+          <p className="mt-4 max-w-[40ch] text-[18px] leading-relaxed text-ink-2">{situation(data)}</p>
+          <p className="mt-3 text-sm text-ink-3 lg:hidden">Your car. Your next move, made clear.</p>
+        </div>
 
-          {opt && (
-            <div className="pointer-events-auto mt-9 border-l-[3px] border-accent pl-5">
-              <p className="text-[15px] text-ink-3">We recommend</p>
-              <p className="mt-1 text-[25px] leading-tight font-bold tracking-[-0.015em] text-ink">{opt.title}</p>
-              <p className="mt-1.5 text-[16px] text-ink-2">{sentence}</p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Button variant="primary" size="lg" onClick={() => setOpenMove(opt.moveType)}>
-                  Compare options
+        <DragSurface className="overview-hero-vehicle" label="Drag to turn your vehicle">
+          <span className="sr-only">Interactive vehicle visualization</span>
+        </DragSurface>
+
+        {opt && (
+          <div className="overview-hero-recommendation">
+            <p className="flex items-center gap-2 text-sm font-medium text-ink-2">
+              <span className="h-0.5 w-6 bg-accent" aria-hidden />Recommended next move
+            </p>
+            <h2 className="mt-2 text-[clamp(23px,2.1vw,29px)] leading-tight font-bold text-ink">{opt.title}</h2>
+            {impact && (
+              <p className="mt-3 max-w-[43ch] text-[16px] leading-relaxed text-ink-2">
+                <span className="num font-semibold text-ink">{money(impact.value)}{impact.suffix}</span>{" "}
+                {opt.id === "lease-end:buyout" ? "estimated net advantage compared with returning the vehicle." : `estimated — ${impact.caption}.`}
+              </p>
+            )}
+            {opt.deadline && <p className="mt-2 text-sm text-ink-3">Decision deadline: <span className="font-medium text-ink-2">{shortDate(opt.deadline)}</span>.</p>}
+            <div className="overview-hero-actions mt-5 flex flex-wrap gap-2">
+              <Button variant="primary" size="lg" onClick={() => setOpenMove(opt.moveType)}>Compare options</Button>
+              <Button variant="outline" size="lg" onClick={() => openWhy(opt.id)}><Info size={16} />Why this move?</Button>
+              {upgrade && (
+                <Button variant="ghost" size="lg" onClick={() => setPreviewOn((p) => !p)} aria-pressed={preview}>
+                  {preview ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {preview ? "Hide the new car" : `Park a ${upgrade.name.replace(/^\d{4} Toyota /, "")} beside it`}
                 </Button>
-                <Button variant="outline" size="lg" onClick={() => openWhy(opt.id)}>
-                  <Info size={16} />
-                  Why this move
-                </Button>
-                {upgrade && (
-                  <Button variant="ghost" size="lg" onClick={() => setPreviewOn((p) => !p)} aria-pressed={preview}>
-                    {preview ? <EyeOff size={16} /> : <Eye size={16} />}
-                    {preview ? "Hide the new car" : `Park a ${upgrade.name.replace(/^\d{4} Toyota /, "")} beside it`}
-                  </Button>
-                )}
-              </div>
+              )}
             </div>
-          )}
-        </motion.div>
-      </div>
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }
@@ -217,12 +232,12 @@ const midFigure = "num text-[clamp(39px,3.8vw,61px)] leading-none font-bold trac
 function Tour({ data }: { data: DashboardData }) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useUiStore((s) => s.reducedMotion);
-  const progress = useScrollShot(ref, "hero", "heroLift", { calloutText: "" });
+  const progress = useScrollShot(ref, overviewHeroPose, "heroLift", { calloutText: "" });
   const y = useTransform(progress, [0, 0.7], reduced ? [0, 0] : [0, -120]);
   const opacity = useTransform(progress, [0.25, 0.7], reduced ? [1, 1] : [1, 0]);
 
   useEffect(() => {
-    useDirector.getState().setPose(SHOTS.hero, "");
+    useDirector.getState().setPose(overviewHeroPose, "");
   }, []);
 
   const contract = contractFacts(data);
@@ -419,7 +434,7 @@ function Finale({ data }: { data: DashboardData }) {
 
 function Summary({ data }: { data: DashboardData }) {
   useEffect(() => {
-    useDirector.getState().setPose(SHOTS.heroStill, "");
+    useDirector.getState().setPose(overviewStillPose, "");
   }, []);
   const contract = contractFacts(data);
   const drive = drivingFacts(data);

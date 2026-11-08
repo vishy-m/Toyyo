@@ -1,0 +1,86 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 37068
+  },
+  {
+    "path": "/moves",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 36446
+  },
+  {
+    "path": "/finances",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 36622
+  },
+  {
+    "path": "/driving",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 36527
+  },
+  {
+    "path": "/repair",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 42349
+  },
+  {
+    "path": "/tfs",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 19908
+  },
+  {
+    "path": "/lab",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 15819
+  },
+  {
+    "path": "/favicon.ico",
+    "status": 200,
+    "type": "image/x-icon",
+    "bytes": 5811
+  },
+  {
+    "path": "/icon.png",
+    "status": 200,
+    "type": "image/png",
+    "bytes": 321199
+  },
+  {
+    "path": "/apple-icon.png",
+    "status": 200,
+    "type": "image/png",
+    "bytes": 48013
+  },
+  {
+    "path": "/opengraph-image.png",
+    "status": 200,
+    "type": "image/png",
+    "bytes": 362287
+  },
+  {
+    "path": "/branding/toyyo-logo-horizontal.webp",
+    "status": 200,
+    "type": "image/webp",
+    "bytes": 54390
+  },
+  {
+    "path": "/branding/toyyo-badge.webp",
+    "status": 200,
+    "type": "image/webp",
+    "bytes": 63792
+  },
+  {
+    "path": "/branding/toyyo-mascot.webp",
+    "status": 200,
+    "type": "image/webp",
+    "bytes": 54598
+  }
+]

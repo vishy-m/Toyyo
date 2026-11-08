@@ -12,6 +12,8 @@ import { useDataStore } from "@/lib/client/data-store";
 import { useMinWidth } from "@/lib/client/hooks";
 import { useUiStore } from "@/lib/client/ui-store";
 import type { DashboardData, Draft, Preferences } from "@/lib/types";
+import { ToyyoAssistantAvatar, ToyyoMascot } from "@/components/branding/ToyyoMascot";
+import { ToyyoLoadingState } from "@/components/branding/ToyyoLoadingState";
 import { ChatInput, ChatThread } from "./Chat";
 import { Markdown } from "./Markdown";
 import { RecommendationCard } from "./RecommendationCard";
@@ -163,14 +165,16 @@ function PanelBody({ data }: { data?: DashboardData }) {
           </SectionTitle>
           {!agent ? (
             <div className="space-y-3" aria-busy>
+              <ToyyoLoadingState compact label="Toyyo is preparing your recommendations…" />
               <Skeleton className="h-[148px] rounded-xl" />
               <Skeleton className="h-[120px] rounded-xl" />
             </div>
           ) : (
             <>
-            {recs.length === 0 && <p className="rounded-lg border border-dashed border-line-2 p-4 text-[13px] text-ink-2">
-              No open recommendations. Ask a what-if below and I&apos;ll draft new ones.
-            </p>}
+            {recs.length === 0 && <div className="flex items-center gap-3 rounded-lg border border-dashed border-line-2 p-4 text-[13px] text-ink-2">
+              <ToyyoMascot size={56} decorative />
+              <p>No open recommendations. Ask Toyyo a what-if below to explore another move.</p>
+            </div>}
             <ul className="relative flex flex-col gap-3">
               <AnimatePresence initial={false} mode="popLayout">
                 {recs.map((r) => (
@@ -268,16 +272,16 @@ function PanelHeader({ data, onClose }: { data?: DashboardData; onClose?: () => 
   const streaming = useDataStore((s) => s.streaming);
   return (
     <div className="flex items-center gap-3">
-      <span className="relative grid size-9 place-items-center rounded-lg bg-ink text-bg">
-        <MessageSquareText size={17} />
+      <span className="relative grid size-10 shrink-0 place-items-center">
+        <ToyyoAssistantAvatar />
         {streaming && <span className="absolute -top-0.5 -right-0.5 size-2.5 animate-pulse rounded-full bg-accent ring-2 ring-[var(--bg)]" />}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="font-display text-[17px] text-ink">Copilot</div>
+        <div className="font-display text-[17px] text-ink">Toyyo</div>
         <div className="truncate text-xs text-ink-3">{data ? `Answers from ${data.persona.name}’s contract and trips` : "Loading…"}</div>
       </div>
       {onClose && (
-        <button type="button" onClick={onClose} aria-label="Hide copilot" className="grid size-9 place-items-center rounded-lg text-ink-3 hover:bg-[var(--glass-hi)] hover:text-ink">
+        <button type="button" onClick={onClose} aria-label="Hide Toyyo assistant" className="grid size-9 place-items-center rounded-lg text-ink-3 hover:bg-[var(--glass-hi)] hover:text-ink">
           <X size={16} />
         </button>
       )}
@@ -339,21 +343,21 @@ export function AgentPanel({ data }: { data?: DashboardData }) {
               whileTap={{ transform: `scale(${reduced ? 1 : scale.press})`, transition: press }}
               transition={press}
               className="glass-strong flex h-14 items-center gap-3 rounded-lg p-2 sm:pr-5"
-              aria-label="Open copilot"
+              aria-label="Open Toyyo assistant"
             >
-              <span className="relative grid size-10 place-items-center rounded-md bg-ink text-bg">
-                <MessageSquareText size={18} />
+              <span className="relative grid size-10 shrink-0 place-items-center">
+                <ToyyoAssistantAvatar />
                 {recCount > 0 && <span className="num absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-accent text-[11px] font-semibold text-white">{recCount}</span>}
               </span>
               <span className="hidden text-left sm:block">
-                <span className="block text-sm font-semibold text-ink">Copilot</span>
+                <span className="block text-sm font-semibold text-ink">Toyyo</span>
                 <span className="block text-xs text-ink-3">{recCount ? `${recCount} recommendations` : "Ask about your car or contract"}</span>
               </span>
             </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
-        <Drawer open={open} onClose={() => setOpen(false)} title="Copilot" subtitle={data ? `Drafted for ${data.persona.name}` : undefined} labelledBy="copilot-sheet-title" footer={<ChatInput />}>
+        <Drawer open={open} onClose={() => setOpen(false)} title={<span className="flex items-center gap-3"><ToyyoAssistantAvatar />Toyyo</span>} subtitle={data ? `Drafted for ${data.persona.name}` : undefined} labelledBy="copilot-sheet-title" footer={<ChatInput />}>
           <PanelBody key={data?.persona.id ?? "loading"} data={data} />
         </Drawer>
       </>
@@ -380,14 +384,14 @@ export function AgentPanel({ data }: { data?: DashboardData }) {
             whileTap={{ transform: `scale(${reduced ? 1 : scale.press})`, transition: press }}
             transition={press}
             className="glass-strong flex h-14 items-center gap-3 rounded-lg py-2 pr-5 pl-2 transition-colors duration-200 ease-ui-color hover:border-ink-3"
-            aria-label="Open copilot"
+            aria-label="Open Toyyo assistant"
           >
-            <span className="relative grid size-10 place-items-center rounded-md bg-ink text-bg">
-              <MessageSquareText size={18} />
+            <span className="relative grid size-10 shrink-0 place-items-center">
+              <ToyyoAssistantAvatar />
               {recCount > 0 && <span className="num absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-accent text-[11px] font-semibold text-white">{recCount}</span>}
             </span>
             <span className="text-left">
-              <span className="block text-sm font-semibold text-ink">Copilot</span>
+              <span className="block text-sm font-semibold text-ink">Toyyo</span>
               <span className="block text-xs text-ink-3">{recCount ? `${recCount} recommendations` : "Ask about your car or contract"}</span>
             </span>
           </motion.button>
@@ -398,7 +402,7 @@ export function AgentPanel({ data }: { data?: DashboardData }) {
         {open && (
           <motion.aside
             key="copilot-panel"
-            aria-label="Copilot"
+            aria-label="Toyyo assistant"
             ref={panelRef}
             initial={panelHidden}
             animate={{ transform: "translateX(calc(0% + 0px))", opacity: 1, transition: sheet }}

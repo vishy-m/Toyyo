@@ -4,11 +4,12 @@
 // (from a Replay button, an insight link, or the agent's open_trip_replay action).
 
 import { spring, transition as motionTransition, useShouldReduceMotion, useTempoTransition } from "@animate-ui/react/utils/motion";
-import { Loader2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { AnimatePresence, motion, useIsPresent } from "motion/react";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
+import { ToyyoLoadingState } from "@/components/branding/ToyyoLoadingState";
 import { getTrip } from "@/lib/client/api";
 import { useMounted } from "@/lib/client/hooks";
 import { useDataStore } from "@/lib/client/data-store";
@@ -18,10 +19,7 @@ import type { Trip } from "@/lib/types";
 function ReplayLoading({ label = "Loading the 3D map…" }: { label?: string }) {
   return (
     <div className="grid h-full w-full place-items-center">
-      <div className="flex items-center gap-3 text-sm text-ink-2">
-        <Loader2 size={18} className="animate-spin" />
-        {label}
-      </div>
+      <ToyyoLoadingState label={label} />
     </div>
   );
 }

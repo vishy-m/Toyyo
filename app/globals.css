@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Next Move design tokens, named after Toyota paint.
+/* Toyyo design tokens, named after Toyota paint.
    Light: Lunar Rock ground, Wind Chill Pearl sheet, black type, Cavalry Blue for data.
    Dark: Midnight Black Metallic ground with a Magnetic Gray sheet.
    Toyota red marks only the recommended move and its action. */
@@ -431,4 +431,46 @@ input[type="range"].range.agent-moved::-webkit-slider-thumb {
     padding: 64px 20px 0;
     background: linear-gradient(to top, var(--bg) 72%, color-mix(in oklab, var(--bg) 0%, transparent));
   }
+}
+
+/* Supplied Toyyo artwork: preserve its colors in both themes. */
+.toyyo-logo { position: relative; display: inline-block; flex-shrink: 0; width: 40px; height: 40px; }
+.toyyo-logo-horizontal { width: 116px; height: 40px; border-radius: 8px; background: #fff; }
+.toyyo-logo-horizontal img { padding: 4px 6px; }
+@media (max-width: 639px) {
+  .toyyo-logo-nav { width: 92px; height: 36px; }
+}
+@keyframes toyyo-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: no-preference) {
+  .toyyo-loading-mascot { animation: toyyo-breathe 2s ease-in-out infinite; }
+}
+
+/* Overview: one vehicle, one decision; the existing stage remains behind the layout. */
+.overview-hero { position: relative; min-height: calc(100dvh - var(--hdr)); width: 100%; max-width: 1320px; margin-inline: auto; padding: 12px 24px 20px; }
+.overview-hero-toolbar { display: flex; align-items: center; justify-content: flex-end; gap: 24px; }
+.overview-hero-grid { display: grid; grid-template-areas: "intro" "vehicle" "recommendation"; margin-top: 16px; }
+.overview-hero-intro { grid-area: intro; pointer-events: none; }
+.overview-hero-heading { margin-top: 10px; font-size: clamp(40px, 5.1vw, 72px); line-height: 1.02; letter-spacing: -0.035em; }
+.overview-hero-vehicle { grid-area: vehicle; min-height: clamp(160px, 22vh, 260px); }
+.overview-hero-recommendation { grid-area: recommendation; margin-top: 12px; }
+@media (min-width: 640px) and (max-width: 1023px) {
+  .overview-hero { padding: 24px 40px 32px; }
+  .overview-hero-grid { margin-top: 24px; }
+  .overview-hero-heading { max-width: none; }
+  .overview-hero-vehicle { min-height: 30vh; }
+}
+@media (min-width: 1024px) {
+  .overview-hero { padding: 28px 48px 40px; }
+  .overview-hero-toolbar { justify-content: space-between; }
+  .overview-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "intro vehicle" "recommendation vehicle"; column-gap: 48px; row-gap: 28px; align-content: center; min-height: calc(100dvh - var(--hdr) - 140px); margin-top: 16px; }
+  .overview-hero-vehicle { min-height: 420px; align-self: stretch; }
+  .overview-hero-recommendation { margin-top: 0; }
+}
+
+@media (max-width: 639px) {
+  .overview-hero-actions > button { padding-inline: 12px; }
+}
+@media (max-width: 639px) {
+  .overview-hero-recommendation { margin-top: 4px; }
+  .overview-hero-actions { margin-top: 8px; }
 }
