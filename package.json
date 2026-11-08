@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "demo:text": "node --env-file=.env scripts/demo-mileage-text.mjs"
   },
   "dependencies": {
     "@animate-ui/react": "^2.4.2",

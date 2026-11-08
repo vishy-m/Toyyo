@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { afterEach, describe, expect, it } from "vitest";
-import { evaluateLease, getLeaseConversation } from "../lease-conversation";
+import { evaluateLease, getLeaseConversation, resetLease } from "../lease-conversation";
 import { getPhotonChatHistory, handlePhotonMessage } from "../photon-chat";
 import { personaForPhotonSpace } from "../photon";
 import { verifyPhotonSignature } from "../photon-webhook";
@@ -29,12 +29,30 @@ describe("Photon chat interface", () => {
     expect(getPhotonChatHistory("garcia")).toHaveLength(2);
   });
 
+  it("answers a numbered reply to the mileage text with that plan's steps", async () => {
+    resetLease("maya");
+    const warning = await evaluateLease("maya");
+    const text = warning.messages[0].text;
+    expect(text).toMatch(/miles over its lease limit/);
+    for (const line of ["1. Drive less", "2. Buy it out", "3. Switch to", "4. Return it as is", "Reply 1, 2, 3 or 4"]) expect(text).toContain(line);
+    await handlePhotonMessage("maya", "1", "plan-1");
+    expect(getPhotonChatHistory("maya").at(-1)?.text).toMatch(/^Toyyo: Plan 1, drive less[\s\S]*1\. Aim for [\d,]+ mi a month/);
+    await handlePhotonMessage("maya", "2.", "plan-2");
+    expect(getLeaseConversation("maya").optionId).toBe("lease-end:buyout");
+    expect(getPhotonChatHistory("maya").at(-1)?.text).toContain("CONFIRM BUYOUT");
+    await handlePhotonMessage("maya", "4", "plan-4");
+    expect(getPhotonChatHistory("maya").at(-1)?.text).toContain("Plan 4, return it as is");
+    await handlePhotonMessage("maya", "CONFIRM BUYOUT", "plan-confirm");
+    expect(getLeaseConversation("maya").stage).toBe("dealer-review");
+  });
+
   it("routes only an explicit lease command through the confirmation state", async () => {
+    resetLease("maya");
     await evaluateLease("maya");
     await handlePhotonMessage("maya", "Could you explain my lease?", "question-1");
     expect(getPhotonChatHistory("maya").at(-1)?.role).toBe("assistant");
     await handlePhotonMessage("maya", "OPTIONS", "command-1");
-    expect(getPhotonChatHistory("maya").at(-1)?.text).toContain("BUYOUT");
+    expect(getPhotonChatHistory("maya").at(-1)?.text).toContain("Reply 1, 2, 3 or 4");
     await handlePhotonMessage("maya", "I want to switch", "command-2");
     expect(getLeaseConversation("maya").optionId).toBe("lease-end:upgrade");
     await handlePhotonMessage("maya", "Yes, that works", "command-3");
