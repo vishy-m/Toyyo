@@ -72,9 +72,17 @@ interface SpectrumSender {
   space: { get: (id: string, params?: { phone?: string }) => Promise<{ send: (text: string) => Promise<unknown> }> };
 }
 
-const clients = new Map<string, Promise<SpectrumSender>>();
+/** The one Spectrum connection per project: it sends replies and, in stream mode, delivers inbound messages. */
+export interface SpectrumConnection {
+  app: Awaited<ReturnType<typeof import("spectrum-ts").Spectrum>>;
+  sender: SpectrumSender;
+}
 
-async function spectrumSender(): Promise<SpectrumSender | undefined> {
+// On globalThis so dev hot reloads reuse the connection instead of opening another stream.
+const root = globalThis as typeof globalThis & { __toyyoSpectrum?: Map<string, Promise<SpectrumConnection>> };
+const clients: Map<string, Promise<SpectrumConnection>> = (root.__toyyoSpectrum ??= new Map());
+
+export async function spectrumConnection(): Promise<SpectrumConnection | undefined> {
   const { projectId, projectSecret } = spectrumCredentials();
   if (!projectId || !projectSecret) return undefined;
   let pending = clients.get(projectId);
@@ -88,12 +96,25 @@ async function spectrumSender(): Promise<SpectrumSender | undefined> {
         providers: [imessage.config()],
         webhookSecret: firstEnv("SPECTRUM_WEBHOOK_SECRET", "SPECTRUM_SIGNING_SECRET", "PHOTON_WEBHOOK_SECRET"),
       });
-      return { space: imessage(app).space };
+      return { app, sender: { space: imessage(app).space } };
     })();
     clients.set(projectId, pending);
     pending.catch(() => { if (clients.get(projectId) === pending) clients.delete(projectId); });
   }
   return pending;
+}
+
+/** Drops (and stops) the cached connection so the next call opens a fresh one, e.g. after the stream fails. */
+export async function resetSpectrumConnection() {
+  const { projectId } = spectrumCredentials();
+  if (!projectId) return;
+  const pending = clients.get(projectId);
+  clients.delete(projectId);
+  await pending?.then((connection) => connection.app.stop()).catch(() => {});
+}
+
+async function spectrumSender(): Promise<SpectrumSender | undefined> {
+  return (await spectrumConnection())?.sender;
 }
 
 /** Sends through Stable Spectrum. Resolving means the SDK accepted the send, not that the phone displayed it. */

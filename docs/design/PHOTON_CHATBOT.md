@@ -58,6 +58,17 @@ Server-only `.env` values:
 
 No key or phone number belongs in client code or a `NEXT_PUBLIC_` variable. Without a Space map, the webhook ignores inbound messages. For a single demo persona, `PHOTON_SPACE_ID` and `PHOTON_PERSONA_ID` can replace the JSON map.
 
+## Inbound: streaming connection or webhook
+
+Inbound messages arrive one of two ways (`lib/server/photon-stream.ts`, chosen at server start by `instrumentation.ts`):
+
+- **Stream (default without a webhook secret).** The server keeps the Spectrum SDK's streaming connection open (`spectrum.messages`) and answers each inbound text from a mapped Space through the same `handlePhotonMessage` path as the webhook. It works on `localhost` with no tunnel and no webhook registration, but needs one long-running server process (`next dev` or `next start`), not serverless.
+- **Webhook (when `SPECTRUM_WEBHOOK_SECRET` is set).** Spectrum POSTs signed events to `/api/photon/webhook`; this needs a public HTTPS URL registered in the Photon dashboard.
+
+`SPECTRUM_INBOUND=stream|webhook|off` overrides the choice. Use one mode per deployment so a message isn't answered twice. The server logs `[photon] inbound mode: …` at start, and `[photon] inbound message …` / `reply sent …` per message.
+
+The Photon CLI (`npx @photon-ai/cli`, binary `photon`) can confirm the setup: `photon whoami`, `photon projects list`, `photon spectrum users list` (the opted-in phone and the shared number it texts), `photon spectrum platforms list`, and `photon projects secret <id>` for `SPECTRUM_PROJECT_SECRET`. A direct-message Space id is `any;-;<E.164 phone>`.
+
 ## Reliability and boundaries
 
 Spectrum can retry webhooks; process an inbound message ID at most once per running instance. Return an error if a send fails so the event can retry. The demo keeps conversation history and workflow state in server memory. This is sufficient for a single local/server instance but loses state on restart and cannot coordinate multiple instances. **A Vercel deployment may switch instances between texts, so the multi-message confirmation flow is not reliable there until durable storage is added.** Production needs a durable store and a queue before acknowledging webhooks, plus authenticated account linking, delivery-status tracking, and a real dealer integration.
