@@ -4,6 +4,7 @@ import { blur, scale, spring, transition as motionTransition, useShouldReduceMot
 import clsx from "clsx";
 import { Bell, Check, ChevronDown, FileText, MessageSquareText, PhoneCall, X } from "lucide-react";
 import { AnimatePresence, motion, useIsPresent } from "motion/react";
+import Image from "next/image";
 import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import { Drawer } from "@/components/ui/Overlay";
 import { Segmented } from "@/components/ui/Segmented";
@@ -15,6 +16,15 @@ import type { DashboardData, Draft, Preferences } from "@/lib/types";
 import { ChatInput, ChatThread } from "./Chat";
 import { Markdown } from "./Markdown";
 import { RecommendationCard } from "./RecommendationCard";
+
+function ToyyoMascot({ size = "md", count }: { size?: "sm" | "md"; count?: number }) {
+  return (
+    <span className={clsx("relative grid shrink-0 place-items-center overflow-hidden rounded-lg bg-black", size === "sm" ? "size-9" : "size-10")}>
+      <Image src="/toyyo-agent.png" alt="Toyyo mascot" fill sizes={size === "sm" ? "36px" : "40px"} className="scale-[1.55] object-cover" />
+      {count != null && count > 0 && <span className="num absolute -top-1.5 -right-1.5 z-10 grid size-5 place-items-center rounded-full bg-accent text-[11px] font-semibold text-white">{count}</span>}
+    </span>
+  );
+}
 
 function SectionTitle({ children, count }: { children: React.ReactNode; count?: number }) {
   return (
@@ -268,16 +278,16 @@ function PanelHeader({ data, onClose }: { data?: DashboardData; onClose?: () => 
   const streaming = useDataStore((s) => s.streaming);
   return (
     <div className="flex items-center gap-3">
-      <span className="relative grid size-9 place-items-center rounded-lg bg-ink text-bg">
-        <MessageSquareText size={17} />
+      <span className="relative">
+        <ToyyoMascot size="sm" />
         {streaming && <span className="absolute -top-0.5 -right-0.5 size-2.5 animate-pulse rounded-full bg-accent ring-2 ring-[var(--bg)]" />}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="font-display text-[17px] text-ink">Copilot</div>
+        <div className="font-display text-[17px] text-ink">Toyyo</div>
         <div className="truncate text-xs text-ink-3">{data ? `Answers from ${data.persona.name}’s contract and trips` : "Loading…"}</div>
       </div>
       {onClose && (
-        <button type="button" onClick={onClose} aria-label="Hide copilot" className="grid size-9 place-items-center rounded-lg text-ink-3 hover:bg-[var(--glass-hi)] hover:text-ink">
+        <button type="button" onClick={onClose} aria-label="Hide Toyyo" className="grid size-9 place-items-center rounded-lg text-ink-3 hover:bg-[var(--glass-hi)] hover:text-ink">
           <X size={16} />
         </button>
       )}
@@ -339,21 +349,18 @@ export function AgentPanel({ data }: { data?: DashboardData }) {
               whileTap={{ transform: `scale(${reduced ? 1 : scale.press})`, transition: press }}
               transition={press}
               className="glass-strong flex h-14 items-center gap-3 rounded-lg p-2 sm:pr-5"
-              aria-label="Open copilot"
+              aria-label="Open Toyyo"
             >
-              <span className="relative grid size-10 place-items-center rounded-md bg-ink text-bg">
-                <MessageSquareText size={18} />
-                {recCount > 0 && <span className="num absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-accent text-[11px] font-semibold text-white">{recCount}</span>}
-              </span>
+              <ToyyoMascot count={recCount} />
               <span className="hidden text-left sm:block">
-                <span className="block text-sm font-semibold text-ink">Copilot</span>
+                <span className="block text-sm font-semibold text-ink">Toyyo</span>
                 <span className="block text-xs text-ink-3">{recCount ? `${recCount} recommendations` : "Ask about your car or contract"}</span>
               </span>
             </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
-        <Drawer open={open} onClose={() => setOpen(false)} title="Copilot" subtitle={data ? `Drafted for ${data.persona.name}` : undefined} labelledBy="copilot-sheet-title" footer={<ChatInput />}>
+        <Drawer open={open} onClose={() => setOpen(false)} title="Toyyo" subtitle={data ? `Drafted for ${data.persona.name}` : undefined} labelledBy="toyyo-sheet-title" footer={<ChatInput />}>
           <PanelBody key={data?.persona.id ?? "loading"} data={data} />
         </Drawer>
       </>
@@ -380,14 +387,11 @@ export function AgentPanel({ data }: { data?: DashboardData }) {
             whileTap={{ transform: `scale(${reduced ? 1 : scale.press})`, transition: press }}
             transition={press}
             className="glass-strong flex h-14 items-center gap-3 rounded-lg py-2 pr-5 pl-2 transition-colors duration-200 ease-ui-color hover:border-ink-3"
-            aria-label="Open copilot"
+            aria-label="Open Toyyo"
           >
-            <span className="relative grid size-10 place-items-center rounded-md bg-ink text-bg">
-              <MessageSquareText size={18} />
-              {recCount > 0 && <span className="num absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-accent text-[11px] font-semibold text-white">{recCount}</span>}
-            </span>
+            <ToyyoMascot count={recCount} />
             <span className="text-left">
-              <span className="block text-sm font-semibold text-ink">Copilot</span>
+              <span className="block text-sm font-semibold text-ink">Toyyo</span>
               <span className="block text-xs text-ink-3">{recCount ? `${recCount} recommendations` : "Ask about your car or contract"}</span>
             </span>
           </motion.button>
@@ -398,7 +402,7 @@ export function AgentPanel({ data }: { data?: DashboardData }) {
         {open && (
           <motion.aside
             key="copilot-panel"
-            aria-label="Copilot"
+            aria-label="Toyyo"
             ref={panelRef}
             initial={panelHidden}
             animate={{ transform: "translateX(calc(0% + 0px))", opacity: 1, transition: sheet }}

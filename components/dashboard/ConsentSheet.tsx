@@ -54,7 +54,7 @@ export function ConsentSheet({ data }: { data?: DashboardData }) {
       labelledBy="consent-title"
       width={520}
       title="Your data"
-      subtitle="Choose what the copilot can use. Changes apply right away, and affected cards will say “Limited”."
+      subtitle="Choose what Toyyo can use. Changes apply right away, and affected cards will say “Limited”."
     >
       <ul className="space-y-3">
         {SOURCES.map((s) => {

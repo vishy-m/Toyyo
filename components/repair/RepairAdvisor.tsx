@@ -9,12 +9,13 @@ import { Panel } from "@/components/ui/Panel";
 import { analyzeRepairDecision, classifyRepair, type DecisionPath, type RepairAdvisorInput } from "@/lib/engines/repair-advisor";
 import type { RepairGuidance, RepairResearchItem } from "@/lib/engines/repair-research";
 import type { DashboardData } from "@/lib/types";
+import { ActionAgent } from "./ActionAgent";
 import { WhatIfSimulator } from "./WhatIfSimulator";
 
-type Step = 0 | 1 | 2 | 3;
+type Step = 0 | 1 | 2 | 3 | 4;
 type FormState = RepairAdvisorInput & { city: string; shopName: string; quoteFile: string };
 
-const steps = ["Problem", "Estimate", "Finances", "Plan"];
+const steps = ["Problem", "Estimate", "Finances", "Plan", "Action Agent"];
 const money = (value: number) => `$${Math.round(value).toLocaleString()}`;
 const field = "mt-1.5 h-11 w-full rounded-lg border border-line-2 bg-[var(--glass-hi)] px-3 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-[var(--focus)]";
 const label = "block text-[13px] font-medium text-ink-2";
@@ -61,7 +62,7 @@ function initialState(data?: DashboardData): FormState {
 
 function Progress({ step }: { step: Step }) {
   return (
-    <ol className="grid grid-cols-4 gap-1" aria-label="Repair decision progress">
+    <ol className="grid grid-cols-5 gap-1" aria-label="Repair decision progress">
       {steps.map((name, index) => (
         <li key={name} className="min-w-0">
           <div className={clsx("h-1 rounded-full", index <= step ? "bg-ink" : "bg-line-2")} />
@@ -90,7 +91,7 @@ function VehicleProblem({ form, update, research, researching, researchError, on
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="space-y-6">
-      <StepHeader eyebrow="Step 1 of 4" title="What’s going on?" hint="Start with the symptom. You can adjust the vehicle details below." />
+      <StepHeader eyebrow="Step 1 of 5" title="What’s going on?" hint="Start with the symptom. You can adjust the vehicle details below." />
       <label className={label}>
         Describe the problem
         <textarea
@@ -149,7 +150,7 @@ function EstimateStep({ form, update }: { form: FormState; update: (patch: Parti
   const shops = shopsByCity[form.city] ?? shopsByCity.Austin;
   return (
     <div className="space-y-6">
-      <StepHeader eyebrow="Step 2 of 4" title={estimate.needsInspection ? "Start with an inspection" : "Your repair estimate"} hint="Use our range or enter a written shop quote." />
+      <StepHeader eyebrow="Step 2 of 5" title={estimate.needsInspection ? "Start with an inspection" : "Your repair estimate"} hint="Use our range or enter a written shop quote." />
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-line bg-[var(--glass-hi)] p-5">
           <div className="flex items-center gap-2 text-sm text-ink-2"><Wrench size={16} /> {estimate.label}</div>
@@ -208,7 +209,7 @@ function EstimateStep({ form, update }: { form: FormState; update: (patch: Parti
 function FinanceStep({ form, update, connected, setConnected }: { form: FormState; update: (patch: Partial<FormState>) => void; connected: boolean; setConnected: (value: boolean) => void }) {
   return (
     <div className="space-y-6">
-      <StepHeader eyebrow="Step 3 of 4" title="What fits your budget?" hint="Rough numbers are enough. Nothing is sent to a lender." />
+      <StepHeader eyebrow="Step 3 of 5" title="What fits your budget?" hint="Rough numbers are enough. Nothing is sent to a lender." />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className={label}>Loan balance<input type="number" min="0" value={form.loanBalance} onChange={(event) => update({ loanBalance: Number(event.target.value) })} className={field} /></label>
         <label className={label}>Current payment<input type="number" min="0" value={form.currentPayment} onChange={(event) => update({ currentPayment: Number(event.target.value) })} className={field} /></label>
@@ -272,7 +273,7 @@ function PlanStep({ form, customerName }: { form: FormState; customerName: strin
   const recommended = result.options.find((option) => option.path === result.recommendation)!;
   return (
     <div className="space-y-6">
-      <StepHeader eyebrow="Your plan" title={recommended.title} hint={recommended.summary} />
+      <StepHeader eyebrow="Step 4 of 5 · Your plan" title={recommended.title} hint={recommended.summary} />
       <div className="grid gap-3 sm:grid-cols-[0.8fr_1.2fr]">
         <div className="rounded-lg border border-accent bg-accent-soft p-5">
           <div className="text-sm font-medium text-accent-ink">Repair-to-trade signal</div>
@@ -333,7 +334,7 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
   return (
     <section aria-labelledby="repair-advisor-title" className="w-full">
       <div className="flex items-end justify-between gap-4 pb-8">
-        <div><h1 id="repair-advisor-title" className="font-display text-[clamp(39px,4.4vw,61px)] text-ink">Repair or replace</h1><p className="mt-3 max-w-[56ch] text-[17px] leading-relaxed text-ink-2">Four steps: the problem, the estimate, your budget, then a plan that compares repairing, trading in and refinancing.</p></div>
+        <div><h1 id="repair-advisor-title" className="font-display text-[clamp(39px,4.4vw,61px)] text-ink">Repair or replace</h1><p className="mt-3 max-w-[60ch] text-[17px] leading-relaxed text-ink-2">Build a repair-or-replace plan, then use the Action Agent to prepare the next step while you stay in control.</p></div>
         <Button variant="ghost" size="sm" onClick={reset}><RotateCcw size={14} />Start over</Button>
       </div>
       <div className="glass max-w-5xl rounded-xl p-5 sm:p-7">
@@ -343,10 +344,11 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
           {step === 1 && <EstimateStep form={form} update={update} />}
           {step === 2 && <FinanceStep form={form} update={update} connected={connected} setConnected={setConnected} />}
           {step === 3 && <PlanStep form={form} customerName={data?.persona.name ?? "Customer"} />}
+          {step === 4 && <ActionAgent form={form} customerName={data?.persona.name ?? "Customer"} />}
         </div>
         <div className="mt-8 flex items-center justify-between border-t border-line pt-5">
           <Button variant="ghost" disabled={step === 0} onClick={() => setStep((step - 1) as Step)}><ChevronLeft size={16} />Back</Button>
-          {step < 3 ? <div className="flex flex-wrap justify-end gap-2">{step === 0 && research?.guidance.allowTutorials && research.links.length > 0 && <Button variant="outline" onClick={() => window.open(research.links[0].url, "_blank", "noopener,noreferrer")}>View fix tutorial<ExternalLink size={15} /></Button>}<Button variant="primary" disabled={!canContinue || researching} onClick={() => setStep((step + 1) as Step)}>{step === 0 ? <>{research?.guidance.severity === "high" ? "Go to estimates" : "Continue to estimate"}<ChevronRight size={16} /></> : step === 2 ? <>See my plan<ChevronRight size={16} /></> : <>Continue<ChevronRight size={16} /></>}</Button></div> : <Button variant="solid" onClick={() => setStep(0)}>Review details</Button>}
+          {step < 4 ? <div className="flex flex-wrap justify-end gap-2">{step === 0 && research?.guidance.allowTutorials && research.links.length > 0 && <Button variant="outline" onClick={() => window.open(research.links[0].url, "_blank", "noopener,noreferrer")}>View fix tutorial<ExternalLink size={15} /></Button>}<Button variant="primary" disabled={!canContinue || researching} onClick={() => setStep((step + 1) as Step)}>{step === 0 ? <>{research?.guidance.severity === "high" ? "Go to estimates" : "Continue to estimate"}<ChevronRight size={16} /></> : step === 2 ? <>See my plan<ChevronRight size={16} /></> : step === 3 ? <>Open Action Agent<ChevronRight size={16} /></> : <>Continue<ChevronRight size={16} /></>}</Button></div> : <Button variant="solid" onClick={() => setStep(0)}>Review details</Button>}
         </div>
       </div>
     </section>

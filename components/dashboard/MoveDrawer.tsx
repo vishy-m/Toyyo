@@ -64,7 +64,7 @@ function Control({
             {agentMoved && (
               <motion.span initial={{ opacity: 0, filter: blur.icon }} animate={{ opacity: 1, filter: "blur(0px)", transition: swap }} exit={{ opacity: 0, filter: blur.icon, transition: swap }}>
                 <Chip tone="accent" icon={<Bot size={12} />}>
-                  Copilot set this
+                  Toyyo set this
                 </Chip>
               </motion.span>
             )}

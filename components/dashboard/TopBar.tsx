@@ -249,18 +249,11 @@ export function TopBar({ data }: { data?: DashboardData }) {
               </span>
             )}
           </button>
-          <Link
-            href="/tfs"
-            className="inline-flex h-10 items-center rounded-lg px-2 text-sm font-medium whitespace-nowrap text-ink-2 transition-colors hover:bg-[var(--glass-hi)] hover:text-ink sm:px-3"
-            aria-label="TFS view"
-          >
-            TFS<span className="hidden sm:inline">&nbsp;view</span>
-          </Link>
           <IconButton label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             <IconSwap id={theme === "dark" ? "sun" : "moon"}>{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</IconSwap>
           </IconButton>
           <span className="hidden lg:contents">
-            <IconButton label={panelOpen ? "Hide copilot panel" : "Show copilot panel"} onClick={() => setPanel(!panelOpen)}>
+            <IconButton label={panelOpen ? "Hide Toyyo panel" : "Show Toyyo panel"} onClick={() => setPanel(!panelOpen)}>
               <IconSwap id={panelOpen ? "close" : "open"}>{panelOpen ? <PanelRightClose size={18} /> : <PanelRightOpen size={18} />}</IconSwap>
             </IconButton>
           </span>

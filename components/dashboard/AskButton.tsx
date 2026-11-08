@@ -27,7 +27,7 @@ export function AskButton({ widget, optionId, tripId, label, className }: { widg
         askAgent({ widget, optionId, tripId });
         setDraft(prompts[widget] ?? "Tell me more about this.");
       }}
-      aria-label={label ?? `Ask the copilot about ${widget}`}
+      aria-label={label ?? `Ask Toyyo about ${widget}`}
       className={clsx(
         "inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium text-ink-2 transition-colors hover:bg-[var(--glass-hi)] hover:text-ink",
         className,

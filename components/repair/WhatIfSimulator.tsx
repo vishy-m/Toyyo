@@ -132,7 +132,6 @@ export function WhatIfSimulator({ baseInput }: { baseInput: RepairAdvisorInput }
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-medium text-ink-3">Pressure-test your plan</p><h3 id="what-if-title" className="font-display mt-1 text-xl text-ink">What if life changes?</h3><p className="mt-2 max-w-[58ch] text-sm text-ink-2">Try an everyday scenario, then tune the assumptions. The recommendation and estimated costs update live.</p></div><Button onClick={reset} size="sm"><RotateCcw size={14} />Reset</Button></div>
       <div className="mt-5">
         <label className="text-xs font-medium text-ink-2">Describe what changed<textarea value={scenarioText} onChange={(event) => updateScenario(event.target.value)} rows={3} maxLength={500} placeholder="Example: I got a $10k annual raise, but my rent went up $200 a month." className="mt-1.5 w-full resize-none rounded-lg border border-line-2 bg-[var(--glass-hi)] px-3 py-3 text-sm leading-relaxed text-ink outline-none placeholder:text-ink-3 focus:border-[var(--focus)]" /></label>
-        <p className="mt-2 max-w-[72ch] text-xs leading-relaxed text-ink-3">Updates as you type. Try a $5k annual raise, $400 monthly pay cut, $2k bonus, $1,500 emergency bill, $300 rent increase, $4k repair quote, better credit, 20k extra miles, or keeping the car two more years. For a percentage raise, include current annual income.</p>
         {scenarioError ? <p aria-live="polite" className="mt-3 rounded-lg border border-line bg-[var(--glass-hi)] px-4 py-3 text-sm text-ink-3">{scenarioError}</p> : <p aria-live="polite" className="mt-3 rounded-lg bg-[var(--glass-hi)] px-4 py-3 text-sm text-ink-2"><strong className="text-ink">Applied math:</strong> {scenarioSummary}</p>}
       </div>
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
@@ -142,7 +141,6 @@ export function WhatIfSimulator({ baseInput }: { baseInput: RepairAdvisorInput }
         </div>
       </div>
       <details className="mt-5 rounded-lg border border-line"><summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-ink">Fine-tune the assumptions</summary><div className="border-t border-line p-4"><AssumptionControls input={input} setInput={setInput} /></div></details>
-      <p className="mt-4 text-[11px] leading-relaxed text-ink-3">What-if results are illustrative estimates, not quotes or guarantees. Annual pay changes are divided by 12 and applied to monthly room after bills. Taxes and payroll deductions are not estimated, so enter a take-home change when possible.</p>
       <ComparisonModal open={compareOpen} onClose={() => setCompareOpen(false)} input={input} setInput={setInput} />
     </section>
   );
