@@ -17,7 +17,7 @@ export interface QuoteRequest {
 interface Delivery { requestId: string; slug: SandboxSlug; name: string; issue: string; vehicleYear: number; vehicleMake: string; vehicleModel: string; relay: string; submittedAt: number; deliverAt: number }
 interface QuoteStore { requests: Map<string, QuoteRequest>; shopInboxes: Map<SandboxSlug, Delivery[]>; relayInbox: Map<string, { subject: string; body: string }> }
 const globalStore = globalThis as unknown as { __toyyoQuoteStore?: QuoteStore };
-const store = (globalStore.__toyyoQuoteStore ??= { requests: new Map(), shopInboxes: new Map(), relayInbox: new Map() });
+const store: QuoteStore = (globalStore.__toyyoQuoteStore ??= { requests: new Map(), shopInboxes: new Map(), relayInbox: new Map() });
 const step = (request: QuoteRequest, text: string) => request.steps.push({ at: new Date().toISOString(), text });
 const delay = () => Math.max(0, Number(process.env.SANDBOX_REPLY_DELAY_MS) || 30_000);
 export const relayFor = (id: string) => `quotes+${id}@toyyo.demo`;

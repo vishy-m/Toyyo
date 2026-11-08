@@ -32,6 +32,7 @@ const SERVICE_KEYS: Record<RepairCategory, string[]> = {
   brakes: ["brakes"],
   battery: ["battery_charging", "batteries", "electrical"],
   tires: ["tyres", "wheel_alignment", "wheels"],
+  wipers: ["car_repair"],
   ac: ["air_conditioning"],
   engine: ["diagnostics", "engine_tuning", "car_repair"],
   transmission: ["transmission"],

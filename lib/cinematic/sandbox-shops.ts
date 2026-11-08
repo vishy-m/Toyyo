@@ -27,6 +27,7 @@ const jobs: Record<Exclude<RepairCategory, "unknown">, { parts: [string, number]
   brakes: { parts: [["Front brake pads", 142], ["Front rotors (pair)", 228]], hours: 2.2 },
   battery: { parts: [["Replacement 12V battery", 189]], hours: 0.7 },
   tires: { parts: [["Four all-season tires", 584], ["Mount and balance", 80]], hours: 1.3 },
+  wipers: { parts: [["Wiper blade pair", 46]], hours: 0.4 },
   ac: { parts: [["A/C diagnostic and refrigerant", 154], ["Compressor assembly", 465]], hours: 3.1 },
   engine: { parts: [["Engine diagnostic", 129], ["Ignition components", 198]], hours: 2.5 },
   transmission: { parts: [["Transmission service kit", 214], ["Fluid", 94]], hours: 2.8 },

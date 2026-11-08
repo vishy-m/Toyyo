@@ -3,14 +3,10 @@
 import { useEffect, useState } from "react";
 import type { PersonaId } from "@/lib/types";
 import type { LeaseConversation as Conversation } from "@/lib/server/lease-conversation";
+import { actLease, loadLease } from "./lease-actions";
 
 async function request(personaId: PersonaId, action?: "evaluate" | "reply" | "approve" | "mileage", text?: string, odometer?: number): Promise<Conversation> {
-  const response = await fetch(action ? "/api/lease-conversation" : `/api/lease-conversation?personaId=${personaId}`, action ? {
-    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ personaId, action, ...(text ? { text } : {}), ...(odometer !== undefined ? { odometer } : {}) }),
-  } : undefined);
-  const body = await response.json();
-  if (!response.ok) throw new Error(body.error ?? "Could not update the conversation.");
-  return body;
+  return action ? actLease(personaId, action, text, odometer) : loadLease(personaId);
 }
 
 export function LeaseConversation({ personaId, currentOdometer, onApproved }: { personaId: PersonaId; currentOdometer: number; onApproved: () => Promise<void> }) {

@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useUiStore } from "@/lib/client/ui-store";
 import type { Hotspot, MoveOption, PersonaId, Trip, Vehicle } from "@/lib/types";
 import { FIXTURE_TRIP } from "@/components/map/fixtures";
-import ModelCredits from "@/components/three/ModelCredits";
 import maya from "@/data/personas/maya.json";
 import garcia from "@/data/personas/garcia.json";
 import jordan from "@/data/personas/jordan.json";
@@ -183,7 +182,6 @@ export default function LabClient() {
           </section>
         )}
 
-        <ModelCredits className="mt-6" />
       </div>
     </main>
   );

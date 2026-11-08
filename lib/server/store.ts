@@ -2,6 +2,9 @@ import { getPersona } from "../data";
 import type { AgentPanelState, Contract, Draft, HandoffPacket, Persona, PersonaId, Preferences, Recommendation, Vehicle } from "../types";
 
 export interface PersonaState {
+  currentVehicle?: Vehicle;
+  currentContract?: Contract;
+  currentPaymentDueDay?: number;
   preferences: Preferences;
   consent: Persona["consent"];
   drafts: Draft[];
@@ -14,9 +17,6 @@ export interface PersonaState {
   initialPromise?: Promise<AgentPanelState>;
   revision: number;
   drivingSeeded: boolean;
-  currentVehicle?: Vehicle;
-  currentContract?: Contract;
-  currentPaymentDueDay?: number;
 }
 interface RuntimeStore { personas: Map<PersonaId, PersonaState>; warming: boolean; warmingSource?: string }
 const root = globalThis as typeof globalThis & { __nextMoveRuntime?: RuntimeStore };

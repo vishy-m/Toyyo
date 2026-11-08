@@ -6,7 +6,7 @@ import type { FinishReason, LlmMessage, LlmProvider } from "./types";
 function messagesForAnthropic(messages: LlmMessage[]): BetaMessageParam[] {
   return messages.map(message => {
     if (message.role === "user") return { role: "user", content: message.text };
-    if (message.role === "assistant") return { role: "assistant", content: message.nativeContent as BetaContentBlockParam[] };
+    if (message.role === "assistant") return { role: "assistant", content: "text" in message ? message.text : message.nativeContent as BetaContentBlockParam[] };
     return { role: "user", content: message.results.map(result => ({ type: "tool_result" as const, tool_use_id: result.id, content: JSON.stringify(result.value), is_error: result.isError })) };
   });
 }

@@ -40,7 +40,7 @@ function ThinkingIndicator() {
   const inView = useInView(ref);
   const visible = usePageVisible();
   return (
-    <div ref={ref} className="flex gap-1 py-1" aria-label="Copilot is thinking">
+    <div ref={ref} className="flex gap-1 py-1" aria-label="Toyyo is thinking">
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
@@ -59,7 +59,7 @@ function AgentMessage({ m }: { m: ChatMessage }) {
   return (
     <div className="space-y-2">
       {m.tools.length > 0 && (
-        <ul className="space-y-1" aria-label="Copilot activity">
+        <ul className="space-y-1" aria-label="Toyyo activity">
           {m.tools.map((t, i) => (
             <li key={`${t.name}-${i}`} className="flex items-center gap-2 text-xs text-ink-3">
               {t.status === "start" ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} className="text-good" />}
@@ -227,7 +227,7 @@ export function ChatInput() {
       )}
       <div className="flex items-end gap-2 rounded-lg border border-line-2 bg-[var(--glass-hi)] p-1.5 pl-3.5 focus-within:border-ink-3">
         <label htmlFor="agent-input" className="sr-only">
-          Ask the copilot
+          Ask Toyyo
         </label>
         <textarea
           id="agent-input"

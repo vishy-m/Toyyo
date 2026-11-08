@@ -34,11 +34,12 @@ export interface LeaseContract {
   monthsRemaining: number;
   monthlyPayment: number;
   annualMileageAllowance: number;
+  /** Odometer at lease start. Absent on the original synthetic cases; set after a simulated lease switch. */
+  startingOdometer?: number;
   overageRatePerMile: number; // e.g. 0.25
   residualValue: number;
   purchaseOptionFee: number;
   dispositionFee: number;
-  startingOdometer?: number; // present after a simulated lease switch
 }
 
 export interface LoanContract {

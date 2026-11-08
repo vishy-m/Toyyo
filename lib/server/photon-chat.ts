@@ -53,8 +53,10 @@ async function processMessage(personaId: PersonaId, text: string, eventId: strin
     remember(await sendAnswer(personaId, "Toyyo: Proactive lease alerts are back on. Ask about your car or lease whenever you like.", eventId, requireLive));
     return;
   }
-  if ((flow.stage === "warning" && /^(OPTIONS|YES|NO)$/.test(command)) || (flow.stage === "offer" && /^(OPTIONS|NO|SWITCH|BUYOUT|CONFIRM SWITCH|CONFIRM BUYOUT)$/.test(command))) {
-    const updated = await replyToLease(personaId, command, eventId);
+  // Lease commands: the numbered plans (1-4), the list, and the confirm words. Anything else goes to the agent.
+  const choiceNumber = /^[1-4][.)]?$/.test(command) ? command.charAt(0) : command;
+  if ((flow.stage === "warning" && /^(OPTIONS|MENU|YES|NO|[1-4]|SWITCH|BUYOUT)$/.test(choiceNumber)) || (flow.stage === "offer" && /^(OPTIONS|MENU|NO|[1-4]|SWITCH|BUYOUT|CONFIRM SWITCH|CONFIRM BUYOUT)$/.test(choiceNumber))) {
+    const updated = await replyToLease(personaId, choiceNumber, eventId);
     remember(updated.messages.findLast(item => item.direction === "out")?.text ?? "Your lease choice was updated.");
     return;
   }

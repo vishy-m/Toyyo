@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { Check, ChevronDown, Moon, PanelRightClose, PanelRightOpen, ShieldCheck, Sun } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { blur, scale, spring, transition, useShouldReduceMotion } from "@animate-ui/react/utils/motion";
@@ -14,7 +15,7 @@ import { useUiStore } from "@/lib/client/ui-store";
 import { mockPersonas, personaOrder } from "@/lib/mock/personas";
 import type { DashboardData, Persona, PersonaId } from "@/lib/types";
 
-/** Shift-gate mark: an H-pattern with the selected gear in red. "Next move" = next gear. */
+/** Compact shift-gate glyph used by the separate TFS insight view. */
 export function ShiftMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 28 28" className={className} aria-hidden>
@@ -193,7 +194,6 @@ export function TopBar({ data }: { data?: DashboardData }) {
   const consentOff = data ? Object.values(data.persona.consent).filter((v) => !v).length : 0;
   const navItems = [
     { href: "/", label: "Overview" },
-    { href: "/moves", label: "Moves" },
     { href: "/repair", label: "Repair or replace" },
     { href: "/finances", label: "Finances" },
     { href: "/driving", label: "Driving" },
@@ -229,9 +229,8 @@ export function TopBar({ data }: { data?: DashboardData }) {
         Skip to dashboard
       </a>
       <div className="mx-auto flex h-16 max-w-[1680px] items-center gap-2 px-3 sm:gap-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 rounded-lg pr-1 text-ink" aria-label="Toyyo home">
-          <ShiftMark className="size-7" />
-          <span className="font-display hidden text-[17px] md:inline">Toyyo</span>
+        <Link href="/" className="flex shrink-0 items-center rounded-lg pr-1" aria-label="Toyyo home">
+          <Image src="/toyyo-logo.png" alt="Toyyo" width={1482} height={506} priority className="h-auto w-[104px] sm:w-[118px]" />
         </Link>
         <span className="hidden h-6 w-px bg-line-2 md:block" aria-hidden />
         <PersonaSwitcher current={personaId} />
@@ -250,18 +249,11 @@ export function TopBar({ data }: { data?: DashboardData }) {
               </span>
             )}
           </button>
-          <Link
-            href="/tfs"
-            className="inline-flex h-10 items-center rounded-lg px-2 text-sm font-medium whitespace-nowrap text-ink-2 transition-colors hover:bg-[var(--glass-hi)] hover:text-ink sm:px-3"
-            aria-label="TFS view"
-          >
-            TFS<span className="hidden sm:inline">&nbsp;view</span>
-          </Link>
           <IconButton label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             <IconSwap id={theme === "dark" ? "sun" : "moon"}>{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</IconSwap>
           </IconButton>
           <span className="hidden lg:contents">
-            <IconButton label={panelOpen ? "Hide copilot panel" : "Show copilot panel"} onClick={() => setPanel(!panelOpen)}>
+            <IconButton label={panelOpen ? "Hide Toyyo panel" : "Show Toyyo panel"} onClick={() => setPanel(!panelOpen)}>
               <IconSwap id={panelOpen ? "close" : "open"}>{panelOpen ? <PanelRightClose size={18} /> : <PanelRightOpen size={18} />}</IconSwap>
             </IconButton>
           </span>

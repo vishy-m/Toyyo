@@ -9,7 +9,7 @@ export function geminiMessages(messages: LlmMessage[]): Content[] {
   return messages.map(message => {
     if (message.role === "user") return { role: "user", parts: [{ text: message.text }] };
     // Preserve every native part, including opaque thought signatures required by Gemini.
-    if (message.role === "assistant") return { role: "model", parts: message.nativeContent as Part[] };
+    if (message.role === "assistant") return { role: "model", parts: "text" in message ? [{ text: message.text }] : message.nativeContent as Part[] };
     return { role: "user", parts: message.results.map(result => ({ functionResponse: {
       id: result.id, name: result.name, response: { [result.isError ? "error" : "output"]: result.value },
     } })) };

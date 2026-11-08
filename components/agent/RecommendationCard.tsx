@@ -114,7 +114,7 @@ export function RecommendationCard({ rec, primary }: { rec: Recommendation; prim
           <CardControls key="reasons" reasons>
             <div className="mt-3.5 border-t border-line pt-3">
               <p id={`dismiss-${rec.id}`} className="mb-2 text-xs text-ink-3">
-                Why are you dismissing this? It helps the copilot learn.
+                Why are you dismissing this? It helps Toyyo learn.
               </p>
               <div className="flex flex-wrap gap-1.5" role="group" aria-labelledby={`dismiss-${rec.id}`}>
                 {REASONS.map((r) => (

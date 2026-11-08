@@ -103,9 +103,10 @@ export async function runAgent(request: AgentChatRequest, emit: Emit, signal?: A
   try {
     const provider = getProvider();
     if (!provider) { diagnostic.record.fallback = true; await offlineChat(request, context); return; }
-    const recentHistory = history.slice(-8).map(item => `${item.role === "user" ? "Customer" : "Toyyo"}: ${item.text.slice(0, 500)}`).join("\n");
-    const firstMessage: LlmMessage = { role: "user", text: `${recentHistory ? `Earlier Photon messages (context only):\n${recentHistory}\n\n` : ""}Current customer message: ${request.message}${request.context ? `\nUI context (data): ${JSON.stringify(request.context)}` : ""}` };
-    const messages: LlmMessage[] = [firstMessage];
+    const firstMessage: LlmMessage = { role: "user", text: `${request.message}${request.context ? `\nUI context (data): ${JSON.stringify(request.context)}` : ""}` };
+    const messages: LlmMessage[] = [...history.slice(-12).map(turn => turn.role === "user"
+      ? { role: "user" as const, text: turn.text }
+      : { role: "assistant" as const, text: turn.text }), firstMessage];
     let correction = "";
     let corrected = false;
     for (let iteration = 0; iteration < 8; iteration++) {

@@ -13,6 +13,7 @@ export const ISSUE_TERMS: Record<RepairCategory, string[]> = {
   brakes: ["brake", "pads", "rotor", "grind", "squeal"],
   battery: ["battery", "won't start", "wont start", "jump start", "alternator", "starter"],
   tires: ["tire", "tyre", "alignment", "balanc", "vibrat", "rotation"],
+  wipers: ["wiper", "washer"],
   ac: ["a/c", "air condition", "freon", "refrigerant", "ac system", "ac repair", "ac recharge"],
   engine: ["check engine", "engine light", "diagnos", "engine"],
   transmission: ["transmission", "shifting", "gearbox"],
@@ -21,7 +22,7 @@ export const ISSUE_TERMS: Record<RepairCategory, string[]> = {
 
 /** How the card names the problem: "None of its recent reviews mention brakes." */
 export const ISSUE_NOUN: Record<RepairCategory, string> = {
-  brakes: "brakes", battery: "batteries or starting", tires: "tires", ac: "A/C", engine: "engine trouble",
+  brakes: "brakes", battery: "batteries or starting", tires: "tires", wipers: "wipers", ac: "A/C", engine: "engine trouble",
   transmission: "transmissions", unknown: "this problem",
 };
 

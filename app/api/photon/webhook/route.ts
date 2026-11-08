@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       message?: { id?: string; direction?: string; content?: { type?: string; text?: string } };
     };
     const text = event.message?.content?.type === "text" ? event.message.content.text : undefined;
-    if (event.event !== "messages" || !event.space?.id || !event.message?.id || event.message.direction === "outbound" || !text) {
+    if (event.event !== "messages" || !event.space?.id || !event.message?.id || event.message.direction !== "inbound" || !text) {
       return json({ ok: true, ignored: true });
     }
     const personaId = personaForPhotonSpace(event.space.id);

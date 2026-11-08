@@ -4,6 +4,16 @@ import type { Shop } from "./shops";
 /** Beyond this, a Toyota dealer is "too far" when the repair may be under warranty. */
 export const DEALER_RADIUS_KM = 40;
 
+/** Dealer parts and labor run about a third above an independent shop for the same job. */
+export const DEALER_PREMIUM = 0.34;
+
+/** Independent shops use the diagnosis range. A Toyota dealer is marked up by DEALER_PREMIUM. */
+export function shopCost(shop: { isToyotaDealer: boolean }, cost: { low: number; high: number }) {
+  if (!shop.isToyotaDealer) return { low: cost.low, high: cost.high, dealer: false };
+  const bump = (n: number) => Math.round(n * (1 + DEALER_PREMIUM));
+  return { low: bump(cost.low), high: bump(cost.high), dealer: true };
+}
+
 export interface RankedShop { shop: Shop; fit: number; reasons: string[] }
 export interface Ranking {
   ranked: RankedShop[];
