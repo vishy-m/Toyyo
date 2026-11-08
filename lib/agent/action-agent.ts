@@ -1,15 +1,6 @@
 import { z } from "zod";
 import type { DecisionPath } from "../engines/repair-advisor";
 
-export type ActionTaskStatus = "pending" | "running" | "needs_approval" | "completed";
-
-export interface ActionTask {
-  id: string;
-  title: string;
-  detail: string;
-  status: ActionTaskStatus;
-}
-
 export const actionPlanSchema = z.strictObject({
   objective: z.string().min(1).max(180),
   tasks: z.array(z.strictObject({
@@ -17,7 +8,8 @@ export const actionPlanSchema = z.strictObject({
     title: z.string().min(1).max(80),
     detail: z.string().min(1).max(180),
   })).min(3).max(5),
-  draft: z.string().min(1).max(1800),
+  emailDraft: z.string().min(1).max(1800),
+  voicemailScript: z.string().min(1).max(900),
 });
 
 export type ActionPlan = z.infer<typeof actionPlanSchema>;
@@ -47,15 +39,22 @@ export function fallbackActionPlan(input: {
   estimate: number;
   recommendation: DecisionPath;
   provider: string;
+  task: "quote" | "availability" | "warranty" | "follow_up" | "callback";
+  channel: "email" | "voicemail" | "both";
+  tone: "concise" | "friendly" | "formal";
+  followUp: "none" | "once" | "remind" | "ask";
 }): ActionPlan {
   const path = input.recommendation === "keep" ? "repair and keep the vehicle" : input.recommendation === "trade" ? "compare a trade-in path" : "repair and review refinancing";
+  const task = { quote: "request a written quote", availability: "ask about availability", warranty: "confirm warranty details", follow_up: "follow up on a quote", callback: "request a callback" }[input.task];
   return {
-    objective: `Get a written quote and confirm whether it still makes sense to ${path}.`,
+    objective: `${task[0].toUpperCase()}${task.slice(1)} and confirm whether it still makes sense to ${path}.`,
     tasks: [
-      { id: "review", title: "Review plan details", detail: "Confirm the vehicle, symptom, estimate, and selected provider." },
-      { id: "draft", title: "Prepare quote request", detail: "Create a concise request for diagnosis, price, timing, and warranty." },
-      { id: "send", title: "Send action brief", detail: "Email the formatted request to the configured Action Agent inbox." },
+      { id: "review", title: "Review details", detail: "Confirm the vehicle, request, provider, and contact method." },
+      { id: "draft", title: "Prepare outreach", detail: `Create ${input.channel === "both" ? "email and voicemail drafts" : `a ${input.channel} draft`}.` },
+      { id: "approve", title: "Get approval", detail: "Wait for explicit approval before contacting anyone." },
+      { id: "send", title: "Send outreach", detail: `Use ${input.channel === "both" ? "both approved channels" : `the approved ${input.channel} channel`}.` },
     ],
-    draft: `Subject: Written estimate request for ${input.vehicle.year} Toyota ${input.vehicle.model}\n\nHello ${input.provider},\n\nI’m ${input.name}. My ${input.vehicle.year} Toyota ${input.vehicle.model} has ${input.vehicle.mileage.toLocaleString()} miles. The issue is: ${input.issue}\n\nMy current planning estimate is $${Math.round(input.estimate).toLocaleString()}. Could you confirm the likely diagnosis, diagnostic fee, written repair estimate, earliest availability, parts and labor warranty, and any exclusions?\n\nPlease do not begin work without my approval.\n\nThank you,\n${input.name}`,
+    emailDraft: `Subject: Service request for ${input.vehicle.year} Toyota ${input.vehicle.model}\n\nHello ${input.provider},\n\nI’m ${input.name}. My vehicle has ${input.vehicle.mileage.toLocaleString()} miles. Issue: ${input.issue}\n\nI’d like to ${task}. My current planning estimate is $${Math.round(input.estimate).toLocaleString()}. Please reply with the requested details. Do not begin work without my approval.\n\nThank you,\n${input.name}`,
+    voicemailScript: `Hello, this is an automated message sent with ${input.name}'s permission for ${input.provider}. ${input.name} has a ${input.vehicle.year} Toyota ${input.vehicle.model} with ${input.vehicle.mileage.toLocaleString()} miles. The issue is ${input.issue}. They would like to ${task}. Please call them back with the requested details. Do not begin work without their approval. Thank you.`,
   };
 }
