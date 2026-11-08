@@ -194,7 +194,6 @@ export function TopBar({ data }: { data?: DashboardData }) {
   const consentOff = data ? Object.values(data.persona.consent).filter((v) => !v).length : 0;
   const navItems = [
     { href: "/", label: "Overview" },
-    { href: "/moves", label: "Moves" },
     { href: "/repair", label: "Repair or replace" },
     { href: "/finances", label: "Finances" },
     { href: "/driving", label: "Driving" },

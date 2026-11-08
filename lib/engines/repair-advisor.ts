@@ -55,13 +55,13 @@ export interface RepairDecision {
 }
 
 const repairTable: Record<Exclude<RepairCategory, "unknown">, { label: string; low: number; high: number; words: string[] }> = {
-  wipers: { label: "Wiper repair", low: 25, high: 240, words: ["wiper", "washer fluid", "wiper blade"] },
-  brakes: { label: "Brake repair", low: 420, high: 980, words: ["brake", "brakes", "rotor", "pads", "squeal"] },
-  battery: { label: "Battery or charging", low: 190, high: 620, words: ["battery", "alternator", "charge", "starting", "start"] },
-  tires: { label: "Tires", low: 620, high: 1180, words: ["tire", "tires", "flat", "tread"] },
-  ac: { label: "A/C repair", low: 760, high: 1900, words: ["a/c", "ac ", "air conditioning", "compressor", "cold air"] },
-  engine: { label: "Engine repair", low: 1450, high: 4600, words: ["engine", "overheat", "oil leak", "knock", "misfire"] },
-  transmission: { label: "Transmission repair", low: 2400, high: 5600, words: ["transmission", "gear", "shifting", "shift", "slipping"] },
+  wipers: { label: "Wiper repair", low: 80, high: 120, words: ["wiper", "washer fluid", "wiper blade"] },
+  brakes: { label: "Brake repair", low: 550, high: 800, words: ["brake", "brakes", "rotor", "pads", "squeal"] },
+  battery: { label: "Battery or charging", low: 280, high: 420, words: ["battery", "alternator", "charge", "starting", "start"] },
+  tires: { label: "Tires", low: 750, high: 1050, words: ["tire", "tires", "flat", "tread"] },
+  ac: { label: "A/C repair", low: 1000, high: 1450, words: ["a/c", "ac ", "air conditioning", "compressor", "cold air"] },
+  engine: { label: "Engine repair", low: 2400, high: 3500, words: ["engine", "overheat", "oil leak", "knock", "misfire"] },
+  transmission: { label: "Transmission repair", low: 3200, high: 4600, words: ["transmission", "gear", "shifting", "shift", "slipping"] },
 };
 
 const baseValues: Record<string, number> = {
@@ -96,7 +96,7 @@ export function classifyRepair(issue: string, year: number, manualQuote?: number
   const age = Math.max(0, CURRENT_MODEL_YEAR - year);
   const ageFactor = Math.min(1.38, 1 + Math.max(0, age - 5) * 0.035);
   const low = round((match?.[1].low ?? 250) * ageFactor);
-  const high = round((match?.[1].high ?? 1400) * ageFactor);
+  const high = Math.min(round((match?.[1].high ?? 375) * ageFactor), Math.floor(low * 1.5));
   return {
     category: match?.[0] ?? "unknown",
     label: match?.[1].label ?? "Inspection needed",

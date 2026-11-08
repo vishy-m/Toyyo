@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { AlertTriangle, Building2, Check, ChevronLeft, ChevronRight, ExternalLink, FileUp, Landmark, LoaderCircle, MapPin, PiggyBank, RotateCcw, Search, ShieldCheck, Wrench } from "lucide-react";
+import { AlertTriangle, Building2, Check, ChevronLeft, ChevronRight, ExternalLink, FileUp, Landmark, LoaderCircle, MapPin, RotateCcw, Search, ShieldCheck, Wrench } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -9,6 +9,7 @@ import { Panel } from "@/components/ui/Panel";
 import { analyzeRepairDecision, classifyRepair, type DecisionPath, type RepairAdvisorInput } from "@/lib/engines/repair-advisor";
 import type { RepairGuidance, RepairResearchItem } from "@/lib/engines/repair-research";
 import type { DashboardData } from "@/lib/types";
+import { WhatIfSimulator } from "./WhatIfSimulator";
 
 type Step = 0 | 1 | 2 | 3;
 type FormState = RepairAdvisorInput & { city: string; shopName: string; quoteFile: string };
@@ -226,18 +227,38 @@ function FinanceStep({ form, update, connected, setConnected }: { form: FormStat
   );
 }
 
-function DealerSheet({ open, onClose, form, path }: { open: boolean; onClose: () => void; form: FormState; path: DecisionPath }) {
-  const [channel, setChannel] = useState("Email");
+type SpecialistChannel = "Email" | "Text" | "Phone";
+
+function specialistRequest(channel: SpecialistChannel, name: string, form: FormState, path: DecisionPath) {
+  const estimate = classifyRepair(form.issue, form.vehicle.year, form.manualQuote);
+  const vehicle = `${form.vehicle.year} Toyota ${form.vehicle.model}`;
+  const decision = path === "keep" ? "repairing and keeping it" : path === "trade" ? "trading it in and replacing it" : "refinancing it";
+  const estimateText = estimate.low === estimate.high ? money(estimate.estimate) : `${money(estimate.low)}–${money(estimate.high)}`;
+  const shop = form.shopName ? ` I${channel === "Phone" ? "'m" : " am"} considering ${form.shopName}.` : "";
+
+  if (channel === "Text") {
+    return `Hi, this is ${name}. I need help with my ${vehicle} (${form.vehicle.mileage.toLocaleString()} miles). It has ${form.issue.trim()}, and the estimated repair is ${estimateText}. I’m leaning toward ${decision}.${shop} Could you text me the best next step and available times?`;
+  }
+
+  if (channel === "Phone") {
+    return `Call brief for ${name}\n\nVehicle: ${vehicle}, ${form.vehicle.mileage.toLocaleString()} miles\nConcern: ${form.issue.trim()}\nEstimated repair: ${estimateText}${form.manualQuote ? " from a shop quote" : ""}\nRecommended path: ${decision}\nBudget context: ${money(form.monthlySurplus)} monthly room; ${money(form.savings)} available savings\nPreferred shop: ${form.shopName || "No shop selected"}\n\nPlease review the repair-versus-replacement tradeoff, confirm the assumptions, and agree on the next appointment or follow-up.`;
+  }
+
+  return `Subject: Help deciding what to do with my ${vehicle}\n\nHello,\n\nI’m ${name}, and I’d like personalized help deciding whether to move forward with ${decision} for my ${vehicle} with ${form.vehicle.mileage.toLocaleString()} miles.\n\nThe issue is: ${form.issue.trim()}\nThe current repair estimate is ${estimateText}.${shop}\n\nMy plan allows about ${money(form.monthlySurplus)} per month after bills, with ${money(form.savings)} in available savings. Please review these details, confirm the assumptions, and recommend the most practical next step, including appointment availability and a written estimate.\n\nThank you,\n${name}`;
+}
+
+function DealerSheet({ open, onClose, form, path, customerName }: { open: boolean; onClose: () => void; form: FormState; path: DecisionPath; customerName: string }) {
+  const [channel, setChannel] = useState<SpecialistChannel>("Email");
   if (!open) return null;
+  const request = specialistRequest(channel, customerName, form, path);
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section role="dialog" aria-modal="true" aria-labelledby="dealer-title" className="glass-strong w-full max-w-lg rounded-xl p-6">
         <p className="text-[13px] font-medium text-ink-3">Prepared request</p>
         <h2 id="dealer-title" className="font-display mt-1 text-2xl text-ink">Contact a Toyota specialist</h2>
-        <div className="mt-5 flex gap-2">{["Email", "Text", "Phone"].map((item) => <button key={item} onClick={() => setChannel(item)} className={clsx("h-9 rounded-lg border px-3 text-sm", channel === item ? "border-ink bg-ink text-bg" : "border-line-2 text-ink-2")}>{item}</button>)}</div>
-        <div className="mt-4 rounded-lg border border-line bg-[var(--glass-hi)] p-4 text-sm leading-relaxed text-ink-2">
-          I’d like help with my {form.vehicle.year} Toyota {form.vehicle.model}. I’m comparing {path === "keep" ? "a repair appointment" : path === "trade" ? "a trade-in and replacement" : "refinancing options"}. Please provide the next available appointment and a written estimate.
-        </div>
+        <div className="mt-5 flex gap-2" role="radiogroup" aria-label="Communication method">{(["Email", "Text", "Phone"] as SpecialistChannel[]).map((item) => <button type="button" role="radio" aria-checked={channel === item} key={item} onClick={() => setChannel(item)} className={clsx("h-9 rounded-lg border px-3 text-sm", channel === item ? "border-ink bg-ink text-bg" : "border-line-2 text-ink-2")}>{item}</button>)}</div>
+        <p className="mt-4 text-xs font-medium text-ink-3">{channel === "Phone" ? "Personalized call brief" : `Personalized ${channel.toLowerCase()} preview`}</p>
+        <div className="mt-2 whitespace-pre-line rounded-lg border border-line bg-[var(--glass-hi)] p-4 text-sm leading-relaxed text-ink-2">{request}</div>
         <p className="mt-3 text-xs text-ink-3">Preview only. No message or call will be sent.</p>
         <div className="mt-6 flex justify-end"><Button variant="solid" onClick={onClose}>Done</Button></div>
       </section>
@@ -245,9 +266,8 @@ function DealerSheet({ open, onClose, form, path }: { open: boolean; onClose: ()
   );
 }
 
-function PlanStep({ form }: { form: FormState }) {
+function PlanStep({ form, customerName }: { form: FormState; customerName: string }) {
   const result = useMemo(() => analyzeRepairDecision(form), [form]);
-  const [fund, setFund] = useState<{ monthly: number; target: number } | null>(null);
   const [dealerOpen, setDealerOpen] = useState(false);
   const recommended = result.options.find((option) => option.path === result.recommendation)!;
   return (
@@ -279,14 +299,10 @@ function PlanStep({ form }: { form: FormState }) {
       {result.replacements.length > 0 && (
         <div><h3 className="text-sm font-semibold text-ink">Affordable replacements</h3><div className="mt-3 grid gap-2 sm:grid-cols-3">{result.replacements.map((car) => <div key={car.name} className="rounded-lg border border-line p-4"><Building2 size={16} className="text-ink-3" /><div className="mt-3 text-sm font-medium text-ink">{car.name}</div><div className="num mt-1 text-lg font-semibold text-ink">{money(car.monthly)}/mo</div><div className="mt-1 text-xs text-ink-3">{car.fit}, {money(car.price)}</div></div>)}</div></div>
       )}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Panel variant="card" title="Save for the next car" className="!p-4 sm:!p-5">
-          {fund ? <div><div className="flex items-center gap-2 text-good"><Check size={16} /><span className="text-sm font-semibold">Car Fund ready</span></div><p className="mt-2 text-sm text-ink-2">{money(fund.monthly)}/month toward {money(fund.target)}.</p></div> : <div><p className="text-sm text-ink-2">Set aside part of your monthly room.</p><Button className="mt-4" onClick={() => setFund({ monthly: Math.max(50, Math.round(form.monthlySurplus * 0.2)), target: 5000 })}><PiggyBank size={15} />Create Car Fund</Button></div>}
-        </Panel>
-        <Panel variant="card" title="Talk to a specialist" className="!p-4 sm:!p-5"><p className="text-sm text-ink-2">Preview a concise request before contacting anyone.</p><Button className="mt-4" onClick={() => setDealerOpen(true)}><Building2 size={15} />Prepare request</Button></Panel>
-      </div>
+      <WhatIfSimulator baseInput={form} />
+      <Panel variant="card" title="Talk to a specialist" className="!p-4 sm:!p-5"><p className="text-sm text-ink-2">Prepare a personalized email, text, or phone brief using the details in your plan.</p><Button className="mt-4" onClick={() => setDealerOpen(true)}><Building2 size={15} />Prepare request</Button></Panel>
       <p className="text-xs leading-relaxed text-ink-3">Illustrative estimates only. Confirm repair pricing, vehicle value, rates, and approval with qualified providers.</p>
-      <DealerSheet open={dealerOpen} onClose={() => setDealerOpen(false)} form={form} path={result.recommendation} />
+      <DealerSheet open={dealerOpen} onClose={() => setDealerOpen(false)} form={form} path={result.recommendation} customerName={customerName} />
     </div>
   );
 }
@@ -326,7 +342,7 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
           {step === 0 && <VehicleProblem form={form} update={(patch) => { update(patch.issue !== undefined || patch.vehicle !== undefined ? { ...patch, researchSeverity: undefined, researchVerdict: undefined } : patch); if (patch.issue !== undefined || patch.vehicle !== undefined) setResearch(null); }} research={research} researching={researching} researchError={researchError} onResearch={runResearch} />}
           {step === 1 && <EstimateStep form={form} update={update} />}
           {step === 2 && <FinanceStep form={form} update={update} connected={connected} setConnected={setConnected} />}
-          {step === 3 && <PlanStep form={form} />}
+          {step === 3 && <PlanStep form={form} customerName={data?.persona.name ?? "Customer"} />}
         </div>
         <div className="mt-8 flex items-center justify-between border-t border-line pt-5">
           <Button variant="ghost" disabled={step === 0} onClick={() => setStep((step - 1) as Step)}><ChevronLeft size={16} />Back</Button>
