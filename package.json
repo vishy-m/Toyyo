@@ -17,6 +17,7 @@
     "@deck.gl/mapbox": "^9.4.0",
     "@deck.gl/mesh-layers": "^9.4.0",
     "@google/genai": "^2.31.0",
+    "@langchain/langgraph": "^1.7.2",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
     "@turf/turf": "^7.4.0",

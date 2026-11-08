@@ -1,12 +1,12 @@
 "use client";
 
 import clsx from "clsx";
-import { AlertTriangle, Building2, Check, ChevronLeft, ChevronRight, ExternalLink, FileUp, Landmark, LoaderCircle, MapPin, RotateCcw, Search, ShieldCheck, Wrench } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { AlertTriangle, Building2, Check, ChevronLeft, ChevronRight, ExternalLink, FileUp, Landmark, LoaderCircle, MapPin, RotateCcw, Search, Wrench } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
-import { Panel } from "@/components/ui/Panel";
-import { analyzeRepairDecision, classifyRepair, type DecisionPath, type RepairAdvisorInput } from "@/lib/engines/repair-advisor";
+import { analyzeRepairDecision, classifyRepair, type RepairAdvisorInput } from "@/lib/engines/repair-advisor";
+import type { PlanningResult } from "@/lib/agent/planning-workflow";
 import type { RepairGuidance, RepairResearchItem } from "@/lib/engines/repair-research";
 import type { DashboardData } from "@/lib/types";
 import { ActionAgent } from "./ActionAgent";
@@ -75,12 +75,12 @@ function Progress({ step }: { step: Step }) {
   );
 }
 
-function StepHeader({ eyebrow, title, hint }: { eyebrow: string; title: string; hint: string }) {
+function StepHeader({ eyebrow, title, hint }: { eyebrow: string; title: string; hint?: string }) {
   return (
     <div>
       <p className="text-[13px] font-medium text-ink-3">{eyebrow}</p>
       <h2 className="font-display mt-1 text-2xl text-ink sm:text-[28px]">{title}</h2>
-      <p className="mt-2 text-sm text-ink-2">{hint}</p>
+      {hint && <p className="mt-2 text-sm text-ink-2">{hint}</p>}
     </div>
   );
 }
@@ -91,7 +91,7 @@ function VehicleProblem({ form, update, research, researching, researchError, on
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div className="space-y-6">
-      <StepHeader eyebrow="Step 1 of 5" title="What’s going on?" hint="Start with the symptom. You can adjust the vehicle details below." />
+      <StepHeader eyebrow="Step 1 of 5" title="What’s going on?" />
       <label className={label}>
         Describe the problem
         <textarea
@@ -117,10 +117,6 @@ function VehicleProblem({ form, update, research, researching, researchError, on
           <input type="number" min="0" max="500000" value={form.vehicle.mileage} onChange={(event) => update({ vehicle: { ...form.vehicle, mileage: Number(event.target.value) } })} className={field} />
         </label>
       </div>
-      <div className="rounded-lg border border-line bg-[var(--glass-hi)] p-4 text-sm text-ink-2">
-        <div className="flex items-center gap-2 font-medium text-ink"><ShieldCheck size={16} /> Your details stay in this browser</div>
-        <p className="mt-1.5">We use them only to build this estimate.</p>
-      </div>
       <Button variant="primary" disabled={form.issue.trim().length < 5 || researching} onClick={onResearch}>
         {researching ? <><LoaderCircle size={15} className="animate-spin" />Researching…</> : <><Search size={15} />Research this problem</>}
       </Button>
@@ -128,7 +124,7 @@ function VehicleProblem({ form, update, research, researching, researchError, on
       </div>
       <aside className="rounded-lg border border-line bg-[var(--glass-hi)] p-4" aria-live="polite">
         <h3 className="text-sm font-semibold text-ink">Repair research</h3>
-        {!research && !researching && <p className="mt-2 text-sm leading-relaxed text-ink-3">Describe the symptom, then research it to see reputable guides, related Reddit experiences, and a severity-based next step.</p>}
+        {!research && !researching && <p className="mt-2 text-sm text-ink-3">Research the symptom for severity and sources.</p>}
         {researching && <div className="mt-4 space-y-3"><div className="skeleton h-16" /><div className="skeleton h-12" /><div className="skeleton h-12" /></div>}
         {research && <div className="mt-3 space-y-4">
           <div className={clsx("rounded-lg border p-3", research.guidance.severity === "high" ? "border-accent bg-accent-soft" : research.guidance.severity === "medium" ? "border-warn bg-warn-soft" : "border-good bg-good-soft")}>
@@ -136,8 +132,8 @@ function VehicleProblem({ form, update, research, researching, researchError, on
             <p className="mt-2 text-sm font-medium text-ink">{research.guidance.verdict}</p>
             <p className="mt-1 text-xs leading-relaxed text-ink-2">{research.guidance.simpleSolution}</p>
           </div>
-          {research.links.length ? <ul className="space-y-2">{research.links.map((item) => <li key={item.url}><a href={item.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-line p-3 hover:border-line-2"><span className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-wide text-ink-3">{item.kind === "community" ? "Community" : "Trusted source"}<ExternalLink size={12} /></span><span className="mt-1 block text-sm font-medium leading-snug text-ink">{item.title}</span><span className="mt-1 block text-xs text-ink-3">{item.source}</span></a></li>)}</ul> : <p className="text-xs text-ink-3">No live links were available. The severity guidance still applies; try again before relying on community advice.</p>}
-          <p className="text-[11px] leading-relaxed text-ink-3">Reddit posts are personal experiences, not verified repair advice. Confirm safety and diagnosis with manufacturer guidance or a qualified technician.</p>
+          {research.links.length ? <ul className="space-y-2">{research.links.map((item) => <li key={item.url}><a href={item.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-line p-3 hover:border-line-2"><span className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-wide text-ink-3">{item.kind === "community" ? "Community" : "Trusted source"}<ExternalLink size={12} /></span><span className="mt-1 block text-sm font-medium leading-snug text-ink">{item.title}</span><span className="mt-1 block text-xs text-ink-3">{item.source}</span></a></li>)}</ul> : <p className="text-xs text-ink-3">No sources available.</p>}
+          <p className="text-[11px] text-ink-3">Confirm safety and diagnosis with a qualified technician.</p>
         </div>}
       </aside>
     </div>
@@ -150,7 +146,7 @@ function EstimateStep({ form, update }: { form: FormState; update: (patch: Parti
   const shops = shopsByCity[form.city] ?? shopsByCity.Austin;
   return (
     <div className="space-y-6">
-      <StepHeader eyebrow="Step 2 of 5" title={estimate.needsInspection ? "Start with an inspection" : "Your repair estimate"} hint="Use our range or enter a written shop quote." />
+      <StepHeader eyebrow="Step 2 of 5" title={estimate.needsInspection ? "Start with an inspection" : "Repair estimate"} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-line bg-[var(--glass-hi)] p-5">
           <div className="flex items-center gap-2 text-sm text-ink-2"><Wrench size={16} /> {estimate.label}</div>
@@ -162,7 +158,6 @@ function EstimateStep({ form, update }: { form: FormState; update: (patch: Parti
         <div className="rounded-lg border border-line bg-[var(--glass-hi)] p-5">
           <div className="text-sm text-ink-2">Estimated private-sale value</div>
           <div className="num mt-3 text-3xl font-semibold text-ink">{money(analyzeRepairDecision(form).privateSaleValue)}</div>
-          <p className="mt-2 text-xs text-ink-3">Model, age, and mileage adjusted</p>
         </div>
       </div>
 
@@ -187,7 +182,7 @@ function EstimateStep({ form, update }: { form: FormState; update: (patch: Parti
 
       <div>
         <div className="flex items-end justify-between gap-3">
-          <div><h3 className="text-sm font-semibold text-ink">Nearby places to start</h3><p className="mt-1 text-xs text-ink-3">Demo listings. Confirm pricing and availability with the shop.</p></div>
+          <div><h3 className="text-sm font-semibold text-ink">Nearby shops</h3><p className="mt-1 text-xs text-ink-3">Demo listings—confirm details.</p></div>
           <select value={form.city} onChange={(event) => update({ city: event.target.value })} className="h-9 rounded-lg border border-line-2 bg-[var(--glass-hi)] px-3 text-sm text-ink">
             <option>Austin</option><option>Houston</option><option>Dallas</option>
           </select>
@@ -209,7 +204,7 @@ function EstimateStep({ form, update }: { form: FormState; update: (patch: Parti
 function FinanceStep({ form, update, connected, setConnected }: { form: FormState; update: (patch: Partial<FormState>) => void; connected: boolean; setConnected: (value: boolean) => void }) {
   return (
     <div className="space-y-6">
-      <StepHeader eyebrow="Step 3 of 5" title="What fits your budget?" hint="Rough numbers are enough. Nothing is sent to a lender." />
+      <StepHeader eyebrow="Step 3 of 5" title="Your budget" />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className={label}>Loan balance<input type="number" min="0" value={form.loanBalance} onChange={(event) => update({ loanBalance: Number(event.target.value) })} className={field} /></label>
         <label className={label}>Current payment<input type="number" min="0" value={form.currentPayment} onChange={(event) => update({ currentPayment: Number(event.target.value) })} className={field} /></label>
@@ -220,7 +215,7 @@ function FinanceStep({ form, update, connected, setConnected }: { form: FormStat
       </div>
       <div className="flex flex-col gap-3 rounded-lg border border-line bg-[var(--glass-hi)] p-4 sm:flex-row sm:items-center">
         <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-ink text-bg"><Landmark size={18} /></span>
-        <div className="min-w-0 flex-1"><div className="text-sm font-medium text-ink">{connected ? "Cash-flow summary connected" : "Use the selected profile’s cash flow"}</div><p className="mt-0.5 text-xs text-ink-3">Read-only demo data. You can edit every number above.</p></div>
+        <div className="min-w-0 flex-1 text-sm font-medium text-ink">{connected ? "Profile connected" : "Use profile data"}</div>
         <Button variant={connected ? "solid" : "outline"} onClick={() => setConnected(!connected)}>{connected ? <><Check size={15} />Connected</> : "Connect"}</Button>
       </div>
       <label className={label}>How long would you keep this car?<select value={form.keepYears} onChange={(event) => update({ keepYears: Number(event.target.value) })} className={field}><option value="2">2 years</option><option value="3">3 years</option><option value="5">5 years</option></select></label>
@@ -228,68 +223,46 @@ function FinanceStep({ form, update, connected, setConnected }: { form: FormStat
   );
 }
 
-type SpecialistChannel = "Email" | "Text" | "Phone";
-
-function specialistRequest(channel: SpecialistChannel, name: string, form: FormState, path: DecisionPath) {
-  const estimate = classifyRepair(form.issue, form.vehicle.year, form.manualQuote);
-  const vehicle = `${form.vehicle.year} Toyota ${form.vehicle.model}`;
-  const decision = path === "keep" ? "repairing and keeping it" : path === "trade" ? "trading it in and replacing it" : "refinancing it";
-  const estimateText = estimate.low === estimate.high ? money(estimate.estimate) : `${money(estimate.low)}–${money(estimate.high)}`;
-  const shop = form.shopName ? ` I${channel === "Phone" ? "'m" : " am"} considering ${form.shopName}.` : "";
-
-  if (channel === "Text") {
-    return `Hi, this is ${name}. I need help with my ${vehicle} (${form.vehicle.mileage.toLocaleString()} miles). It has ${form.issue.trim()}, and the estimated repair is ${estimateText}. I’m leaning toward ${decision}.${shop} Could you text me the best next step and available times?`;
-  }
-
-  if (channel === "Phone") {
-    return `Call brief for ${name}\n\nVehicle: ${vehicle}, ${form.vehicle.mileage.toLocaleString()} miles\nConcern: ${form.issue.trim()}\nEstimated repair: ${estimateText}${form.manualQuote ? " from a shop quote" : ""}\nRecommended path: ${decision}\nBudget context: ${money(form.monthlySurplus)} monthly room; ${money(form.savings)} available savings\nPreferred shop: ${form.shopName || "No shop selected"}\n\nPlease review the repair-versus-replacement tradeoff, confirm the assumptions, and agree on the next appointment or follow-up.`;
-  }
-
-  return `Subject: Help deciding what to do with my ${vehicle}\n\nHello,\n\nI’m ${name}, and I’d like personalized help deciding whether to move forward with ${decision} for my ${vehicle} with ${form.vehicle.mileage.toLocaleString()} miles.\n\nThe issue is: ${form.issue.trim()}\nThe current repair estimate is ${estimateText}.${shop}\n\nMy plan allows about ${money(form.monthlySurplus)} per month after bills, with ${money(form.savings)} in available savings. Please review these details, confirm the assumptions, and recommend the most practical next step, including appointment availability and a written estimate.\n\nThank you,\n${name}`;
-}
-
-function DealerSheet({ open, onClose, form, path, customerName }: { open: boolean; onClose: () => void; form: FormState; path: DecisionPath; customerName: string }) {
-  const [channel, setChannel] = useState<SpecialistChannel>("Email");
-  if (!open) return null;
-  const request = specialistRequest(channel, customerName, form, path);
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section role="dialog" aria-modal="true" aria-labelledby="dealer-title" className="glass-strong w-full max-w-lg rounded-xl p-6">
-        <p className="text-[13px] font-medium text-ink-3">Prepared request</p>
-        <h2 id="dealer-title" className="font-display mt-1 text-2xl text-ink">Contact a Toyota specialist</h2>
-        <div className="mt-5 flex gap-2" role="radiogroup" aria-label="Communication method">{(["Email", "Text", "Phone"] as SpecialistChannel[]).map((item) => <button type="button" role="radio" aria-checked={channel === item} key={item} onClick={() => setChannel(item)} className={clsx("h-9 rounded-lg border px-3 text-sm", channel === item ? "border-ink bg-ink text-bg" : "border-line-2 text-ink-2")}>{item}</button>)}</div>
-        <p className="mt-4 text-xs font-medium text-ink-3">{channel === "Phone" ? "Personalized call brief" : `Personalized ${channel.toLowerCase()} preview`}</p>
-        <div className="mt-2 whitespace-pre-line rounded-lg border border-line bg-[var(--glass-hi)] p-4 text-sm leading-relaxed text-ink-2">{request}</div>
-        <p className="mt-3 text-xs text-ink-3">Preview only. No message or call will be sent.</p>
-        <div className="mt-6 flex justify-end"><Button variant="solid" onClick={onClose}>Done</Button></div>
-      </section>
-    </div>
-  );
-}
-
-function PlanStep({ form, customerName }: { form: FormState; customerName: string }) {
-  const result = useMemo(() => analyzeRepairDecision(form), [form]);
-  const [dealerOpen, setDealerOpen] = useState(false);
-  const recommended = result.options.find((option) => option.path === result.recommendation)!;
+function PlanStep({ form }: { form: FormState }) {
+  const localResult = useMemo(() => analyzeRepairDecision(form), [form]);
+  const [planned, setPlanned] = useState<PlanningResult | null>(null);
+  const [planning, setPlanning] = useState(true);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/repair-plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form), signal: controller.signal })
+      .then(async response => response.ok ? response.json() as Promise<PlanningResult> : Promise.reject(new Error("Planning failed")))
+      .then(setPlanned)
+      .catch(error => { if (error.name !== "AbortError") setPlanned(null); })
+      .finally(() => { if (!controller.signal.aborted) setPlanning(false); });
+    return () => controller.abort();
+  }, [form]);
+  const result = planned?.decision ?? localResult;
+  const recommendation = planned?.recommendation ?? result.recommendation;
+  const recommended = result.options.find((option) => option.path === recommendation)!;
   return (
     <div className="space-y-6">
-      <StepHeader eyebrow="Step 4 of 5 · Your plan" title={recommended.title} hint={recommended.summary} />
+      <StepHeader eyebrow="Step 4 of 5" title={recommended.title} />
+      <div className="rounded-lg border border-line bg-[var(--glass-hi)] p-4">
+        <div className="flex items-center justify-between gap-3"><div className="text-sm font-semibold text-ink">Plan review</div>{planning && <Chip>Evaluating…</Chip>}</div>
+        <p className="mt-2 text-sm text-ink-2">{planning ? "Comparing options…" : planned?.rationale ?? "Using the calculated recommendation."}</p>
+        {planned && <p className="mt-2 text-xs text-ink-3"><span className="font-medium text-ink-2">Main tradeoff:</span> {planned.downside} · {Math.round(planned.confidence * 100)}% confidence</p>}
+        {planned && planned.concerns.length > 0 && <p className="mt-2 text-xs text-warn">Review note: {planned.concerns.join(" ")}</p>}
+      </div>
       <div className="grid gap-3 sm:grid-cols-[0.8fr_1.2fr]">
         <div className="rounded-lg border border-accent bg-accent-soft p-5">
           <div className="text-sm font-medium text-accent-ink">Repair-to-trade signal</div>
           <div className="num mt-3 text-5xl font-semibold text-ink">{result.score}<span className="text-lg text-ink-3">/100</span></div>
-          <p className="mt-2 text-xs text-ink-2">Higher means replacing deserves a closer look.</p>
         </div>
         <ul className="rounded-lg border border-line p-5">
-          {result.reasons.map((reason) => <li key={reason} className="flex gap-2.5 py-1.5 text-sm text-ink-2"><Check size={15} className="mt-0.5 shrink-0 text-good" />{reason}</li>)}
+          {result.reasons.slice(1, 4).map((reason) => <li key={reason} className="flex gap-2.5 py-1.5 text-sm text-ink-2"><Check size={15} className="mt-0.5 shrink-0 text-good" />{reason}</li>)}
         </ul>
       </div>
       <div>
         <h3 className="text-sm font-semibold text-ink">Compare all paths</h3>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {result.options.map((option) => (
-            <article key={option.path} className={clsx("rounded-lg border p-4", option.path === result.recommendation ? "border-accent bg-accent-soft" : "border-line", !option.eligible && "opacity-60")}>
-              <div className="flex items-center justify-between gap-2"><h4 className="text-sm font-semibold text-ink">{option.title}</h4>{option.path === result.recommendation && <Chip tone="accent">Best fit</Chip>}</div>
+            <article key={option.path} className={clsx("rounded-lg border p-4", option.path === recommendation ? "border-accent bg-accent-soft" : "border-line", !option.eligible && "opacity-60")}>
+              <div className="flex items-center justify-between gap-2"><h4 className="text-sm font-semibold text-ink">{option.title}</h4>{option.path === recommendation && <Chip tone="accent">Best fit</Chip>}</div>
               <div className="num mt-4 text-3xl font-semibold text-ink">{money(option.monthly)}<span className="text-xs text-ink-3">/mo</span></div>
               <div className="mt-1 text-xs text-ink-3">{money(option.upfront)} estimated upfront</div>
               <p className="mt-2 text-xs leading-relaxed text-ink-2">{option.summary}</p>
@@ -301,9 +274,6 @@ function PlanStep({ form, customerName }: { form: FormState; customerName: strin
         <div><h3 className="text-sm font-semibold text-ink">Affordable replacements</h3><div className="mt-3 grid gap-2 sm:grid-cols-3">{result.replacements.map((car) => <div key={car.name} className="rounded-lg border border-line p-4"><Building2 size={16} className="text-ink-3" /><div className="mt-3 text-sm font-medium text-ink">{car.name}</div><div className="num mt-1 text-lg font-semibold text-ink">{money(car.monthly)}/mo</div><div className="mt-1 text-xs text-ink-3">{car.fit}, {money(car.price)}</div></div>)}</div></div>
       )}
       <WhatIfSimulator baseInput={form} />
-      <Panel variant="card" title="Talk to a specialist" className="!p-4 sm:!p-5"><p className="text-sm text-ink-2">Prepare a personalized email, text, or phone brief using the details in your plan.</p><Button className="mt-4" onClick={() => setDealerOpen(true)}><Building2 size={15} />Prepare request</Button></Panel>
-      <p className="text-xs leading-relaxed text-ink-3">Illustrative estimates only. Confirm repair pricing, vehicle value, rates, and approval with qualified providers.</p>
-      <DealerSheet open={dealerOpen} onClose={() => setDealerOpen(false)} form={form} path={result.recommendation} customerName={customerName} />
     </div>
   );
 }
@@ -334,7 +304,7 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
   return (
     <section aria-labelledby="repair-advisor-title" className="w-full">
       <div className="flex items-end justify-between gap-4 pb-8">
-        <div><h1 id="repair-advisor-title" className="font-display text-[clamp(39px,4.4vw,61px)] text-ink">Repair or replace</h1><p className="mt-3 max-w-[60ch] text-[17px] leading-relaxed text-ink-2">Build a repair-or-replace plan, then use the Action Agent to prepare the next step while you stay in control.</p></div>
+        <h1 id="repair-advisor-title" className="font-display text-[clamp(39px,4.4vw,61px)] text-ink">Repair or replace</h1>
         <Button variant="ghost" size="sm" onClick={reset}><RotateCcw size={14} />Start over</Button>
       </div>
       <div className="glass max-w-5xl rounded-xl p-5 sm:p-7">
@@ -343,7 +313,7 @@ export function RepairAdvisor({ data }: { data?: DashboardData }) {
           {step === 0 && <VehicleProblem form={form} update={(patch) => { update(patch.issue !== undefined || patch.vehicle !== undefined ? { ...patch, researchSeverity: undefined, researchVerdict: undefined } : patch); if (patch.issue !== undefined || patch.vehicle !== undefined) setResearch(null); }} research={research} researching={researching} researchError={researchError} onResearch={runResearch} />}
           {step === 1 && <EstimateStep form={form} update={update} />}
           {step === 2 && <FinanceStep form={form} update={update} connected={connected} setConnected={setConnected} />}
-          {step === 3 && <PlanStep form={form} customerName={data?.persona.name ?? "Customer"} />}
+          {step === 3 && <PlanStep form={form} />}
           {step === 4 && <ActionAgent form={form} customerName={data?.persona.name ?? "Customer"} />}
         </div>
         <div className="mt-8 flex items-center justify-between border-t border-line pt-5">
