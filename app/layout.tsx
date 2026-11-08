@@ -7,7 +7,7 @@ import "./globals.css";
 const overpass = Overpass({ variable: "--font-ui", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Next Move Copilot",
+  title: "Toyyo",
   description: "Your Toyota lease or loan, insurance and driving in one place, with the next decision worth making. Concept prototype with synthetic data.",
 };
 
