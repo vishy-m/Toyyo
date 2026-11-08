@@ -7,6 +7,14 @@ describe("repair advisor", () => {
     expect(classifyRepair("Something feels odd", 2018, 725)).toMatchObject({ estimate: 725, source: "shop quote", needsInspection: false });
   });
 
+  it("keeps estimated repair ranges focused", () => {
+    const issues = ["wiper blade", "brakes squeal", "battery", "tires", "air conditioning", "engine knock", "transmission slipping", "something feels odd"];
+    for (const issue of issues) {
+      const estimate = classifyRepair(issue, 2018);
+      expect(estimate.high / estimate.low).toBeLessThanOrEqual(1.5);
+    }
+  });
+
   it("reduces value with age and mileage", () => {
     expect(vehicleValue(2024, "Camry", 20_000).privateSale).toBeGreaterThan(vehicleValue(2014, "Camry", 150_000).privateSale);
   });
